@@ -1,0 +1,15 @@
+Number=1
+Whitespace=2
+Comment=3
+Add=4
+Subtract=5
+Multiply=6
+Divide=7
+OpenParen=8
+CloseParen=9
+'+'=4
+'-'=5
+'*'=6
+'/'=7
+'('=8
+')'=9
