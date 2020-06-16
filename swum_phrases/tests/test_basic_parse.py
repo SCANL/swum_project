@@ -1,6 +1,6 @@
 
 import sys
-sys.path.append('/home/brian/reu/')    # allow import of modules outside of test directory
+sys.path.append('/home/brian/reu/swum_project/swum_phrases')    # allow import of modules outside of test directory
 from antlr4 import *
 from SwumLexer import SwumLexer
 from SwumParser import SwumParser
