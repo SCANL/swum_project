@@ -17,10 +17,10 @@ def main(argv):
     # walker.walk(printer, tree)
     # print(printer.str_output)
 
-    visitor = PrintVisitor(stream)
+    visitor = PrintVisitor()
     visitor.visit(tree)
     print(visitor.str_output)
-    print('String representation of internal data structure:')
+    print('String representation of internal data structure (WIP):')
     print(visitor.ds)
 
 

@@ -11,7 +11,7 @@ else:
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\22")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\r")
         buf.write("H\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b")
         buf.write("\t\b\4\t\t\t\3\2\3\2\3\2\3\2\3\2\5\2\30\n\2\3\3\7\3\33")
         buf.write("\n\3\f\3\16\3\36\13\3\3\3\3\3\3\4\3\4\3\4\3\5\7\5&\n\5")
@@ -23,19 +23,19 @@ def serializedATN():
         buf.write("C\3\2\2\2\22\30\5\4\3\2\23\30\5\n\6\2\24\30\5\6\4\2\25")
         buf.write("\30\5\b\5\2\26\30\5\f\7\2\27\22\3\2\2\2\27\23\3\2\2\2")
         buf.write("\27\24\3\2\2\2\27\25\3\2\2\2\27\26\3\2\2\2\30\3\3\2\2")
-        buf.write("\2\31\33\7\b\2\2\32\31\3\2\2\2\33\36\3\2\2\2\34\32\3\2")
-        buf.write("\2\2\34\35\3\2\2\2\35\37\3\2\2\2\36\34\3\2\2\2\37 \7\t")
-        buf.write("\2\2 \5\3\2\2\2!\"\7\21\2\2\"#\5\4\3\2#\7\3\2\2\2$&\7")
-        buf.write("\n\2\2%$\3\2\2\2&)\3\2\2\2\'%\3\2\2\2\'(\3\2\2\2(*\3\2")
-        buf.write("\2\2)\'\3\2\2\2*,\7\f\2\2+-\7\13\2\2,+\3\2\2\2,-\3\2\2")
-        buf.write("\2-\t\3\2\2\2.\61\5\b\5\2/\61\5\20\t\2\60.\3\2\2\2\60")
-        buf.write("/\3\2\2\2\61\64\3\2\2\2\62\65\5\4\3\2\63\65\5\16\b\2\64")
-        buf.write("\62\3\2\2\2\64\63\3\2\2\2\65\67\3\2\2\2\668\5\6\4\2\67")
-        buf.write("\66\3\2\2\2\678\3\2\2\28\13\3\2\2\29<\5\16\b\2:<\5\20")
-        buf.write("\t\2;9\3\2\2\2;:\3\2\2\2<\r\3\2\2\2=?\5\4\3\2>=\3\2\2")
-        buf.write("\2?@\3\2\2\2@>\3\2\2\2@A\3\2\2\2A\17\3\2\2\2BD\5\b\5\2")
-        buf.write("CB\3\2\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2F\21\3\2\2\2\f")
-        buf.write("\27\34\',\60\64\67;@E")
+        buf.write("\2\31\33\7\3\2\2\32\31\3\2\2\2\33\36\3\2\2\2\34\32\3\2")
+        buf.write("\2\2\34\35\3\2\2\2\35\37\3\2\2\2\36\34\3\2\2\2\37 \7\4")
+        buf.write("\2\2 \5\3\2\2\2!\"\7\f\2\2\"#\5\4\3\2#\7\3\2\2\2$&\7\5")
+        buf.write("\2\2%$\3\2\2\2&)\3\2\2\2\'%\3\2\2\2\'(\3\2\2\2(*\3\2\2")
+        buf.write("\2)\'\3\2\2\2*,\7\7\2\2+-\7\6\2\2,+\3\2\2\2,-\3\2\2\2")
+        buf.write("-\t\3\2\2\2.\61\5\b\5\2/\61\5\20\t\2\60.\3\2\2\2\60/\3")
+        buf.write("\2\2\2\61\64\3\2\2\2\62\65\5\4\3\2\63\65\5\16\b\2\64\62")
+        buf.write("\3\2\2\2\64\63\3\2\2\2\65\67\3\2\2\2\668\5\6\4\2\67\66")
+        buf.write("\3\2\2\2\678\3\2\2\28\13\3\2\2\29<\5\16\b\2:<\5\20\t\2")
+        buf.write(";9\3\2\2\2;:\3\2\2\2<\r\3\2\2\2=?\5\4\3\2>=\3\2\2\2?@")
+        buf.write("\3\2\2\2@>\3\2\2\2@A\3\2\2\2A\17\3\2\2\2BD\5\b\5\2CB\3")
+        buf.write("\2\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2F\21\3\2\2\2\f\27")
+        buf.write("\34\',\60\64\67;@E")
         return buf.getvalue()
 
 
@@ -49,14 +49,12 @@ class SwumParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "'<POS>'", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "'NM'", "'N'", "'VM'", "'VPR'", "'V'", 
-                     "'CJ'", "'DT'", "'D'", "'PR'", "'P'", "'</POS>'" ]
+    literalNames = [ "<INVALID>", "'NM'", "'N'", "'VM'", "'VPR'", "'V'", 
+                     "'CJ'", "'DT'", "'D'", "'PR'", "'P'" ]
 
-    symbolicNames = [ "<INVALID>", "POS_Tag", "End_Tag", "Bracket", "Metadata", 
-                      "Whitespace", "Noun_Modifier", "Noun", "Verb_Modifier", 
+    symbolicNames = [ "<INVALID>", "Noun_Modifier", "Noun", "Verb_Modifier", 
                       "Verb_Particle", "Verb", "Conjunction", "Determiner", 
-                      "Digit", "Pronoun", "Preposition", "End_POS_Tag" ]
+                      "Digit", "Pronoun", "Preposition", "Whitespace" ]
 
     RULE_phrase = 0
     RULE_noun_phrase = 1
@@ -71,22 +69,17 @@ class SwumParser ( Parser ):
                    "verb_phrase", "equivalence", "equivalence_np", "equivalence_vg" ]
 
     EOF = Token.EOF
-    POS_Tag=1
-    End_Tag=2
-    Bracket=3
-    Metadata=4
-    Whitespace=5
-    Noun_Modifier=6
-    Noun=7
-    Verb_Modifier=8
-    Verb_Particle=9
-    Verb=10
-    Conjunction=11
-    Determiner=12
-    Digit=13
-    Pronoun=14
-    Preposition=15
-    End_POS_Tag=16
+    Noun_Modifier=1
+    Noun=2
+    Verb_Modifier=3
+    Verb_Particle=4
+    Verb=5
+    Conjunction=6
+    Determiner=7
+    Digit=8
+    Pronoun=9
+    Preposition=10
+    Whitespace=11
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)

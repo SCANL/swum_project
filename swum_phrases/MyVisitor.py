@@ -1,90 +1,108 @@
 from antlr4 import *
-if __name__ is not None and "." in __name__:
-    from .SwumParser import SwumParser
-else:
-    from SwumParser import SwumParser
-from SwumVisitor import SwumVisitor
+from SwumParser import SwumParser
+from SwumParserVisitor import SwumParserVisitor
+from SwumLexer import SwumLexer
 
 # This class defines a complete generic visitor for a parse tree produced by SwumParser.
 
-class PrintVisitor(SwumVisitor):
+class PrintVisitor(SwumParserVisitor):
 
-    def __init__(self):
-        self.str_output = ''
+    def __init__(self, tokens):
+        self.tokens = tokens
         self.ds = None
     
     # Visit a parse tree produced by SwumParser#noun_phrase.
     def visitNoun_phrase(self, ctx:SwumParser.Noun_phraseContext):
-        self.printParseSubTree('NP', ctx)
+        pass
 
     # Visit a parse tree produced by SwumParser#prepositional_phrase.
     def visitPrepositional_phrase(self, ctx:SwumParser.Prepositional_phraseContext):
-        self.printParseSubTree('PP', ctx)
-
+        pass
 
     # Visit a parse tree produced by SwumParser#verb_group.
     def visitVerb_group(self, ctx:SwumParser.Verb_groupContext):
-        self.printParseSubTree('VG', ctx)
-
+        pass
 
     # Visit a parse tree produced by SwumParser#verb_phrase.
     def visitVerb_phrase(self, ctx:SwumParser.Verb_phraseContext):
-        self.printParseSubTree('VP', ctx)
-
+        pass
 
     # Visit a parse tree produced by SwumParser#equivalence.
     def visitEquivalence(self, ctx:SwumParser.EquivalenceContext):
-        self.printParseSubTree('EQ', ctx)
-
+        pass
 
     # Visit a parse tree produced by SwumParser#equivalence_np.
     def visitEquivalence_np(self, ctx:SwumParser.Equivalence_npContext):
-        self.printParseSubTree('EQ_np', ctx)
-
+        pass
 
     # Visit a parse tree produced by SwumParser#equivalence_vg.
     def visitEquivalence_vg(self, ctx:SwumParser.Equivalence_vgContext):
-        self.printParseSubTree('EQ_vg', ctx)
-
+        pass
 
     # Visit a parse tree produced by SwumParser#phrase.
     def visitPhrase(self, ctx:SwumParser.PhraseContext):
-        self.ds = CustomTree(ctx, 'Phrase')
-        return self.visitChildren(ctx)
-
-    def printParseSubTree(self, string:str, ctx):
-        self.ds.insert(ctx, ctx.parentCtx, string)
-        self.str_output += '{}('.format(string)
-        for index, child in enumerate(ctx.getChildren()):
-            if index != 0:
-                self.str_output += ' '
-            if child.getChildCount() == 0:    # terminal node
-                self.str_output += child.getText()
-            else:
-                self.visit(child)
-        self.str_output += ')'
-
+        # self.ds = CustomNodeType(ctx, self.tokens, visible=False)   # set root to be invisible (want to output graph, not tree)
+        self.ds = CustomNodeType(ctx.getChild(0), self.tokens)
 
 # custom data structure to use internally after reading in antlr tree
-class CustomTree():
-    def __init__(self, antlr_ctx=None, str_repr=''):
-        self.antlr_ctx = antlr_ctx # useful for finding parent node to insert under
-        self.str_repr = str_repr
-        self.children = []
-        # TODO: add more fields (like POS tag)
+class CustomNodeType():
+    def __init__(self, antlrCtx, tokens, visible=True):
+        self.antlrCtx = antlrCtx
+        self.tokens = tokens
+        self.visible = visible
 
-    def insert(self, ctx, parent_ctx, string):
-        if parent_ctx == self.antlr_ctx:
-            self.children.append(CustomTree(ctx, string))
-        else:
+        self.isTerminal = antlrCtx.getChildCount() == 0
+        self.isRoot = SwumParser.ruleNames[antlrCtx.parentCtx.getRuleIndex()] == 'phrase'
+
+        if self.visible:
+            if self.isTerminal:
+                self.nodeType = SwumLexer.symbolicNames[self.antlrCtx.symbol.type]
+            else:
+                self.nodeType = SwumParser.ruleNames[self.antlrCtx.getRuleIndex()]
+            
+        self.metadata = {}
+        self.children = []
+
+        if not self.isTerminal:
+            self.buildSubtrees()
+        
+        self.buildMetadata()    # do on traversal up the tree to support synthesized attributes (e.g. NP identifier being concatenation of NM and N words)
+
+    def buildSubtrees(self):
+        for childCtx in self.antlrCtx.getChildren():
+            newNode = CustomNodeType(childCtx, self.tokens)
+            self.children.append(newNode)
+
+    def buildMetadata(self):
+        # assumes input is well-formed XML with a "name" field containing the word literal for each POS tag
+        token_index = self.antlrCtx.start.tokenIndex if self.antlrCtx.getChildCount() > 0 else self.antlrCtx.symbol.tokenIndex
+        new_metadata = self.tokens.getHiddenTokensToLeft(token_index, SwumLexer.METADATA)
+        i = 0
+        while i < len(new_metadata) - 1:
+            if self.isRoot or new_metadata[i].text == 'name':
+                self.metadata[new_metadata[i].text] = new_metadata[i+1].text
+            i += 2
+
+        # synthesize identifier names for nonterminal nodes
+        if not self.isTerminal:
+            self.metadata['name'] = ''
             for child in self.children:
-                child.insert(ctx, parent_ctx, string)
+                self.metadata['name'] += child.metadata['name']
 
     def __str__(self):
-        str_repr = self.str_repr
-        for child in self.children:
-            str_repr += ' ' + str(child)
+        str_repr = ''
+        if self.visible:
+            str_repr += '<{}>'.format(self.nodeType)
+            if self.isTerminal:
+                str_repr += self.metadata['name']
+            else:
+                for key, value in self.metadata.items():
+                    str_repr += '<{key}>{val}</{key}>'.format(key=key, val=value)
+            
+        
+        for child in self.children:                
+            str_repr += '{}'.format(str(child))
+
+        if self.visible:
+            str_repr += '</{}>'.format(self.nodeType)
         return str_repr
-
-
-del SwumParser

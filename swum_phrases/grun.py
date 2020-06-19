@@ -12,15 +12,9 @@ def main(argv):
     stream = CommonTokenStream(lexer)
     parser = SwumParser(stream)
     tree = parser.phrase()
-    # printer = MyParseTreePrinter()
-    # walker = ParseTreeWalker()
-    # walker.walk(printer, tree)
-    # print(printer.str_output)
 
-    visitor = PrintVisitor()
+    visitor = PrintVisitor(stream)
     visitor.visit(tree)
-    print(visitor.str_output)
-    print('String representation of internal data structure (WIP):')
     print(visitor.ds)
 
 
