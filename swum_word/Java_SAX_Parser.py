@@ -1,60 +1,50 @@
 # Takes a XML representation of Java and analyzes it based on identifiers
 import xml.sax
-class JavaHandler( xml.sax.ContentHandler ):
-   nameList = []
-   def __init__(self):
-      self.CurrentData = ""
-      self.PreviousData = ""
-      self.name = ""
-      self.parameterList = ""
-      self.argumentList = ""
-      self.type = ""
-   # Call when an element starts
-   def startElement(self, tag, attributes):
-      self.CurrentData = tag
-      if tag == "constructor":
-          print("***Constructor***")
-      if tag == "class":
-         print ("***Class***")
-      if tag == "function":
-         print ("***Function***")
-      if tag == "expr_stmt":
-         print ("***Expression Statement***")
-      if tag == "decl_stmt":
-         print ("***Declaration Statement***")
-      if tag == "enum":
-         print ("***Enum***")
-      if tag == "package":
-         print ("***Package***")
-   # Call when an elements ends
-   def endElement(self, tag):
-      # global nameList
-      if self.CurrentData == "name":
-         # Removing the Java keywords from the output
-         if (self.name != "void" and self.name != "System" and self.name != "out" and self.name != "println" and self.name != "super" and self.name != "boolean" and self.name != "String" and self.name != "char" and self.name != "int" and self.name != "Exception"):
-            # Making sure no repeated names are printed out 
-          #  if(self.name not in nameList):
-               print ("Name:", self.name)
-           #    nameList.append(self.name)
-      if self.CurrentData == "parameter_list":
-         print ("Parameter List:", self.parameterList)
-      if self.CurrentData == "argument_list":
-         print ("Argument List:", self.argumentList)
-      self.CurrentData = ""
-   # Call when a character is read
-   def characters(self, content):
-      if self.CurrentData == "name":
-         self.name = content
-      if self.CurrentData == "parameter_list":
-         self.parameterList = content
-      if self.CurrentData == "argument_list":
-         self.argumentList = content
+class JavaHandler( xml.sax.ContentHandler ):   
+    def __init__(self):
+      self.currentTag = ""
+      self.currentContent = ""
+      self.dictTag = {"decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "argument_list": 0, "argument": 0, "operator": 0} 
+# Call when an element starts
+    def startElement(self, tag, attributes):
+      for x in self.dictTag:
+        if tag == x:
+          self.dictTag[tag]+=1
+# Call when an elements ends
+    def endElement(self, tag):
+      if tag == "name":
+# Eliminates the expression statments so variable names are not as repeated as much
+        if not (self.dictTag["expr"] or self.dictTag["expr_stmt"]):
+# Differentiates between type and name 
+          if not (self.dictTag["type"]):
+            if self.dictTag["class"] and not (self.dictTag["argument_list"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+              print("Class Name: ",self.currentContent)              
+            elif self.dictTag["function"] and not (self.dictTag["expr_stmt"] or self.dictTag["argument"] or self.dictTag["argument_list"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):  
+              print("Function Name: ", self.currentContent)
+            elif self.dictTag["parameter"] or self.dictTag["parameter_list"] and not (self.dictTag["argument"] or self.dictTag["argument_list"] or self.dictTag["class"]):
+              print("Parameter Name: ", self.currentContent)
+            elif self.dictTag["argument"] and not (self.dictTag["class"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]): 
+              print("Arguments: ", self.currentContent)
+            elif self.dictTag["decl_stmt"] or self.dictTag["expr"] and not (self.dictTag["argument"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+              print("Variable Name: ", self.currentContent)
+          else:
+            print("Type: ",self.currentContent)
+        self.dictTag[tag]-=1
+      else:
+        for x in self.dictTag:
+          if tag == x:
+            self.dictTag[tag]-=1
+      self.currentTag = ""
+# Call when a character is read
+    def characters(self, content):
+        self.currentContent = ""
+        self.currentContent += content
 if ( __name__ == "__main__"): 
-   # create an XMLReader
+# Create an XMLReader
    parser = xml.sax.make_parser()
-   # turn off namepsaces
+# Turn off namepsaces
    parser.setFeature(xml.sax.handler.feature_namespaces, 0)
-   # override the default ContextHandler
+# Override the default ContextHandler
    Handler = JavaHandler()
    parser.setContentHandler( Handler )
    parser.parse("Java.xml")
