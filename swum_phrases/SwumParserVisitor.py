@@ -9,8 +9,8 @@ else:
 
 class SwumParserVisitor(ParseTreeVisitor):
 
-    # Visit a parse tree produced by SwumParser#phrase.
-    def visitPhrase(self, ctx:SwumParser.PhraseContext):
+    # Visit a parse tree produced by SwumParser#start.
+    def visitStart(self, ctx:SwumParser.StartContext):
         return self.visitChildren(ctx)
 
 
@@ -31,21 +31,6 @@ class SwumParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by SwumParser#verb_phrase.
     def visitVerb_phrase(self, ctx:SwumParser.Verb_phraseContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by SwumParser#equivalence.
-    def visitEquivalence(self, ctx:SwumParser.EquivalenceContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by SwumParser#equivalence_np.
-    def visitEquivalence_np(self, ctx:SwumParser.Equivalence_npContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by SwumParser#equivalence_vg.
-    def visitEquivalence_vg(self, ctx:SwumParser.Equivalence_vgContext):
         return self.visitChildren(ctx)
 
 

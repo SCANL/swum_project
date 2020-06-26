@@ -8,12 +8,12 @@ else:
 # This class defines a complete listener for a parse tree produced by SwumParser.
 class SwumParserListener(ParseTreeListener):
 
-    # Enter a parse tree produced by SwumParser#phrase.
-    def enterPhrase(self, ctx:SwumParser.PhraseContext):
+    # Enter a parse tree produced by SwumParser#start.
+    def enterStart(self, ctx:SwumParser.StartContext):
         pass
 
-    # Exit a parse tree produced by SwumParser#phrase.
-    def exitPhrase(self, ctx:SwumParser.PhraseContext):
+    # Exit a parse tree produced by SwumParser#start.
+    def exitStart(self, ctx:SwumParser.StartContext):
         pass
 
 
@@ -50,33 +50,6 @@ class SwumParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by SwumParser#verb_phrase.
     def exitVerb_phrase(self, ctx:SwumParser.Verb_phraseContext):
-        pass
-
-
-    # Enter a parse tree produced by SwumParser#equivalence.
-    def enterEquivalence(self, ctx:SwumParser.EquivalenceContext):
-        pass
-
-    # Exit a parse tree produced by SwumParser#equivalence.
-    def exitEquivalence(self, ctx:SwumParser.EquivalenceContext):
-        pass
-
-
-    # Enter a parse tree produced by SwumParser#equivalence_np.
-    def enterEquivalence_np(self, ctx:SwumParser.Equivalence_npContext):
-        pass
-
-    # Exit a parse tree produced by SwumParser#equivalence_np.
-    def exitEquivalence_np(self, ctx:SwumParser.Equivalence_npContext):
-        pass
-
-
-    # Enter a parse tree produced by SwumParser#equivalence_vg.
-    def enterEquivalence_vg(self, ctx:SwumParser.Equivalence_vgContext):
-        pass
-
-    # Exit a parse tree produced by SwumParser#equivalence_vg.
-    def exitEquivalence_vg(self, ctx:SwumParser.Equivalence_vgContext):
         pass
 
 

@@ -4,7 +4,7 @@ sys.path.append('/home/brian/reu/swum_project/swum_phrases')    # allow import o
 from antlr4 import *
 from SwumLexer import SwumLexer
 from SwumParser import SwumParser
-from MyVisitor import PrintVisitor
+from SwumPhrases import SwumVisitor
 
 def parse_xml(string):
     input_stream = InputStream(string)
@@ -13,7 +13,7 @@ def parse_xml(string):
     parser = SwumParser(stream)
     tree = parser.phrase()
 
-    visitor = PrintVisitor(stream)
+    visitor = SwumVisitor(stream)
     visitor.visit(tree)
     return str(visitor.ds)
 
