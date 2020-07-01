@@ -1,0 +1,268 @@
+Identifier Name and Type,Identifier Name,grammar pattern,system,language
+QString activeToolId,active Tool Id,NM NM N,{'calligra.srcml.xml_identifiers'},C++
+int actualSuffix,actual Suffix,NM N,{'junit4.srcml.xml_identifiers'},Java
+boolean adding,adding,V,{'jenkins.srcml.xml_identifiers'},Java
+gsec_aead_crypter aead_crypter_seal,aead crypter seal,NM NM N,{'grpc.srcml.xml_identifiers'},C++
+List all_actionRoots,all action Roots,DT NM NPL,{'antlr4.srcml.xml_identifiers'},Java
+List allInvocationMatchers,all Invocation Matchers,DT NM NPL,{'mockito.srcml.xml_identifiers'},Java
+List allOpenIndices,all Open Indices,DT NM NPL,{'elasticsearch.srcml.xml_identifiers'},Java
+gboolean alwayspreview,always preview,VM V,{'gimp.srcml.xml_identifiers'},C
+QStringList anchorName,anchor Name,NM N,{'calligra.srcml.xml_identifiers'},C++
+qreal angleInRadian,angle In Radian,N P N,{'calligra.srcml.xml_identifiers'},C++
+GtkWidget animation_box,animation box,NM N,{'gimp.srcml.xml_identifiers'},C
+int atnState,atn State,NM N,{'antlr4.srcml.xml_identifiers'},C#
+QXmlStreamAttributes attrs,attrs,NPL,{'calligra.srcml.xml_identifiers'},C++
+uint8x8_t avg1,avg 1,N D,{'opencv.srcml.xml_identifiers'},C
+Map avgMap,avg Map,NM N,{'corenlp.srcml.xml_identifiers'},Java
+String baseCategory,base Category,NM N,{'corenlp.srcml.xml_identifiers'},Java
+btTransform base_transform,base transform,NM N,{'bullet3.srcml.xml_identifiers'},C++
+guchar best_b,best b,NM N,{'gimp.srcml.xml_identifiers'},C
+IndexedWord bestNode,best Node,NM N,{'corenlp.srcml.xml_identifiers'},Java
+XIMStyle bestStyle,best Style,NM N,{'irrlicht.srcml.xml_identifiers'},C++
+MMatrix bindMatrix,bind Matrix,NM N,{'ogre.srcml.xml_identifiers'},C++
+s16 binormaltype,binormal type,NM N,{'irrlicht.srcml.xml_identifiers'},C++
+uint32_t byteCount,byte Count,NM N,{'Telegram.srcml.xml_identifiers'},C
+int8_t byteSrc,byte Src,NM N,{'Telegram.srcml.xml_identifiers'},C++
+Sink cacheBodyUnbuffered,cache Body Unbuffered,NM N NM,{'okhttp.srcml.xml_identifiers'},Java
+IndexShardCacheEntity cacheEntity,cache Entity,NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+float camRotZ,cam Rot Z,NM NM N,{'bullet3.srcml.xml_identifiers'},C++
+vector capTimes,cap Times,NM NPL,{'QuantLib.srcml.xml_identifiers'},C++
+grpc_ssl_certificate_config_reload_status cb_result,cb result,NM N,{'grpc.srcml.xml_identifiers'},C++
+FrameIterator cellCursor,cell Cursor,NM N,{'calligra.srcml.xml_identifiers'},C++
+char Ch,Ch,N,{'grpc.srcml.xml_identifiers'},C++
+QSet checkNext,check Next,V N,{'kdevelop.srcml.xml_identifiers'},C++
+Set childCategories,child Categories,NM NPL,{'junit4.srcml.xml_identifiers'},Java
+auto clangCanTy,clang Can Ty,PRE NM N,{'swift.srcml.xml_identifiers'},C++
+HandshakeCertificates clientCertificates,client Certificates,NM NPL,{'okhttp.srcml.xml_identifiers'},Java
+bool clipDistBug,clip Dist Bug,NM NM N,{'ogre.srcml.xml_identifiers'},C++
+List cmdLines,cmd Lines,NM NPL,{'jenkins.srcml.xml_identifiers'},Java
+shared_ptr cmsPricer,cms Pricer,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+String codeExceptionMessage,code Exception Message,NM NM N,{'okhttp.srcml.xml_identifiers'},Java
+long colLengthLeft,col Length Left,NM NM N,{'bullet3.srcml.xml_identifiers'},C++
+Field compareFieldsByName,compare Fields By Name,V NPL P N,{'mockito.srcml.xml_identifiers'},Java
+bool compilingContexts,compiling Contexts,V NPL,{'kdevelop.srcml.xml_identifiers'},C
+mat4 cone_translation,cone translation,NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+QVector controlPoints,control Points,NM NPL,{'calligra.srcml.xml_identifiers'},C++
+ActionBarMenuItem copyItem,copy Item,NM N,{'Telegram.srcml.xml_identifiers'},Java
+opus_int64 corr_QC,corr QC,NM N,{'Telegram.srcml.xml_identifiers'},C
+shared_ptr coterminalModel,coterminal Model,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+char cp1254,cp 1254,N D,{'calligra.srcml.xml_identifiers'},C++
+Exception currThreadException,curr Thread Exception,NM NM N,{'junit4.srcml.xml_identifiers'},Java
+Mat currentCharucoCorners,current Charuco Corners,NM NM NPL,{'opencv.srcml.xml_identifiers'},C++
+int currentOpenShards,current Open Shards,NM NM NPL,{'elasticsearch.srcml.xml_identifiers'},Java
+vector currentSequence,current Sequence,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+float d_inf,d inf,NM N,{'Telegram.srcml.xml_identifiers'},Java
+BlockedItem DEFAULT_BLOCKED_ITEM_COMPARATOR,DEFAULT BLOCKED ITEM COMPARATOR,NM NM NM N,{'jenkins.srcml.xml_identifiers'},Java
+ColorManagedLook default_look,default look,NM N,{'blender.srcml.xml_identifiers'},C
+ST dependenciesST,dependencies ST,NM N,{'antlr4.srcml.xml_identifiers'},Java
+QString DEPOTMESSAGE_START,DEPOT MESSAGE START,NM NM N,{'kdevelop.srcml.xml_identifiers'},C++
+Real driftterm,drift term,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+float dstSaturation,dst Saturation,NM N,{'calligra.srcml.xml_identifiers'},C
+int dstType1,dst Type 1,NM N D,{'opencv.srcml.xml_identifiers'},C++
+GParamSpec element_spec,element spec,NM N,{'gimp.srcml.xml_identifiers'},C
+boolean endOfInput,end Of Input,N P N,{'antlr4.srcml.xml_identifiers'},Java
+int enumCount,enum Count,NM N,{'junit4.srcml.xml_identifiers'},Java
+EqualsBuilder equalsBuilder,equals Builder,NM N,{'mockito.srcml.xml_identifiers'},Java
+int equalsOffset,equals Offset,NM N,{'okhttp.srcml.xml_identifiers'},Java
+uint errorMarkType,error Mark Type,NM NM N,{'kdevelop.srcml.xml_identifiers'},C++
+Date event0,event 0,N D,{'QuantLib.srcml.xml_identifiers'},C++
+List executors,executors,NPL,{'jenkins.srcml.xml_identifiers'},Java
+int expect_rows,expect rows,NM NPL,{'opencv.srcml.xml_identifiers'},C++
+String expectedString,expected String,NM N,{'junit4.srcml.xml_identifiers'},Java
+ClusteredBitVector extraInhabitantsMask,extra Inhabitants Mask,NM NM N,{'swift.srcml.xml_identifiers'},C++
+List extraInterfaces,extra Interfaces,NM NPL,{'mockito.srcml.xml_identifiers'},Java
+Real fCos,f Cos,NM N,{'ogre.srcml.xml_identifiers'},C++
+bool fcurveFound,f curve Found,NM N V,{'ogre.srcml.xml_identifiers'},C++
+FakeMetaMethod fmm,f m m,NM NM N,{'kdevelop.srcml.xml_identifiers'},C++
+float fPtrOut,f Ptr Out,PRE NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+int face_index,face index,NM N,{'blender.srcml.xml_identifiers'},C
+Class factoryClass,factory Class,NM N,{'junit4.srcml.xml_identifiers'},Java
+bool fastLoadSuccess,fast Load Success,VM V N,{'ogre.srcml.xml_identifiers'},C++
+auto featureIterator,feature Iterator,NM N,{'antlr4.srcml.xml_identifiers'},C++
+unsigned fieldOffsetVector,field Offset Vector,NM NM N,{'swift.srcml.xml_identifiers'},C++
+String filterSpec,filter Spec,NM N,{'junit4.srcml.xml_identifiers'},Java
+boolean finishedNormally,finished Normally,V VM,{'elasticsearch.srcml.xml_identifiers'},Java
+int firstSpace,first Space,NM N,{'okhttp.srcml.xml_identifiers'},Java
+ICameraSceneNode fixedCam,fixed Cam,NM N,{'irrlicht.srcml.xml_identifiers'},C++
+Frequency fixedLegFrequency,fixed Leg Frequency,NM NM N,{'QuantLib.srcml.xml_identifiers'},C++
+Request followUp,followUp,N,{'okhttp.srcml.xml_identifiers'},Java
+bool forked_iter,forked iter,V N,{'blender.srcml.xml_identifiers'},C
+boolean formatOK,format OK,N NM,{'antlr4.srcml.xml_identifiers'},Java
+int freePositions,free Positions,NM NPL,{'corenlp.srcml.xml_identifiers'},Java
+btVector3 fromLocalAabbMin,from Local Aabb Min,P NM NM N,{'bullet3.srcml.xml_identifiers'},C++
+IDocument futureActiveDoc,future Active Doc,NM NM N,{'kdevelop.srcml.xml_identifiers'},C++
+bool generateRuleBypassTransitions,generate Rule Bypass Transitions,V NM NM NPL,{'antlr4.srcml.xml_identifiers'},C#
+String generatedTokenOnCreation,generated Token On Creation,NM N P N,{'jenkins.srcml.xml_identifiers'},Java
+bool haveMask,have Mask,V N,{'opencv.srcml.xml_identifiers'},C++
+Map idMention,id Mention,N NM,{'corenlp.srcml.xml_identifiers'},Java
+GQuark identifier_quark,identifier quark,NM N,{'gimp.srcml.xml_identifiers'},C
+IdpConfiguration idpConfiguration,idp Configuration,NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+int idx_u,idx u,NM N,{'blender.srcml.xml_identifiers'},C
+IplImage imgstub,img stub,NM N,{'opencv.srcml.xml_identifiers'},C++
+FREE_IMAGE_TYPE imgType,img Type,NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+String IMPLICIT_GROUP_KEY,IMPLICIT GROUP KEY,NM NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+Strategy inCache,in Cache,P N,{'Telegram.srcml.xml_identifiers'},Java
+Integer indexesOfSuspiciousArgs,indexes Of Suspicious Args,NPL P NM NPL,{'mockito.srcml.xml_identifiers'},Java
+IntPtr inertialFrame,inertial Frame,NM N,{'bullet3.srcml.xml_identifiers'},C#
+auto instResults,inst Results,NM NPL,{'swift.srcml.xml_identifiers'},C++
+Type interfaceBounds,interface Bounds,NM NPL,{'mockito.srcml.xml_identifiers'},Java
+Real invFlightK2,inv Flight K 2,NM NM N D,{'QuantLib.srcml.xml_identifiers'},C++
+float inv_unit_scale,inv unit scale,NM NM N,{'blender.srcml.xml_identifiers'},C
+Vector3 invertedDirection,inverted Direction,NM N,{'ogre.srcml.xml_identifiers'},C++
+int is_a_empty,is a empty,V DT N,{'grpc.srcml.xml_identifiers'},C
+bool isNodeALeftChildLeaf,is Node A Left Child Leaf,V N DT NM NM N,{'bullet3.srcml.xml_identifiers'},C++
+bool isTrained,is Trained,V V,{'opencv.srcml.xml_identifiers'},C++
+double items_per_second,items per second,NPL P N,{'grpc.srcml.xml_identifiers'},C++
+JarURLConnection jarURLConnection,jar URL Connection,NM NM N,{'jenkins.srcml.xml_identifiers'},Java
+u32 jointStart,joint Start,NM N,{'irrlicht.srcml.xml_identifiers'},C++
+int keyBegin,key Begin,NM N,{'okhttp.srcml.xml_identifiers'},Java
+queue keyEventsCopy,key Events Copy,NM NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+map kinectsCopy,kinects Copy,NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+gchar label_casefold,label casefold,NM N,{'gimp.srcml.xml_identifiers'},C
+bool lastTokenWasDeleteOrDefault,last Token Was Delete Or Default,NM N V N CJ N,{'kdevelop.srcml.xml_identifiers'},C++
+vector _layer_sizes,layer sizes,NM NPL,{'opencv.srcml.xml_identifiers'},C++
+int leftSistersBuffer,left Sisters Buffer,NM NM N,{'corenlp.srcml.xml_identifiers'},Java
+unsigned lhsComponent,lhs Component,NM N,{'swift.srcml.xml_identifiers'},C++
+double line1_grad,line 1 grad,NM D N,{'gimp.srcml.xml_identifiers'},C
+int lineY,line Y,NM N,{'calligra.srcml.xml_identifiers'},C++
+QUrl linkURL,link URL,NM N,{'calligra.srcml.xml_identifiers'},C++
+int loaded_mentions_count,loaded mentions count,NM NM N,{'Telegram.srcml.xml_identifiers'},Java
+String loggerNameParts,logger Name Parts,NM NM NPL,{'jenkins.srcml.xml_identifiers'},Java
+int lower_tail,lower tail,NM N,{'calligra.srcml.xml_identifiers'},C++
+vector mapped_labels,mapped labels,NM NPL,{'opencv.srcml.xml_identifiers'},C++
+long maxAgeSecondsLong,max Age Seconds Long,NM NM NPL NM,{'okhttp.srcml.xml_identifiers'},Java
+shared_ptr max_basket,max basket,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+size_t max_input_size,max input size,NM NM N,{'grpc.srcml.xml_identifiers'},C++
+uint melanin_ofs,melanin ofs,NM N,{'blender.srcml.xml_identifiers'},C
+String mergedType,merged Type,NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+Class methodHandles,method Handles,NM NPL,{'mockito.srcml.xml_identifiers'},Java
+auto method_index,method index,NM N,{'grpc.srcml.xml_identifiers'},C++
+TransducerGraph minimizedRandomFA,minimized Random FA,NM NM N,{'corenlp.srcml.xml_identifiers'},Java
+Set missingClasses,missing Classes,NM NPL,{'elasticsearch.srcml.xml_identifiers'},Java
+Method mockMethod,mock Method,NM N,{'mockito.srcml.xml_identifiers'},Java
+ModificationInterface modIface,mod Iface,NM N,{'kdevelop.srcml.xml_identifiers'},C++
+MediaHandler movieMediaHandler,movie Media Handler,NM NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+ThreadMXBean mxBean,mx Bean,NM N,{'junit4.srcml.xml_identifiers'},Java
+int nrepeats,n repeats,NM NPL,{'opencv.srcml.xml_identifiers'},C++
+int nbr_gaps,nbr gaps,NM NPL,{'blender.srcml.xml_identifiers'},C
+int ndFormula,nd Formula,NM N,{'calligra.srcml.xml_identifiers'},C++
+int nearest_point,nearest point,NM N,{'blender.srcml.xml_identifiers'},C
+bool need_fallback,need fallback,V N,{'blender.srcml.xml_identifiers'},C
+guint neighbor_pos,neighbor pos,NM N,{'gimp.srcml.xml_identifiers'},C
+Object networkSecurityPolicy,network Security Policy,NM NM N,{'okhttp.srcml.xml_identifiers'},Java
+gint new_image_height,new image height,NM NM N,{'gimp.srcml.xml_identifiers'},C
+int new_order,new order,NM N,{'blender.srcml.xml_identifiers'},C
+String newRuleText,new Rule Text,NM NM N,{'antlr4.srcml.xml_identifiers'},Java
+SILType newSilType,new Sil Type,NM NM N,{'swift.srcml.xml_identifiers'},C++
+long newWarningHeaderSize,new Warning Header Size,NM NM NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+QRegularExpression nextFragmentExpression,next Fragment Expression,NM NM N,{'kdevelop.srcml.xml_identifiers'},C++
+byte nextSearch,next Search,NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+CSGNoiseSource noise1,noise 1,N D,{'ogre.srcml.xml_identifiers'},C++
+JsonArrayBuilder nonGreedyStatesBuilder,non Greedy States Builder,NM NM NM N,{'antlr4.srcml.xml_identifiers'},Java
+size_t num_metadata,num metadata,NM N,{'grpc.srcml.xml_identifiers'},C++
+size_t num_primes,num primes,NM NPL,{'Telegram.srcml.xml_identifiers'},C
+int numStates,num States,NM NPL,{'corenlp.srcml.xml_identifiers'},Java
+int16_t numVecPerSegment,num Vec Per Segment,NM N P N,{'Telegram.srcml.xml_identifiers'},C
+int numVertsInA,num Verts In A,NM NPL P N,{'bullet3.srcml.xml_identifiers'},C
+u32 numberOfJoysticks,number Of Joysticks,N P NPL,{'irrlicht.srcml.xml_identifiers'},C++
+QString numberingPath,numbering Path,NM N,{'calligra.srcml.xml_identifiers'},C++
+ObjectProjection objProj,obj Proj,NM N,{'swift.srcml.xml_identifiers'},C++
+boolean oneDocument,one Document,NM N,{'corenlp.srcml.xml_identifiers'},Java
+String openClassTags,open Class Tags,NM NM NPL,{'corenlp.srcml.xml_identifiers'},Java
+OrderWith orderWith,order With,V P,{'junit4.srcml.xml_identifiers'},Java
+float oriW,ori W,NM N,{'bullet3.srcml.xml_identifiers'},C++
+double out_dG,out d G,N NM NM,{'Telegram.srcml.xml_identifiers'},C
+auto overridenFunctionIt,overriden Function It,NM NM N,{'kdevelop.srcml.xml_identifiers'},C++
+auto PAIArg,PAI Arg,NM N,{'swift.srcml.xml_identifiers'},C++
+GtkWidget paint_radio,paint radio,NM N,{'gimp.srcml.xml_identifiers'},C
+ParameterDef paramDef,param Def,NM N,{'ogre.srcml.xml_identifiers'},C
+int partsSize,parts Size,NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+string passphrase,passphrase,N,{'openFrameworks.srcml.xml_identifiers'},C++
+Real pdSum_,pd Sum,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+string platformString,platform String,NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+aiVector3D presentScaling,present Scaling,NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+int prev_num_hooks,prev num hooks,NM NM NPL,{'grpc.srcml.xml_identifiers'},C++
+int prevSignalBarCount,prev Signal Bar Count,NM NM NM N,{'Telegram.srcml.xml_identifiers'},C++
+int previousStreamId,previous Stream Id,NM NM N,{'okhttp.srcml.xml_identifiers'},Java
+D3D11_PRIMITIVE_TOPOLOGY primType,prim Type,NM N,{'ogre.srcml.xml_identifiers'},C++
+Features processingLevel,processing Level,NM N,{'kdevelop.srcml.xml_identifiers'},C++
+Bool progress_out,progress out,V N,{'irrlicht.srcml.xml_identifiers'},C
+int providerCode,provider Code,NM N,{'Telegram.srcml.xml_identifiers'},Java
+cam_hdr rhdr,r hdr,NM N,{'openFrameworks.srcml.xml_identifiers'},C
+List rawExtraInterfaces,raw Extra Interfaces,NM NM NPL,{'mockito.srcml.xml_identifiers'},Java
+GPUVertBufRaw raw_nor,raw nor,NM N,{'blender.srcml.xml_identifiers'},C
+float rcp_len2,rcp len 2,NM N D,{'bullet3.srcml.xml_identifiers'},C
+String receivedTokenSignature,received Token Signature,NM NM N,{'jenkins.srcml.xml_identifiers'},Java
+int recordedMatchersSize,recorded Matchers Size,NM NM N,{'mockito.srcml.xml_identifiers'},Java
+u32 rectangleIndex,rectangle Index,NM N,{'irrlicht.srcml.xml_identifiers'},C++
+JSONObject reducedJson,reduced Json,NM N,{'jenkins.srcml.xml_identifiers'},Java
+Int32 remF,rem F,NM N,{'irrlicht.srcml.xml_identifiers'},C
+auto REPLModule,REPL Module,NM N,{'swift.srcml.xml_identifiers'},C++
+uint8_t request_bytes,request bytes,NM NPL,{'grpc.srcml.xml_identifiers'},C++
+Map requestedPlugins,requested Plugins,NM NPL,{'jenkins.srcml.xml_identifiers'},Java
+guchar rgb_real,rgb real,NM N,{'gimp.srcml.xml_identifiers'},C
+PointerRNA root_ptr,root ptr,NM N,{'blender.srcml.xml_identifiers'},C
+ExtendedBounds roundedBounds,rounded Bounds,NM NPL,{'elasticsearch.srcml.xml_identifiers'},Java
+ofRtAudioSoundStream rtStreamPtr,rt Stream Ptr,NM NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+RtmSession rtmSession,rtm Session,NM N,{'okhttp.srcml.xml_identifiers'},Java
+List rulesOfNewChain,rules Of New Chain,N P NM N,{'junit4.srcml.xml_identifiers'},Java
+Real runningLogAverage,running Log Average,NM NM N,{'QuantLib.srcml.xml_identifiers'},C++
+string sTrackingSystemName,s Tracking System Name,PRE NM NM N,{'bullet3.srcml.xml_identifiers'},C++
+double scorePosPrev,score Pos Prev,NM N NM,{'corenlp.srcml.xml_identifiers'},Java
+GeglRectangle selection_bounds,selection bounds,NM NPL,{'gimp.srcml.xml_identifiers'},C
+List sentenceList,sentence List,NM N,{'corenlp.srcml.xml_identifiers'},Java
+Action setPrevCtxAction,set Prev Ctx Action,NM NM NM N,{'antlr4.srcml.xml_identifiers'},Java
+auto simpleFnTy,simple Fn Ty,NM NM N,{'swift.srcml.xml_identifiers'},C++
+float sin_rot_w,sin rot w,NM NM N,{'ogre.srcml.xml_identifiers'},C++
+long sizeGuess,size Guess,NM N,{'jenkins.srcml.xml_identifiers'},Java
+int sizePerSpan,size Per Span,N P N,{'Telegram.srcml.xml_identifiers'},Java
+uint32_t source_index,source index,NM N,{'openFrameworks.srcml.xml_identifiers'},C
+auto sourceTy,source Ty,NM N,{'swift.srcml.xml_identifiers'},C++
+QFileInfo srcFileInfo,src File Info,NM NM N,{'kdevelop.srcml.xml_identifiers'},C++
+int src_start_idx,src start idx,NM NM N,{'opencv.srcml.xml_identifiers'},C++
+grpc_channel_credentials ssl_creds,ssl creds,NM NPL,{'grpc.srcml.xml_identifiers'},C++
+rect staticRect,static Rect,NM N,{'irrlicht.srcml.xml_identifiers'},C++
+File statusFile,status File,NM N,{'antlr4.srcml.xml_identifiers'},Java
+Real stepSize,step Size,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+int stepx,step x,NM N,{'opencv.srcml.xml_identifiers'},C++
+QStringList strargs,str args,NM NPL,{'kdevelop.srcml.xml_identifiers'},C++
+Headers streamHeaders,stream Headers,NM NPL,{'okhttp.srcml.xml_identifiers'},Java
+const_iterator substart,sub start,NM N,{'openFrameworks.srcml.xml_identifiers'},C++
+XIMStyle supportedStyle,supported Style,NM N,{'irrlicht.srcml.xml_identifiers'},C++
+int szJointRanges,sz Joint Ranges,NM NM NPL,{'bullet3.srcml.xml_identifiers'},C
+QStyleOptionTab tabOverlap,tab Overlap,NM N,{'kdevelop.srcml.xml_identifiers'},C++
+QSet taggedResources,tagged Resources,NM NPL,{'calligra.srcml.xml_identifiers'},C++
+char target_chars,target chars,NM NPL,{'grpc.srcml.xml_identifiers'},C
+DeclAttributes tempAttrs,temp Attrs,NM NPL,{'swift.srcml.xml_identifiers'},C++
+string_t textChopped2,text Chopped 2,N NM D,{'swift.srcml.xml_identifiers'},C
+int threadArraySize,thread Array Size,NM NM N,{'junit4.srcml.xml_identifiers'},Java
+float tmpvec,tmp vec,NM N,{'blender.srcml.xml_identifiers'},C
+double toXYZ,to XYZ,P N,{'bullet3.srcml.xml_identifiers'},C
+JSONObject tokenData,token Data,NM N,{'jenkins.srcml.xml_identifiers'},Java
+Map tokenStoreTypedData,token Store Typed Data,NM NM NM N,{'jenkins.srcml.xml_identifiers'},Java
+String tokenTypeS,token Type S,NM NM N,{'antlr4.srcml.xml_identifiers'},Java
+Real tranchedLossAfter,tranched Loss After,NM N P,{'QuantLib.srcml.xml_identifiers'},C++
+Affine3 transformUniqueId,transform Unique Id,NM NM N,{'ogre.srcml.xml_identifiers'},C++
+bool trimParseTrees,trim Parse Trees,V NM NPL,{'antlr4.srcml.xml_identifiers'},C#
+Treebank tuneTreebank,tune Treebank,NM N,{'corenlp.srcml.xml_identifiers'},Java
+char txtalias,txt alias,NM N,{'grpc.srcml.xml_identifiers'},C
+int uiIndex,ui Index,NM N,{'ogre.srcml.xml_identifiers'},C++
+GeglRectangle update_area,update area,NM N,{'gimp.srcml.xml_identifiers'},C
+bool use_mat_dirs,use mat dirs,V NM NPL,{'irrlicht.srcml.xml_identifiers'},C++
+long utcTimestampMs,utc Timestamp Ms,NM NM NPL,{'Telegram.srcml.xml_identifiers'},Java
+float v_proj_axis,v proj axis,NM NM N,{'blender.srcml.xml_identifiers'},C
+StringTokenizer vTok,v Tok,NM N,{'elasticsearch.srcml.xml_identifiers'},Java
+size_t ValSize,Val Size,NM N,{'grpc.srcml.xml_identifiers'},C++
+String valueCountString,value Count String,NM NM N,{'okhttp.srcml.xml_identifiers'},Java
+Real valueX,value X,NM N,{'QuantLib.srcml.xml_identifiers'},C++
+Object varArgs,var Args,NM NPL,{'mockito.srcml.xml_identifiers'},Java
+Set varyFields,vary Fields,NM NPL,{'okhttp.srcml.xml_identifiers'},Java
+VerificationOverTimeImpl verificationOverTime,verification Over Time,N P N,{'mockito.srcml.xml_identifiers'},Java
+long waitUntil,wait Until,V P,{'jenkins.srcml.xml_identifiers'},Java
+s32 wat_id,wat id,NM N,{'irrlicht.srcml.xml_identifiers'},C
+int winError,win Error,NM N,{'ogre.srcml.xml_identifiers'},C++
+gboolean within_vertically,within vertically,P VM,{'gimp.srcml.xml_identifiers'},C
+int worst_score,worst score,NM N,{'opencv.srcml.xml_identifiers'},C
+Class wrapperClass,wrapper Class,NM N,{'junit4.srcml.xml_identifiers'},Java
+btScalar x2,x 2,N D,{'bullet3.srcml.xml_identifiers'},C++
+float xDistance,x Distance,NM N,{'openFrameworks.srcml.xml_identifiers'},Java
