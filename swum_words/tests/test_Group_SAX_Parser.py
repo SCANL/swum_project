@@ -14,6 +14,6 @@ class Test(unittest.TestCase):
         self.assertEqual(Handler.nameList, [' Adi ', ' Tom ', ' Chad ']) 
         self.assertEqual(Handler.ageList, [' 18', ' 18', ' 18'])
         self.assertEqual(Handler.weightList, [' 170 ', ' 170 ', ' 170 '])
-        self.assertEqual(Handler.heighList, [[' 74 ', ' 74 ', ' 74 ']]) 
+        self.assertEqual(Handler.heightList, [' 74 ', ' 74 ', ' 74 ']) 
 if __name__ == '__main__':
     unittest.main()
