@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?> <!-- Declaration-->
+<group> <!-- Group is the single root/parent element -->
+    <person id="1"> <!-- Person is a child element in the group with id as an atttribute-->
+        <name> Adi </name> <!-- Name, Age, Weight, and Height are elements within a person -->
+        <age> 18</age>
+        <weight> 170 </weight>
+        <height> 74 </height>
+    </person>
+    <person id="2">
+        <name> Tom </name>
+        <age> 18</age>
+        <weight> 170 </weight>
+        <height> 74 </height>
+    </person>
+    <person id="3">
+        <name> Chad </name>
+        <age> 18</age>
+        <weight> 170 </weight>
+        <height> 74 </height>
+    </person>
+</group>
