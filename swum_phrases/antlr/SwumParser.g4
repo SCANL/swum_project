@@ -1,7 +1,7 @@
 parser grammar SwumParser;
 options {tokenVocab=SwumLexer; }
 
-start: noun_phrase | verb_phrase | prepositional_phrase | verb_group;  // experimental starting rule
+swum_phrase: (noun_phrase | verb_phrase | prepositional_phrase | verb_group)+;  // experimental starting rule (allow multiple subrules for robustness)
 noun_phrase: Noun_Modifier* Noun;
 prepositional_phrase: Preposition noun_phrase;
 verb_group: Verb_Modifier* Verb+ Verb_Particle?; // if multiple verbs, all verbs but one are ignorable

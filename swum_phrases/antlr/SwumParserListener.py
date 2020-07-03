@@ -8,12 +8,12 @@ else:
 # This class defines a complete listener for a parse tree produced by SwumParser.
 class SwumParserListener(ParseTreeListener):
 
-    # Enter a parse tree produced by SwumParser#start.
-    def enterStart(self, ctx:SwumParser.StartContext):
+    # Enter a parse tree produced by SwumParser#swum_phrase.
+    def enterSwum_phrase(self, ctx:SwumParser.Swum_phraseContext):
         pass
 
-    # Exit a parse tree produced by SwumParser#start.
-    def exitStart(self, ctx:SwumParser.StartContext):
+    # Exit a parse tree produced by SwumParser#swum_phrase.
+    def exitSwum_phrase(self, ctx:SwumParser.Swum_phraseContext):
         pass
 
 

@@ -48,14 +48,14 @@ class SwumParser ( Parser ):
                       "Verb_Modifier", "Verb_Particle", "Verb", "Conjunction", 
                       "Determiner", "Digit", "Pronoun", "Preposition" ]
 
-    RULE_start = 0
+    RULE_swum_phrase = 0
     RULE_noun_phrase = 1
     RULE_prepositional_phrase = 2
     RULE_verb_group = 3
     RULE_verb_phrase = 4
 
-    ruleNames =  [ "start", "noun_phrase", "prepositional_phrase", "verb_group", 
-                   "verb_phrase" ]
+    ruleNames =  [ "swum_phrase", "noun_phrase", "prepositional_phrase", 
+                   "verb_group", "verb_phrase" ]
 
     EOF = Token.EOF
     Whitespace=1
@@ -79,7 +79,7 @@ class SwumParser ( Parser ):
 
 
 
-    class StartContext(ParserRuleContext):
+    class Swum_phraseContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -102,29 +102,29 @@ class SwumParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return SwumParser.RULE_start
+            return SwumParser.RULE_swum_phrase
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterStart" ):
-                listener.enterStart(self)
+            if hasattr( listener, "enterSwum_phrase" ):
+                listener.enterSwum_phrase(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitStart" ):
-                listener.exitStart(self)
+            if hasattr( listener, "exitSwum_phrase" ):
+                listener.exitSwum_phrase(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitStart" ):
-                return visitor.visitStart(self)
+            if hasattr( visitor, "visitSwum_phrase" ):
+                return visitor.visitSwum_phrase(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def start(self):
+    def swum_phrase(self):
 
-        localctx = SwumParser.StartContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 0, self.RULE_start)
+        localctx = SwumParser.Swum_phraseContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 0, self.RULE_swum_phrase)
         try:
             self.state = 14
             self._errHandler.sync(self)

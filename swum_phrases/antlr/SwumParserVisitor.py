@@ -9,8 +9,8 @@ else:
 
 class SwumParserVisitor(ParseTreeVisitor):
 
-    # Visit a parse tree produced by SwumParser#start.
-    def visitStart(self, ctx:SwumParser.StartContext):
+    # Visit a parse tree produced by SwumParser#swum_phrase.
+    def visitSwum_phrase(self, ctx:SwumParser.Swum_phraseContext):
         return self.visitChildren(ctx)
 
 
