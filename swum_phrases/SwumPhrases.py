@@ -11,86 +11,14 @@ from enum import Enum, auto
 
 from lxml import etree
 
+# TODO: support special cases for boolean type examples
+
 # key is classname, value is metadata for that class
 class_dict = {}
 
 def main(argv):    
-    # TODO: support special cases for boolean type examples
-    
-    # # do example
-    # print('method do() in class MyClass')
-    # method_pos_tokens = ['V']
-    # method_tokens = ['do']
-    # class_pos_tokens = ['NM', 'N']
-    # class_tokens = ['my', 'class']
-    # type_pos_tokens = ['N']
-    # type_tokens = ['void']
-    # parameter_pos_tokens = []
-    # parameter_tokens = []
-
-    # # doThing example
-    # print('method doThing() in class MyClass')
-    # method_pos_tokens = ['V', 'N']
-    # method_tokens = ['do', 'thing']
-    # class_pos_tokens = ['NM', 'N']
-    # class_tokens = ['my', 'class']
-    # type_pos_tokens = ['N']
-    # type_tokens = ['void']
-    # parameter_pos_tokens = []
-    # parameter_tokens = []
-
-    # # Base Verb (default): ThreadLocalConnection void commit(String name)
-    # print('ThreadLocalConnection void commit(String name)')
-    # method_name = 'commit'
-    # method_pos_tokens = ['VBP']
-    # method_tokens = ['commit']
-    # class_pos_tokens = ['JJ', 'JJ', 'NN']
-    # class_tokens = ['thread', 'local', 'connection']
-    # type_pos_tokens = ['NN']
-    # type_tokens = ['void']
-    # parameter_pos_tokens = [['NN']]
-    # parameter_tokens = [['name']]
-
     filename = argv[1]
 
-    # for <swum_identifier> xml node
-    def get_metadata(element):
-        metadata = {'location': None, 'name': None, 'word_tokens': [], 'pos_tokens': [], 'class_tokens': [], 'class_pos_tokens': [], 'type_tokens': [], 'type_pos_tokens': [], 'parameter_tokens': [], 'parameter_pos_tokens': [], }
-        for child in element:
-            if child.tag == 'location':
-                metadata['location'] = child.text.strip()
-            elif child.tag == 'name':
-                metadata['name'] = child.text.strip()
-            elif child.tag == 'class':
-                # resolve class name to class metadata, add to this identifier's metadata
-                class_metadata = class_dict[child.text.strip()]
-                metadata['class_tokens'] = class_metadata['word_tokens']
-                metadata['class_pos_tokens'] = class_metadata['pos_tokens']
-            elif child.tag == 'type':
-                type_metadata = get_metadata(child[0])
-                for grand in child[0]:
-                    print(grand.tag)
-                print(etree.tostring(child))
-                print(type_metadata)
-                metadata['type_tokens'] = type_metadata['word_tokens']
-                metadata['type_pos_tokens'] = type_metadata['pos_tokens']
-            elif child.tag == 'parameters':
-                print('reading parameters')
-                print(etree.tostring(child))
-                for parameter_node in child:
-                    # print(parameter_node.tag)
-                    parameter_metadata = get_metadata(parameter_node)
-                    # print(parameter_metadata)
-                    metadata['parameter_tokens'].append(parameter_metadata['word_tokens'])
-                    metadata['parameter_pos_tokens'].append(parameter_metadata['pos_tokens'])
-            elif child.tag == 'identifier':
-                for word_node in child:
-                    metadata['word_tokens'].append(word_node.text.strip())
-                    pos_node = word_node[0]
-                    metadata['pos_tokens'].append(pos_node.text.strip())
-
-        
-        return metadata
 
     with open(filename, 'rb') as f:
         for _, element in etree.iterparse(f, tag='swum_identifier', remove_blank_text=True):
@@ -100,18 +28,13 @@ def main(argv):
             metadata = get_metadata(element)
             if metadata['location'] == 'class':
                 # add to class dict to resolve later
-                print('added ' + metadata['name'] + ' to class list')
-                class_dict[''.join(metadata['word_tokens'])] = metadata
+                class_dict[metadata['name']] = metadata
             elif metadata['location'] == 'function':
                 # annotate
                 swum_phrase = get_annotated_swum_phrase(metadata)
                 print(swum_phrase)
-            if element.tag == 'swum_identifier':
-                print('hi')
-            element.clear(keep_tail=True)    
-    
 
-
+            element.clear(keep_tail=True)        
 
 def fail(error: str):
     print(error, file=sys.stderr)
@@ -133,7 +56,6 @@ class SwumAttrRule(Enum):
 
 
 def get_swum_phrase(pos_tokens: List[str], literal_tokens: List[str]):
-    print(pos_tokens)
     swum_pos_tokens = penn_tags_to_swum(pos_tokens)
     tree = get_parse_tree(InputStream(' '.join(swum_pos_tokens)))
     visitor = SwumVisitor()
@@ -301,6 +223,47 @@ class SwumPhrasesNode():
 
         return str_repr
 
+    
+
+# for <swum_identifier> xml node
+def get_metadata(element):
+    metadata = {'location': None, 'name': None, 'word_tokens': [], 'pos_tokens': [], 'class_tokens': [], 'class_pos_tokens': [], 'type_tokens': [], 'type_pos_tokens': [], 'parameter_tokens': [], 'parameter_pos_tokens': [], }
+    for child in element:
+        if child.tag == 'location':
+            metadata['location'] = child.text.strip()
+        elif child.tag == 'name':
+            metadata['name'] = child.text.strip()
+        elif child.tag == 'class':
+            # resolve class name to class metadata, add to this identifier's metadata
+            class_metadata = class_dict[child.text.strip()]
+            metadata['class_tokens'] = class_metadata['word_tokens']
+            metadata['class_pos_tokens'] = class_metadata['pos_tokens']
+        elif child.tag == 'type':
+            type_metadata = get_metadata(child[0])
+            for grand in child[0]:
+                print(grand.tag)
+            print(etree.tostring(child))
+            print(type_metadata)
+            metadata['type_tokens'] = type_metadata['word_tokens']
+            metadata['type_pos_tokens'] = type_metadata['pos_tokens']
+        elif child.tag == 'parameters':
+            print('reading parameters')
+            print(etree.tostring(child))
+            for parameter_node in child:
+                # print(parameter_node.tag)
+                parameter_metadata = get_metadata(parameter_node)
+                # print(parameter_metadata)
+                metadata['parameter_tokens'].append(parameter_metadata['word_tokens'])
+                metadata['parameter_pos_tokens'].append(parameter_metadata['pos_tokens'])
+        elif child.tag == 'identifier':
+            for word_node in child:
+                metadata['word_tokens'].append(word_node.text.strip())
+                pos_node = word_node[0]
+                metadata['pos_tokens'].append(pos_node.text.strip())
+
+    
+    return metadata
+
 def get_annotated_swum_phrase(metadata: dict) -> SwumPhrasesNode:
     parsed_identifier = get_swum_phrase(metadata['pos_tokens'], metadata['word_tokens'])
     attr_rule = parsed_identifier.get_attr_rule(metadata)
@@ -325,7 +288,7 @@ def get_annotated_swum_phrase(metadata: dict) -> SwumPhrasesNode:
             
             if len(parsed_identifier.edges) > 1:
                 swum_phrase.addEdge(parsed_identifier.edges[1].child, 'theme')
-            elif 'parameter_tokens' in metadata:
+            elif len(metadata['parameter_tokens']) > 0:
                 node = get_swum_phrase(metadata['parameter_pos_tokens'].pop(0), metadata['parameter_tokens'].pop(0))
                 swum_phrase.addEdge(node, 'theme')
             else:

@@ -13,67 +13,67 @@
       </word>
     </identifier>
   </swum_identifier>
-  <swum_identifier>
+<swum_identifier>
     <location>function</location>
     <class>MyClass</class>
     <name>getArea</name>
     <type>
-        <swum_identifier>
+      <swum_identifier>
+        <location>type</location>
+        <name>int</name>
+        <identifier>
+          <word>
+            int
+            <pos>NN</pos>
+          </word>
+        </identifier>
+      </swum_identifier>
+    </type>
+    <parameters>
+      <swum_identifier>
+        <location>parameter</location>
+        <name>x</name>
+        <identifier>
+          <word>
+            x
+            <pos>NN</pos>
+          </word>
+        </identifier>
+        <type>
+          <swum_identifier>
             <location>type</location>
             <name>int</name>
             <identifier>
-            <word>
+              <word>
                 int
                 <pos>NN</pos>
-            </word>
+              </word>
             </identifier>
-        </swum_identifier>
-    </type>
-    <parameters>
-        <swum_identifier>
-            <location>parameter</location>
-            <name>x</name>
-            <type>
-                <swum_identifier>
-                    <location>type</location>
-                    <name>int</name>
-                    <identifier>
-                    <word>
-                        int
-                        <pos>NN</pos>
-                    </word>
-                    </identifier>
-                </swum_identifier>
-            </type>
+          </swum_identifier>
+        </type>
+      </swum_identifier>
+      <swum_identifier>
+        <location>parameter</location>
+        <name>y</name>
+        <identifier>
+          <word>
+            y
+            <pos>NN</pos>
+          </word>
+        </identifier>
+        <type>
+          <swum_identifier>
+            <location>type</location>
+            <name>int</name>
             <identifier>
-            <word>
-              x
-              <pos>NN</pos>
-            </word>
+              <word>
+                int
+                <pos>NN</pos>
+              </word>
             </identifier>
-        </swum_identifier>
-        <swum_identifier>
-            <location>parameter</location>
-            <name>y</name>
-            <type>
-                <swum_identifier>
-                    <location>type</location>
-                    <name>int</name>
-                    <identifier>
-                    <word>
-                        int
-                        <pos>NN</pos>
-                    </word>
-                    </identifier>
-                </swum_identifier>
-            </type>
-            <identifier>
-            <word>
-              y
-              <pos>NN</pos>
-            </word>
-            </identifier>
-        </swum_identifier>
+          </swum_identifier>
+        </type>
+      </swum_identifier>
     </parameters>
     <identifier>
       <word>
