@@ -8,12 +8,12 @@ Input: XML file representing a code sample.
 Output: Prints out the role the word node plays and its name("Role: Name") and XML file of the result.
 ### Example: 
 Lets take a XML file like Java.xml (uploaded in repository) and perform these commands:
-    </br> parser = xml.sax.make_parser()
-    </br> parser.setFeature(xml.sax.handler.feature_namespaces,0)  
-    </br> Handler = JavaHandler()  
-    </br> parser.setContentHandler(Handler)
-    </br> parser.parse("Java.xml")
-    </br> finalXMLResult = prettify(Handler.xmlResult) 
+    </br> parser = xml.sax.make_parser() #Create an XML reader
+    </br> parser.setFeature(xml.sax.handler.feature_namespaces,0) #Turn off namepsaces  
+    </br> Handler = JavaHandler()   
+    </br> parser.setContentHandler(Handler) # Override the default ContextHandler
+    </br> parser.parse("Java.xml")  # Parses an xml file
+    </br> finalXMLResult = prettify(Handler.xmlResult) # Prints the SAX Parser result as a "pretty" XML file
     </br> print(finalXMLResult)
 ## Description of Code
 swum_words.py imports xml.sax a XML interface for Python and methods part of xml.sax. A dictionary is used to keep track which tags are "open" and "closed" using the increment/decrement operator. swum_words.py utilizes lxml to write a XML file where the swum_identifiers tag indicate the beginning of the file, location tag indicates the role of the word node, name tag indicates the name of the word node, type tag indicates the return type of a function or type of variable, pos tag indicates the part of speech tagging of each word node, and parameters tag indicates the parameters of a function and constructor.
