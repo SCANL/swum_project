@@ -8,7 +8,7 @@ Input: XML file representing a code sample.
 Output: Prints out the role the word node plays and its name("Role: Name") and XML file of the result.
 ### Example: 
 Lets take a XML file like Java.xml (uploaded in repository) and Perform these commands:
-    /n Create an XMLReader
+    </br > Create an XMLReader
     parser = xml.sax.make_parser()
     /n # Turn off namepsaces
     parser.setFeature(xml.sax.handler.feature_namespaces,0)  
