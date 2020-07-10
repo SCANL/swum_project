@@ -7,17 +7,12 @@ Using a word node in SWUM <sub>words</sub> in a specific code sample, we split e
 Input: XML file representing a code sample. 
 Output: Prints out the role the word node plays and its name("Role: Name") and XML file of the result.
 ### Example: 
-Lets take a XML file like Java.xml
-<!-- XML representation of a Java concept (class, method, etc.)-->
-<main>
-    <function><type><specifier>public</specifier> <specifier>static</specifier> <name>int</name></type> <name>getArea</name><parameter_list>(<parameter><decl><type><specifier>final</specifier> <name>int</name></type> <name>x</name></decl></parameter>, <parameter><decl><type><specifier>final</specifier> <name>int</name></type> <name>y</name></decl></parameter>)</parameter_list> <block>{<block_content>
-    </block_content>}</block></function>
-</main>
-    #Create an XMLReader
+Lets take a XML file like Java.xml (uploaded in repository) and Perform these commands:
+    /n Create an XMLReader
     parser = xml.sax.make_parser()
-    # Turn off namepsaces
+    /n # Turn off namepsaces
     parser.setFeature(xml.sax.handler.feature_namespaces,0)  
-    # Override the default ContextHandler
+    /n # Override the default ContextHandler
     Handler = JavaHandler()  
     parser.setContentHandler(Handler)
      # Parses an xml file
