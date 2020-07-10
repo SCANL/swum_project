@@ -1,4 +1,4 @@
-# swum_words
+# Swum_Words
 ## Name
 Analysis of word nodes within SWUM <sub>words</sub>
 ## Description of Project
