@@ -1,3 +1,5 @@
+"""Implementation of SWUM phrases layer"""
+
 import sys
 import subprocess
 from typing import *    # for type annotations
@@ -20,6 +22,7 @@ class_dict = {}
 SwumToken = namedtuple('SwumToken', 'literal pos_tag')
 
 class SwumAttrRule(Enum):
+    """Annotation rule for identifier"""
     verb_default = auto()
     verb_preposition = auto()
     verb_checker = auto()
@@ -35,6 +38,7 @@ class SwumAttrRule(Enum):
 
 @dataclass
 class SwumMetadata():
+    """Program-level and natural language information read from input file per identifier"""
     location: str = None
     name: str = None
     tokens: List[SwumToken] = field(default_factory=list)
@@ -45,50 +49,48 @@ class SwumMetadata():
     def is_void(self) -> bool:
         return len(self.type_tokens) == 1 and self.type_tokens[0].literal == 'void'
 
-# custom data structure to use internally after reading in antlr tree
 class SwumPhrasesNode():
+    """Node on phrasal tree"""
     def __init__(self, antlr_ctx=None, literal=None, token: SwumToken = None, tokens: List[SwumToken] = None):
-        self.antlrCtx = None
+        self.antlr_ctx = None
         self.literal = literal
-        self.isTerminal = None
+        self.metadata: SwumMetadata = None
+        self.is_terminal = None
         self.token = token
         self.tokens = tokens
-        self.nodeType = None
-        self.edges = None
+        self.node_type = None
+        self.edges: List[SwumPhrasesEdge] = []
 
         if antlr_ctx:
             self.configFromAntlrCtx(antlr_ctx)
 
-    def configFromAntlrCtx(self, antlrCtx):
-        self.antlrCtx = antlrCtx
-        self.isTerminal = antlrCtx.getChildCount() == 0
-        self.literal = None
+    def configFromAntlrCtx(self, antlr_ctx):
+        """Initialize phrasal tree node from ANTLR parse tree"""
+        self.antlr_ctx = antlr_ctx
+        self.is_terminal = antlr_ctx.getChildCount() == 0
 
-        if self.isTerminal:
-            self.nodeType = SwumLexer.symbolicNames[self.antlrCtx.symbol.type].lower()
+        if self.is_terminal:
+            self.node_type = SwumLexer.symbolicNames[self.antlr_ctx.symbol.type].lower()
         else:
-            self.nodeType = SwumParser.ruleNames[self.antlrCtx.getRuleIndex()].lower()
+            self.node_type = SwumParser.ruleNames[self.antlr_ctx.getRuleIndex()].lower()
 
         self.edges: List[SwumPhrasesEdge] = []
 
-        if not self.isTerminal:
+        if not self.is_terminal:
             self.buildSubtrees()
     
     def addEdge(self, node, label: str = None):
-        new_edge = SwumPhrasesEdge(node)
-        if label:
-            new_edge.label = label
-
-        if self.edges is None:
-            self.edges: List[SwumPhrasesEdge] = []
+        new_edge = SwumPhrasesEdge(child=node, label=label)
         self.edges.append(new_edge)
     
     def buildSubtrees(self):
-        for child_ctx in self.antlrCtx.getChildren():
+        """"Recursively build child nodes using context from the ANTLR parse tree"""
+        for child_ctx in self.antlr_ctx.getChildren():
             new_node = SwumPhrasesNode(antlr_ctx=child_ctx)
             self.edges.append(SwumPhrasesEdge(new_node))
 
     def get_attr_rule(self, metadata: SwumMetadata):
+        """Returns the appropriate rule for annotating this phrasal node based on its metadata"""
         if metadata.location == 'constructor':
             return SwumAttrRule.constructor
 
@@ -100,7 +102,7 @@ class SwumPhrasesNode():
 
         first_child = self.getChild(0)
         
-        if first_child.nodeType in ['verb_phrase', 'verb_group']:
+        if first_child.node_type in ['verb_phrase', 'verb_group']:
             if self.containsNode('prepositional_phrase'):
                 return SwumAttrRule.verb_preposition
             elif self.tokens[0].pos_tag in ['VBZ', 'MD']:
@@ -108,13 +110,13 @@ class SwumPhrasesNode():
             else:
                 return SwumAttrRule.verb_default
 
-        if first_child.nodeType == 'noun_phrase':
+        if first_child.node_type == 'noun_phrase':
             if metadata.is_void():
                 return SwumAttrRule.noun_phrase_void
             else:
                 return SwumAttrRule.noun_phrase_non_void
 
-        if first_child.nodeType == 'prepositional_phrase':
+        if first_child.node_type == 'prepositional_phrase':
             leading_prep = self.tokens[0].literal.lower()
             if leading_prep in ['on', 'before', 'after']:
                 return SwumAttrRule.starts_with_prep0
@@ -125,14 +127,17 @@ class SwumPhrasesNode():
 
         return None
 
-
     def associateWords(self, tokens: List[SwumToken], head=True):
+        """Recursively associates each token from tokens with the appropriate leaf node on this phrasal tree
+        
+        Preserves the input token list"""
+        
         # make copy to preserve initial input tokens
         if head:
             tokens = list(tokens)
             self.tokens = list(tokens)
         
-        if self.isTerminal:
+        if self.is_terminal:
             self.token = tokens.pop(0)
         else:
             for edge in self.edges:
@@ -140,6 +145,7 @@ class SwumPhrasesNode():
                 child.associateWords(tokens, False)
 
     def getChild(self, index):
+        """Returns the indexth direct child of this phrasal node"""
         if (index > len(self.edges)):
             fail('Index {} is out of bounds')
         for idx, edge in enumerate(self.edges):
@@ -147,24 +153,212 @@ class SwumPhrasesNode():
                 return edge.child
 
     # Returns true if phrase subtree contains a node of type NodeType
-    def containsNode(self, nodeType: str):
-        if self.nodeType == nodeType:
+    def containsNode(self, node_type: str):
+        """Returns true if and only if phrasal subtree contains a node x where x.node_type == node_type"""
+        if self.node_type == node_type:
             return True
 
         for edge in self.edges:
             child = edge.child
-            if child.containsNode(nodeType):
+            if child.containsNode(node_type):
                 return True
 
         return False
 
+    def annotated(self) -> 'SwumPhrasesNode':
+        """Returns a copy of self annotated according to the rule determined by this node's metadata"""
+        attr_rule = self.get_attr_rule(self.metadata)
+
+        swum_phrase = SwumPhrasesNode(literal=self.metadata.name)
+
+        if attr_rule == SwumAttrRule.verb_default:
+            # starts with VG
+            swum_phrase.node_type = 'verb_phrase'
+            first_child = self.getChild(0)
+
+            # identify action and theme
+            if first_child.node_type == 'verb_phrase':
+                # VP -> VG NP PP?
+                swum_phrase.addEdge(first_child.getChild(0), 'action')
+                swum_phrase.addEdge(first_child.getChild(1), 'theme')
+            else:
+                # VG -> VM* V+ VPR?
+                swum_phrase.addEdge(first_child, 'action')
+                
+                if len(self.edges) > 1:
+                    swum_phrase.addEdge(self.getChild(1), 'theme')
+                elif len(self.metadata.parameter_tokens) > 0:
+                    swum_phrase.addEdge(get_swum_phrase(self.metadata.parameter_tokens.pop(0)), 'theme')
+                else:
+                    swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'theme')
+                
+            # identify aux args
+            # formal parameters
+            for parameter_tokens in self.metadata.parameter_tokens:
+                swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
+            # return type
+            if not self.metadata.is_void():
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.type_tokens), 'aux_arg')
+            # class
+            if len(self.metadata.class_tokens) > 0:
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'aux_arg')
+        elif attr_rule == SwumAttrRule.verb_preposition:
+            # starts with VG, contains PP
+            swum_phrase.node_type = 'verb_phrase'
+
+            # identify action and theme
+            first_child = self.getChild(0)
+            if first_child.node_type == 'verb_phrase':
+                # VP -> VG NP PP?
+                swum_phrase.addEdge(first_child.getChild(0), 'action')
+                swum_phrase.addEdge(first_child.getChild(1), 'theme')
+
+                # secondary args
+                if len(first_child.edges) == 3:
+                    # VP -> VG NP PP
+                    swum_phrase.addEdge(first_child.getChild(2), 'secondary_arg')
+                else:
+                    # VP -> VG NP
+                    # look for preposition in remainder of identifier
+                    for edge in self.edges:
+                        if edge.child.node_type == 'prepositional_phrase':
+                            swum_phrase.addEdge(edge.child, 'secondary_arg')
+                            break
+            else:
+                # VG -> VM* V+ VPR?
+                swum_phrase.addEdge(first_child, 'action')
+                
+                # look in rest of name prior to preposition
+                if len(self.edges) > 1:
+                    second_child = self.getChild(1)
+                    if second_child.node_type != 'prepositional_phrase':
+                        swum_phrase.addEdge(second_child, 'theme')
+                else:   # class
+                    if len(self.metadata.class_tokens) > 0:
+                        swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'theme')
+
+                # secondary args
+                for edge in self.edges:
+                    if edge.child.node_type == 'prepositional_phrase':
+                        swum_phrase.addEdge(edge.child, 'secondary_arg')
+                        break
+
+
+            # identify aux args
+            # formal parameters
+            for parameter_tokens in self.metadata.parameter_tokens:
+                swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
+            # return type
+            if not self.metadata.is_void():
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.type_tokens), 'aux_arg')
+            # class
+            if len(self.metadata.class_tokens) > 0:
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'aux_arg')
+        elif attr_rule == SwumAttrRule.verb_checker:
+            # starts with VG
+            swum_phrase.node_type = 'verb_phrase'
+
+            first_child = self.getChild(0)
+            # identify action and theme
+            if first_child.node_type == 'verb_phrase':
+                # VP -> VG NP PP?
+                swum_phrase.addEdge(first_child.getChild(0), 'condition')
+                swum_phrase.addEdge(first_child.getChild(1), 'condition')
+            else:
+                # VG -> VM* V+ VPR?
+                swum_phrase.addEdge(first_child, 'condition')
+
+                if len(self.edges) > 1:
+                    swum_phrase.addEdge(self.getChild(1), 'condition')
+                elif len(self.metadata.parameter_tokens) > 0:
+                    swum_phrase.addEdge(get_swum_phrase(self.metadata.parameter_tokens.pop(0)), 'condition')
+                else:
+                    swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'condition')
+                
+            # identify secondary args
+            # class
+            if len(self.metadata.class_tokens) > 0:
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'subject')
+
+            # identify aux args
+            # formal parameters
+            for parameter_tokens in self.metadata.parameter_tokens:
+                swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'subject')
+        elif attr_rule in [SwumAttrRule.general, SwumAttrRule.event_handler, SwumAttrRule.starts_with_prep0, SwumAttrRule.noun_phrase_void]:
+            swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='handle', pos_tag='VBZ')]), 'action')
+            # if identifier parses into multiple phrases, have multiple themes
+            for edge in self.edges:
+                swum_phrase.addEdge(edge.child, 'theme')
+            
+            # identify aux args
+            # formal parameters
+            for parameter_tokens in self.metadata.parameter_tokens:
+                swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
+            # return type
+            if not self.metadata.is_void():
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.type_tokens), 'aux_arg')
+            # class
+            if len(self.metadata.class_tokens) > 0:
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'aux_arg')
+        elif attr_rule in [SwumAttrRule.starts_with_prep1, SwumAttrRule.starts_with_prep_default]:
+            swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='convert', pos_tag='VBZ')]), 'action')
+            # if identifier parses into multiple phrases, have multiple secondary args
+            for edge in self.edges:
+                swum_phrase.addEdge(edge.child, 'secondary_arg')
+            
+            # identify aux args
+            # formal parameters
+            for parameter_tokens in self.metadata.parameter_tokens:
+                swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
+            # return type
+            if not self.metadata.is_void():
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.type_tokens), 'aux_arg')
+            # class
+            if len(self.metadata.class_tokens > 0):
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'aux_arg')
+        elif attr_rule == SwumAttrRule.noun_phrase_non_void:
+            swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='get', pos_tag='VBZ')]), 'action')
+            # if identifier parses into multiple phrases, have multiple themes
+            for edge in self.edges:
+                swum_phrase.addEdge(edge.child, 'theme')
+            
+            # identify aux args
+            # formal parameters
+            for parameter_tokens in self.metadata.parameter_tokens:
+                swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
+            # return type
+            if not self.metadata.is_void():
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.type_tokens), 'aux_arg')
+            # class
+            if len(self.metadata.class_tokens) > 0:
+                swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'aux_arg')
+        elif attr_rule == SwumAttrRule.constructor:
+            swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='create', pos_tag='VBZ')]), 'action')
+            swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='construct', pos_tag='VBZ')]), 'action')
+            # if identifier parses into multiple phrases, have multiple themes
+            for edge in self.edges:
+                swum_phrase.addEdge(edge.child, 'theme')
+            
+            # identify aux args
+            # formal parameters
+            for parameter_tokens in self.metadata.parameter_tokens:
+                swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
+        elif attr_rule == SwumAttrRule.all_preamble:
+            fail('Error: preambles are not yet supported')
+        else:
+            fail('Error: did not recognize rule for phrase tree')
+
+        return swum_phrase
+
+
     def __str__(self):
+        """Returns output in XML format"""
         str_repr = ''
 
-        if self.nodeType != 'swum_phrase':
-            str_repr += '<{}>'.format(self.nodeType)
+        if self.node_type != 'swum_phrase':
+            str_repr += '<{}>'.format(self.node_type)
 
-        if self.isTerminal:
+        if self.is_terminal:
             str_repr += self.token.literal
         else:
             for swum_phrases_edge in self.edges:                
@@ -174,51 +368,69 @@ class SwumPhrasesNode():
                 if swum_phrases_edge.label:
                     str_repr += '</{}>'.format(swum_phrases_edge.label)
 
-        if self.nodeType != 'swum_phrase':
-            str_repr += '</{}>'.format(self.nodeType)
+        if self.node_type != 'swum_phrase':
+            str_repr += '</{}>'.format(self.node_type)
 
         return str_repr
 
 @dataclass
 class SwumPhrasesEdge():
+    """Edge on phrasal tree. May be annotated with a label"""
     child: SwumPhrasesNode = None
     label: str = None
 
 
 def main(argv):    
-    filename = argv[1]
-    with open(filename, 'rb') as f:
+    input_filename = argv[1]
+    output_filename = argv[2]
+    output_f = open(output_filename, 'w')
+    with open(input_filename, 'rb') as f:
         for _, element in etree.iterparse(f, tag='swum_identifier', remove_blank_text=True):
-            if element.getparent().tag != 'swum_identifiers':
+            if element.getparent().tag != 'swum_identifiers': # only process nested identifiers recursively
                 continue
             
             metadata = get_metadata(element)
             if metadata.location == 'class':
                 # add to class dict to resolve later
                 class_dict[metadata.name] = metadata
+                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata, annotate=False)
+                print(swum_phrase, file=output_f)
             elif metadata.location == 'function':
                 # annotate
-                swum_phrase = get_swum_phrase(metadata.tokens)
-                swum_phrase = annotate(swum_phrase, metadata)
-                print(swum_phrase)
+                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata, annotate=True)
+                print(swum_phrase, file=output_f)
 
-            element.clear(keep_tail=True)        
+            element.clear(keep_tail=True)      
+
+    print('output written to ' + output_filename)  
 
 def fail(error: str):
     print(error, file=sys.stderr)
     sys.exit(1)
 
 
-def get_swum_phrase(tokens: List[SwumToken]):
+def get_swum_phrase(tokens: List[SwumToken], metadata: SwumMetadata = None, annotate: bool = False):
+    """Returns a phrasal tree based on the input tokens and identifier metadata
+    
+    Keyword arguments:
+    tokens -- list of consituent tokens for identifier
+    metadata -- program-level and NL metadata for identifier
+    annotate -- annotate semantic relationships in phrasal tree if True (default False)
+    """
     swum_pos_tokens = penn_tags_to_swum([swum_token.pos_tag for swum_token in tokens])
     tree = get_parse_tree(InputStream(' '.join(swum_pos_tokens)))
     visitor = SwumVisitor()
     swum_phrase = visitor.visit(tree)
     swum_phrase.associateWords(tokens)
+    swum_phrase.metadata = metadata
+
+    if annotate:
+        swum_phrase = swum_phrase.annotated()
     
     return swum_phrase
 
 def get_parse_tree(input_stream):
+    """Returns the raw ANTLR parse tree for input_stream based on SWUM grammar"""
     lexer = SwumLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = SwumParser(stream)
@@ -227,16 +439,14 @@ def get_parse_tree(input_stream):
     return tree
 
 def penn_tags_to_swum(pos_tokens:List[str]):
+    """Converts POS tags from Penn tagset to SWUM's simplified tagset"""
     tag_map = {'CC':"CJ", 'CD':"D", "DT":"DT", "EX":"N", "FW":"N", "IN":"P", "JJ":"NM", "JJR":"NM", "JJS":"NM", "LS":"N", "MD":"V", "NN":"N", "NNS":"NPL", "NNP":"N", "NNPS":"NPL", "PDT":"DT", "POS":"N", "PRP":"P", "PRP$":"P", "RB":"VM", "RBR":"VM", "RBS":"VM", "RP":"N", "SYM":"N", "TO":"P", "UH":"N", "VB":"V", "VBD":"V", "VBG":"V", "VBN":"V", "VBP":"V", "VBZ":"V", "WDT":"DT", "WP":"P", "WP,":"P", "WRB":"VM"
     }
-    
-    swum_tags = []
-    for pos_token in pos_tokens:
-        swum_tags.append(tag_map[pos_token])
-    return swum_tags
 
-# for <swum_identifier> xml node
+    return [tag_map[penn_tag] for penn_tag in pos_tokens]
+
 def get_metadata(element) -> SwumMetadata:
+    """Returns the extracted metadata object from a <swum_identifier> XML node in input"""
     metadata = SwumMetadata()
     for child in element:
         if child.tag == 'location':
@@ -259,195 +469,19 @@ def get_metadata(element) -> SwumMetadata:
                 pos_node = word_node[0]
                 new_token = SwumToken(word_node.text.strip(), pos_node.text.strip())
                 metadata.tokens.append(new_token)
+
+    if metadata.name is None:
+        fail('a swum identifier is missing name')
+    elif metadata.location is None:
+        fail('{} is missing location'.format(metadata.name))
+    elif metadata.location == 'function' and len(metadata.type_tokens) == 0:
+        fail('{} is missing type'.format(metadata.name))
     
     return metadata
 
-def annotate(parsed_identifier: SwumPhrasesNode, metadata: SwumMetadata) -> SwumPhrasesNode:
-    attr_rule = parsed_identifier.get_attr_rule(metadata)
-
-    swum_phrase = SwumPhrasesNode(literal=metadata.name)
-
-    # label attributes (and modify phrase tree as necessary)
-    if attr_rule == SwumAttrRule.verb_default:
-        # starts with VG
-        swum_phrase.nodeType = 'verb_phrase'
-        first_child = parsed_identifier.getChild(0)
-
-        # identify action and theme
-        if first_child.nodeType == 'verb_phrase':
-            # VP -> VG NP PP?
-            swum_phrase.addEdge(first_child.getChild(0), 'action')
-            swum_phrase.addEdge(first_child.getChild(1), 'theme')
-        else:
-            # VG -> VM* V+ VPR?
-            swum_phrase.addEdge(first_child, 'action')
-            
-            if len(parsed_identifier.edges) > 1:
-                swum_phrase.addEdge(parsed_identifier.getChild(1), 'theme')
-            elif len(metadata.parameter_tokens) > 0:
-                swum_phrase.addEdge(get_swum_phrase(metadata.parameter_tokens.pop(0)), 'theme')
-            else:
-                swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'theme')
-            
-        # identify aux args
-        # formal parameters
-        for parameter_tokens in metadata.parameter_tokens:
-            swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
-        # return type
-        if not metadata.is_void():
-            swum_phrase.addEdge(get_swum_phrase(metadata.type_tokens), 'aux_arg')
-        # class
-        if len(metadata.class_tokens) > 0:
-            swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'aux_arg')
-    elif attr_rule == SwumAttrRule.verb_preposition:
-        # starts with VG, contains PP
-        swum_phrase.nodeType = 'verb_phrase'
-
-        # identify action and theme
-        first_child = parsed_identifier.getChild(0)
-        if first_child.nodeType == 'verb_phrase':
-            # VP -> VG NP PP?
-            swum_phrase.addEdge(first_child.getChild(0), 'action')
-            swum_phrase.addEdge(first_child.getChild(1), 'theme')
-
-            # secondary args
-            if len(first_child.edges) == 3:
-                # VP -> VG NP PP
-                swum_phrase.addEdge(first_child.getChild(2), 'secondary_arg')
-            else:
-                # VP -> VG NP
-                # look for preposition in remainder of identifier
-                for edge in parsed_identifier.edges:
-                    if edge.child.nodeType == 'prepositional_phrase':
-                        swum_phrase.addEdge(edge.child, 'secondary_arg')
-                        break
-        else:
-            # VG -> VM* V+ VPR?
-            swum_phrase.addEdge(first_child, 'action')
-            
-            # look in rest of name prior to preposition
-            if len(parsed_identifier.edges) > 1:
-                second_child = parsed_identifier.getChild(1)
-                if second_child.nodeType != 'prepositional_phrase':
-                    swum_phrase.addEdge(second_child, 'theme')
-            else:   # class
-                if len(metadata.class_tokens) > 0:
-                    swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'theme')
-
-            # secondary args
-            for edge in parsed_identifier.edges:
-                if edge.child.nodeType == 'prepositional_phrase':
-                    swum_phrase.addEdge(edge.child, 'secondary_arg')
-                    break
-
-
-        # identify aux args
-        # formal parameters
-        for parameter_tokens in metadata.parameter_tokens:
-            swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
-        # return type
-        if not metadata.is_void():
-            swum_phrase.addEdge(get_swum_phrase(metadata.type_tokens), 'aux_arg')
-        # class
-        if len(metadata.class_tokens) > 0:
-            swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'aux_arg')
-    elif attr_rule == SwumAttrRule.verb_checker:
-        # starts with VG
-        swum_phrase.nodeType = 'verb_phrase'
-
-        first_child = parsed_identifier.getChild(0)
-        # identify action and theme
-        if first_child.nodeType == 'verb_phrase':
-            # VP -> VG NP PP?
-            swum_phrase.addEdge(first_child.getChild(0), 'condition')
-            swum_phrase.addEdge(first_child.getChild(1), 'condition')
-        else:
-            # VG -> VM* V+ VPR?
-            swum_phrase.addEdge(first_child, 'condition')
-
-            if len(parsed_identifier.edges) > 1:
-                swum_phrase.addEdge(parsed_identifier.getChild(1), 'condition')
-            elif len(metadata.parameter_tokens) > 0:
-                swum_phrase.addEdge(get_swum_phrase(metadata.parameter_tokens.pop(0)), 'condition')
-            else:
-                swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'condition')
-            
-        # identify secondary args
-        # class
-        if len(metadata.class_tokens) > 0:
-            swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'subject')
-
-        # identify aux args
-        # formal parameters
-        for parameter_tokens in metadata.parameter_tokens:
-            swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'subject')
-    elif attr_rule in [SwumAttrRule.general, SwumAttrRule.event_handler, SwumAttrRule.starts_with_prep0, SwumAttrRule.noun_phrase_void]:
-        swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='handle', pos_tag='VBZ')]), 'action')
-        # if identifier parses into multiple phrases, have multiple themes
-        for edge in parsed_identifier.edges:
-            swum_phrase.addEdge(edge.child, 'theme')
-        
-        # identify aux args
-        # formal parameters
-        for parameter_tokens in metadata.parameter_tokens:
-            swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
-        # return type
-        if not metadata.is_void():
-            swum_phrase.addEdge(get_swum_phrase(metadata.type_tokens), 'aux_arg')
-        # class
-        if len(metadata.class_tokens) > 0:
-            swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'aux_arg')
-    elif attr_rule in [SwumAttrRule.starts_with_prep1, SwumAttrRule.starts_with_prep_default]:
-        swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='convert', pos_tag='VBZ')]), 'action')
-        # if identifier parses into multiple phrases, have multiple secondary args
-        for edge in parsed_identifier.edges:
-            swum_phrase.addEdge(edge.child, 'secondary_arg')
-        
-        # identify aux args
-        # formal parameters
-        for parameter_tokens in metadata.parameter_tokens:
-            swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
-        # return type
-        if not metadata.is_void():
-            swum_phrase.addEdge(get_swum_phrase(metadata.type_tokens), 'aux_arg')
-        # class
-        if len(metadata.class_tokens > 0):
-            swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'aux_arg')
-    elif attr_rule == SwumAttrRule.noun_phrase_non_void:
-        swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='get', pos_tag='VBZ')]), 'action')
-        # if identifier parses into multiple phrases, have multiple themes
-        for edge in parsed_identifier.edges:
-            swum_phrase.addEdge(edge.child, 'theme')
-        
-        # identify aux args
-        # formal parameters
-        for parameter_tokens in metadata.parameter_tokens:
-            swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
-        # return type
-        if not metadata.is_void():
-            swum_phrase.addEdge(get_swum_phrase(metadata.type_tokens), 'aux_arg')
-        # class
-        if len(metadata.class_tokens) > 0:
-            swum_phrase.addEdge(get_swum_phrase(metadata.class_tokens), 'aux_arg')
-    elif attr_rule == SwumAttrRule.constructor:
-        swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='create', pos_tag='VBZ')]), 'action')
-        swum_phrase.addEdge(get_swum_phrase([SwumToken(literal='construct', pos_tag='VBZ')]), 'action')
-        # if identifier parses into multiple phrases, have multiple themes
-        for edge in parsed_identifier.edges:
-            swum_phrase.addEdge(edge.child, 'theme')
-        
-        # identify aux args
-        # formal parameters
-        for parameter_tokens in metadata.parameter_tokens:
-            swum_phrase.addEdge(get_swum_phrase(parameter_tokens), 'aux_arg')
-    elif attr_rule == SwumAttrRule.all_preamble:
-        fail('Error: preambles are not yet supported')
-    else:
-        fail('Error: did not recognize rule for phrase tree')
-
-    return swum_phrase
 
 class SwumVisitor(SwumParserVisitor):
+    """Override ANTLR's default traversal of parse tree to support custom phrasal tree"""
     def visitSwum_phrase(self, ctx:SwumParser.Swum_phraseContext):
         return SwumPhrasesNode(antlr_ctx=ctx)
 
