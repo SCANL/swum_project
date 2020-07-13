@@ -2,25 +2,27 @@
 # Date: Summer 2020
 # Organization: RIT REU Cultivating New Generation Software
 # Function: Takes an XML file and analyzes it based on identifier name and function using a SAX parser. Prints the results in a XML format.
-import xml.sax
+import sys
+# Part of Speech tagging tools
 import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from spiral import ronin
+# XML Writer
+import xml.sax 
 from xml.etree import ElementTree
 from xml.dom import minidom
 from lxml import etree 
-from spiral import ronin
-from nltk.tokenize import sent_tokenize, word_tokenize
-
 
 class JavaHandler(xml.sax.ContentHandler):
     def __init__(self):
         self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0}
-        self.xml = etree.Element('swum_identifiers')
+        self.xmlResult = etree.Element('swum_identifiers')
         # Used to define attributes
-        self.interface = ""
-        self.variable = ""
-        self.function = ""
-        self.constructor = ""
+        self.interfaceName = ""
+        self.variableName = ""
+        self.functionName = ""
+        self.constructorName = ""
         self.type = ""
         self.className = ""
         self.currentContent = ""
@@ -56,21 +58,20 @@ class JavaHandler(xml.sax.ContentHandler):
         locationTag.text = locationTagText
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
         nameTag.text = currentContent
-        identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
-        self.PartOfSpeechTag(currentContent, identifierTag)
-        # Recursive call for parameters and types
         if parameterType and self.parameterList:
             typeTag = etree.SubElement(swumIdentifierTag, 'type')
             self.XMLWriter("type", typeTag, self.type, '')
+        identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
+        self.PartOfSpeechTag(currentContent, identifierTag)
     # XML writer for functions and constructor names
     def functionAndConstructorXMLWriter(self):
-        swumIdentifierTag = etree.SubElement(self.xml, 'swum_identifier')
+        swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
-        if self.constructor:
-            name = self.constructor
+        if self.constructorName:
+            name = self.constructorName
             locationTag.text = "constructor"
         else:
-            name = self.function
+            name = self.functionName
             locationTag.text = "function"
         classTag = etree.SubElement(swumIdentifierTag, 'class')
         classTag.text = self.className
@@ -86,8 +87,8 @@ class JavaHandler(xml.sax.ContentHandler):
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(name, identifierTag)
         # Resetting the function, constructor, and parameter attributes
-        self.function = ""
-        self.constructor = ""
+        self.functionName = ""
+        self.constructorName = ""
         self.parameterList = []
         self.parameterType = []
         self.type = ""
@@ -99,17 +100,17 @@ class JavaHandler(xml.sax.ContentHandler):
             for tempNum in range(0,len(self.parameterList)):
                 self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
             self.functionAndConstructorXMLWriter()
-        # Determining self.currentContent's location
+        # Determining self.currentContent's location and attribute
         if tag == "name":
             if not (self.dictTag["expr"] or self.dictTag["expr_stmt"]):
                 if not (self.dictTag["type"]) or self.dictTag["parameter_list"]:
                     if self.dictTag["class"] and not (self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
                         print("Class Name: ", self.currentContent)
                         self.className = self.currentContent
-                        self.XMLWriter("class", self.xml, self.currentContent, '')
+                        self.XMLWriter("class", self.xmlResult, self.currentContent, '')
                     elif self.dictTag["constructor"] and not(self.dictTag["parameter"]):
                         print("Constructor Name: ", self.currentContent)  
-                        self.constructor = self.currentContent            
+                        self.constructorName = self.currentContent            
                     elif self.dictTag["parameter_list"]:
                         if self.dictTag["name"] and self.dictTag["parameter"]and self.dictTag["type"]:
                             print("Parameter Type: ", self.currentContent)
@@ -119,15 +120,15 @@ class JavaHandler(xml.sax.ContentHandler):
                             self.parameterList.append(self.currentContent)
                     elif self.dictTag["decl_stmt"] or self.dictTag["decl"] and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
                         print("Variable Name: ", self.currentContent)
-                        self.variable = self.currentContent
-                        self.XMLWriter("decl", self.xml, self.currentContent, '')
+                        self.variableName = self.currentContent
+                        self.XMLWriter("decl", self.xmlResult, self.currentContent, '')
                     elif self.dictTag["function"] or self.dictTag["function_decl"] and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
                         print("Function Name: ", self.currentContent)
-                        self.function = self.currentContent
+                        self.functionName = self.currentContent
                     elif self.dictTag["interface"] or self.dictTag["interface_decl"] and not(self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
                         print("Interface Name: ", self.currentContent)
-                        self.interface = self.currentContent 
-                        self.XMLWriter("interface", self.xml, self.currentContent, '')
+                        self.interfaceName = self.currentContent 
+                        self.XMLWriter("interface", self.xmlResult, self.currentContent, '')
                 elif(self.dictTag["type"]):
                     print("Type: ", self.currentContent)
                     self.type = self.currentContent
@@ -150,8 +151,8 @@ def prettify(elem):
     rough_string = ElementTree.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ")
-
-
+def write_XMLResult(outfile):
+     outfile.write(Handler.xmlResult)
 if (__name__ == "__main__"):
     # Create an XMLReader
     parser = xml.sax.make_parser()
@@ -160,7 +161,8 @@ if (__name__ == "__main__"):
     # Override the default ContextHandler
     Handler = JavaHandler()  
     parser.setContentHandler(Handler)
-     # Parses an xml file
-    parser.parse("Java.xml")
-    # Prints the SAX Parser result as a "pretty" XML file
-    print(prettify(Handler.xml))  
+      # Parses an xml file
+    parser.parse("MyClass.xml")
+     # Prints the SAX Parser result as a "pretty" XML file
+    finalXMLResult = prettify(Handler.xmlResult) 
+    print(finalXMLResult)
