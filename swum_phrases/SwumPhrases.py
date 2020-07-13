@@ -441,7 +441,17 @@ def penn_tags_to_swum(pos_tokens:List[str]):
     tag_map = {'CC':"CJ", 'CD':"D", "DT":"DT", "EX":"N", "FW":"N", "IN":"P", "JJ":"NM", "JJR":"NM", "JJS":"NM", "LS":"N", "MD":"V", "NN":"N", "NNS":"NPL", "NNP":"N", "NNPS":"NPL", "PDT":"DT", "POS":"N", "PRP":"P", "PRP$":"P", "RB":"VM", "RBR":"VM", "RBS":"VM", "RP":"N", "SYM":"N", "TO":"P", "UH":"N", "VB":"V", "VBD":"V", "VBG":"V", "VBN":"V", "VBP":"V", "VBZ":"V", "WDT":"DT", "WP":"P", "WP,":"P", "WRB":"VM"
     }
 
-    return [tag_map[penn_tag] for penn_tag in pos_tokens]
+    # assume nouns preceding nouns are noun-modifiers, and verbs proceeding verbs can be ignored
+    swum_tags = [tag_map[penn_tag] for penn_tag in pos_tokens]
+    last_tag = None
+    for index, tag in enumerate(swum_tags):
+        if last_tag == 'N' and tag == 'N':
+            swum_tags[index-1] = 'NM'
+        elif last_tag == 'V' and tag == 'V':
+            swum_tags[index-1] = 'VI' 
+        last_tag = tag
+    
+    return swum_tags
 
 def get_metadata(element) -> SwumMetadata:
     """Returns the extracted metadata object from a <swum_identifier> XML node in input"""

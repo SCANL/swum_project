@@ -14,6 +14,7 @@ Whitespace: ('\t' | ' ' | '\r' | '\n')+   -> skip;
 // mode POS;
 Noun_Modifier: 'NM';
 Noun: 'N';
+Verb_Ignorable: 'VI';
 Verb_Modifier: 'VM';
 Verb_Particle: 'VPR';
 Verb: 'V';
