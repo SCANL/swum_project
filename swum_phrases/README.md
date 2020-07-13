@@ -11,7 +11,10 @@ ANTLR Parser Generator  Version 4.8
  -o ___              specify output directory where all output is generated
  ...
 ``` 
-3. Install the [Python 3 runtime target](https://github.com/antlr/antlr4/blob/master/doc/python-target.md) for ANTLR.
+3. Install Python dependencies, including the [Python 3 runtime target](https://github.com/antlr/antlr4/blob/master/doc/python-target.md) for ANTLR.
+```
+pip install antlr4-python3-runtime lxml
+```
 
 
 # Usage
