@@ -1,11 +1,24 @@
 #!/bin/bash
 
+
+retval=0
+
 echo 'creating antlr files...'
 cd antlr
-java -Xmx500M -cp "/usr/local/lib/antlr-4.8-complete.jar:$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Python3 SwumLexer.g4 SwumParser.g4 -visitor
+antlr4 -Dlanguage=Python3 SwumLexer.g4 SwumParser.g4 -visitor
 cd ..
 echo 'running phrases layer...'
 python3 SwumPhrases.py $1 $2
+if [ $? -eq 0 ]
+then
+    echo 'Success!'
+else
+    retval=$?
+    echo "Failed with exit code ${retval}"
+fi
 echo 'deleting antlr files...'
 cd antlr
 rm -r __pycache__ SwumLexer.interp SwumLexer.py SwumLexer.tokens SwumParser.interp SwumParser.py SwumParser.tokens SwumParserListener.py SwumParserVisitor.py
+cd ..
+
+return $retval

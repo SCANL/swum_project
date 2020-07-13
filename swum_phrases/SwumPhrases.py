@@ -402,11 +402,9 @@ def main(argv):
 
             element.clear(keep_tail=True)      
 
-    print('output written to ' + output_filename)  
-
-def fail(error: str):
+def fail(error: str, err_code: int = 1):
     print(error, file=sys.stderr)
-    sys.exit(1)
+    sys.exit(err_code)
 
 
 def get_swum_phrase(tokens: List[SwumToken], metadata: SwumMetadata = None, annotate: bool = False):

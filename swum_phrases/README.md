@@ -19,8 +19,9 @@ pip install antlr4-python3-runtime lxml
 
 # Usage
 ```
-./swum_phrases input_file output_file
+. ./swum_phrases input_file output_file
 ```
+Be sure to include the leading dot.
 
 ## Input
 The program accepts a single XML input file containing program (type, location, parameters, etc.) and part of speech information per identifier. The input file may be automatically generated from source code using the [SWUM words](https://github.com/SCANL/swum_project/tree/master/swum_words) layer. See the `examples` directory for sample input.
