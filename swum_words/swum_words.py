@@ -23,7 +23,6 @@ class JavaHandler(xml.sax.ContentHandler):
         self.variableName = ""
         self.functionName = ""
         self.constructorName = ""
-        self.type = ""
         self.variableType = ""
         self.functionType = ""
         self.className = ""
@@ -55,7 +54,7 @@ class JavaHandler(xml.sax.ContentHandler):
                 partOfSpeechTag = etree.SubElement(wordTag, 'pos')
                 partOfSpeechTag.text = splitWord[1]
     # XML writer for class names, parameters, variable names, and interface names
-    def XMLWriter(self,locationTagText,tree,currentContent, parameterType): 
+    def XMLWriter(self,locationTagText,currentContent,parameterType,tree): 
         swumIdentifierTag = etree.SubElement(tree, 'swum_identifier')
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
         locationTag.text = locationTagText
@@ -63,48 +62,36 @@ class JavaHandler(xml.sax.ContentHandler):
         nameTag.text = currentContent
         if parameterType and self.parameterList:
             typeTag = etree.SubElement(swumIdentifierTag, 'type')
-            self.XMLWriter("type", typeTag, parameterType, '')
+            self.XMLWriter("type",parameterType,'',typeTag)
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(currentContent, identifierTag)
     # XML writer for functions and constructor names
-    def functionConstructorDeclXMLWriter(self):
+    def functionConstructorDeclXMLWriter(self,definedName, role, definedType):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
-        if self.constructorName or self.functionName:
+        if role == "constructor" or role == "function":
             classTag = etree.SubElement(swumIdentifierTag, 'class')
             classTag.text = self.className
-            if self.constructorName:
-                name = self.constructorName
-                locationTag.text = "constructor"
-            else:
-                name = self.functionName
-                locationTag.text = "function"
-        else: 
-            name = self.variableName
-            locationTag.text = "decl"
+        name = definedName
+        locationTag.text = role
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
         nameTag.text = name
-        if self.functionType or self.variableType:
+        if definedType:
             typeTag = etree.SubElement(swumIdentifierTag, 'type')
-            if self.functionType:
-                self.XMLWriter("type", typeTag, self.functionType, '')
-            else:
-                self.XMLWriter("type", typeTag, self.variableType, '')
+            self.XMLWriter("type",definedType, '', typeTag)
         if self.parameterList:
             parameterTag = etree.SubElement(swumIdentifierTag, 'parameters')
             for key in self.parameterDict:
-                self.XMLWriter("parameter", parameterTag, key, self.parameterDict[key])
+                self.XMLWriter("parameter",key,self.parameterDict[key], parameterTag)
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(name, identifierTag)
         # Resetting the function, constructor, and parameter attributes
         self.functionName = ""
         self.constructorName = ""
-        self.parameterList = []
-        self.function = ""
-        self.parameterType = []
-        self.type = ""
         self.functionType = ""
         self.variableType =""
+        self.parameterType = []
+        self.parameterList = []
         self.parameterDict.clear()
     # Call when an elements ends
     def endElement(self, tag):
@@ -112,18 +99,25 @@ class JavaHandler(xml.sax.ContentHandler):
         if tag == "parameter_list":
             for tempNum in range(0,len(self.parameterList)):
                 self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
-            self.functionConstructorDeclXMLWriter()
+            if self.functionName:
+                self.functionConstructorDeclXMLWriter(self.functionName, "function", self.functionType)
+            else:
+                self.functionConstructorDeclXMLWriter(self.constructorName, "constructor", '')
         # Determining self.currentContent's location and attribute
         if tag == "name":
             if not (self.dictTag["expr"] or self.dictTag["expr_stmt"]):
                 if not (self.dictTag["type"]) or self.dictTag["parameter_list"]:
-                    if self.dictTag["class"] and not (self.dictTag["decl"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
+                    if self.dictTag["class"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
                         print("Class Name: ", self.currentContent)
                         self.className = self.currentContent
-                        self.XMLWriter("class", self.xmlResult, self.currentContent, '')
-                    elif self.dictTag["constructor"] and not(self.dictTag["parameter"]):
+                        self.XMLWriter("class",self.currentContent, '', self.xmlResult)
+                    elif self.dictTag["constructor"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["parameter"]):
                         print("Constructor Name: ", self.currentContent)  
-                        self.constructorName = self.currentContent            
+                        self.constructorName = self.currentContent
+                    elif (self.dictTag["interface"] or self.dictTag["interface_decl"]) and not(self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+                        print("Interface Name: ", self.currentContent)
+                        self.interfaceName = self.currentContent 
+                        self.XMLWriter("interface", self.currentContent, '', self.xmlResult)          
                     elif self.dictTag["parameter_list"]:
                         if self.dictTag["parameter"]and self.dictTag["type"]:
                             print("Parameter Type: ", self.currentContent)
@@ -131,17 +125,13 @@ class JavaHandler(xml.sax.ContentHandler):
                         else:
                             print("Parameter Name: ", self.currentContent)
                             self.parameterList.append(self.currentContent)
-                    elif self.dictTag["decl_stmt"] or self.dictTag["decl"] and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+                    elif (self.dictTag["decl_stmt"] or self.dictTag["decl"]) and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
                         print("Variable Name: ", self.currentContent)
                         self.variableName = self.currentContent
-                        self.functionConstructorDeclXMLWriter()
-                    elif self.dictTag["function"] or self.dictTag["function_decl"] and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+                        self.functionConstructorDeclXMLWriter(self.variableName, "decl", self.variableType) 
+                    elif (self.dictTag["function"] or self.dictTag["function_decl"]) and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
                         print("Function Name: ", self.currentContent)
                         self.functionName = self.currentContent
-                    elif self.dictTag["interface"] or self.dictTag["interface_decl"] and not(self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
-                        print("Interface Name: ", self.currentContent)
-                        self.interfaceName = self.currentContent 
-                        self.XMLWriter("interface", self.xmlResult, self.currentContent, '')
                 elif(self.dictTag["type"]):
                     if (self.dictTag["function"] or self.dictTag["function_decl"]) and not(self.dictTag["decl_stmt"] or self.dictTag["decl"]):
                         print("Function Type: ", self.currentContent)
@@ -150,9 +140,9 @@ class JavaHandler(xml.sax.ContentHandler):
                         print("Variable Type: ", self.currentContent)
                         self.variableType = self.currentContent             
             self.dictTag[tag] -= 1
-        elif tag == "specifier":
-            print("Specifier: ", self.currentContent)
-            self.dictTag[tag] -= 1
+        #elif tag == "specifier":
+            #print("Specifier: ", self.currentContent)
+            #self.dictTag[tag] -= 1
         else:
             for x in self.dictTag:
                 if tag == x:
@@ -176,4 +166,3 @@ if (__name__ == "__main__"):
     parser.parse("die.xml")
     finalXMLResult = prettify(Handler.xmlResult) 
     print(finalXMLResult)
-
