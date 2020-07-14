@@ -5,6 +5,7 @@ import subprocess
 from typing import *    # for type annotations
 from collections import namedtuple
 from dataclasses import dataclass, field
+import copy
 
 from antlr4 import *
 from antlr.SwumParser import SwumParser
@@ -18,6 +19,9 @@ from lxml import etree
 
 # key is classname, value is metadata for that class
 class_dict = {}
+
+tag_map = {'CC':"CJ", 'CD':"D", "DT":"DT", "EX":"N", "FW":"N", "IN":"P", "JJ":"NM", "JJR":"NM", "JJS":"NM", "LS":"N", "MD":"V", "NN":"N", "NNS":"NPL", "NNP":"N", "NNPS":"NPL", "PDT":"DT", "POS":"N", "PRP":"P", "PRP$":"P", "RB":"VM", "RBR":"VM", "RBS":"VM", "RP":"N", "SYM":"N", "TO":"P", "UH":"N", "VB":"V", "VBD":"V", "VBG":"V", "VBN":"V", "VBP":"V", "VBZ":"V", "WDT":"DT", "WP":"P", "WP,":"P", "WRB":"VM"
+}
 
 SwumToken = namedtuple('SwumToken', 'literal pos_tag')
 
@@ -51,10 +55,10 @@ class SwumMetadata():
 
 class SwumPhrasesNode():
     """Node on phrasal tree"""
-    def __init__(self, antlr_ctx=None, literal=None, token: SwumToken = None, tokens: List[SwumToken] = None):
+    def __init__(self, antlr_ctx=None, literal=None, token: SwumToken = None, tokens: List[SwumToken] = None, metadata: SwumMetadata = None):
         self.antlr_ctx = None
         self.literal = literal
-        self.metadata: SwumMetadata = None
+        self.metadata = metadata
         self.is_terminal = None
         self.token = token
         self.tokens = tokens
@@ -91,39 +95,42 @@ class SwumPhrasesNode():
 
     def get_attr_rule(self, metadata: SwumMetadata):
         """Returns the appropriate rule for annotating this phrasal node based on its metadata"""
+        if metadata is None:
+            return None
+        
         if metadata.location == 'constructor':
             return SwumAttrRule.constructor
+        elif metadata.location == 'function':
+            last_pos = self.tokens[-1].pos_tag
+            if self.literal and self.literal.lower() in ['main', 'run'] or last_pos in ['VBD', 'VBG']:
+                return SwumAttrRule.general
 
-        last_pos = self.tokens[-1].pos_tag
-        if self.literal and self.literal.lower() in ['main', 'run'] or last_pos in ['VBD', 'VBG']:
-            return SwumAttrRule.general
+            # TODO: detect event handlers by looking at parameter types
 
-        # TODO: detect event handlers by looking at parameter types
+            first_child = self.getChild(0)
+            
+            if first_child.node_type in ['verb_phrase', 'verb_group']:
+                if self.containsNode('prepositional_phrase'):
+                    return SwumAttrRule.verb_preposition
+                elif self.tokens[0].pos_tag in ['VBZ', 'MD']:
+                    return SwumAttrRule.verb_checker
+                else:
+                    return SwumAttrRule.verb_default
 
-        first_child = self.getChild(0)
-        
-        if first_child.node_type in ['verb_phrase', 'verb_group']:
-            if self.containsNode('prepositional_phrase'):
-                return SwumAttrRule.verb_preposition
-            elif self.tokens[0].pos_tag in ['VBZ', 'MD']:
-                return SwumAttrRule.verb_checker
-            else:
-                return SwumAttrRule.verb_default
+            if first_child.node_type == 'noun_phrase':
+                if metadata.is_void():
+                    return SwumAttrRule.noun_phrase_void
+                else:
+                    return SwumAttrRule.noun_phrase_non_void
 
-        if first_child.node_type == 'noun_phrase':
-            if metadata.is_void():
-                return SwumAttrRule.noun_phrase_void
-            else:
-                return SwumAttrRule.noun_phrase_non_void
-
-        if first_child.node_type == 'prepositional_phrase':
-            leading_prep = self.tokens[0].literal.lower()
-            if leading_prep in ['on', 'before', 'after']:
-                return SwumAttrRule.starts_with_prep0
-            elif leading_prep in ['to', 'from']:
-                return SwumAttrRule.starts_with_prep1
-            else:
-                return SwumAttrRule.starts_with_prep_default
+            if first_child.node_type == 'prepositional_phrase':
+                leading_prep = self.tokens[0].literal.lower()
+                if leading_prep in ['on', 'before', 'after']:
+                    return SwumAttrRule.starts_with_prep0
+                elif leading_prep in ['to', 'from']:
+                    return SwumAttrRule.starts_with_prep1
+                else:
+                    return SwumAttrRule.starts_with_prep_default
 
         return None
 
@@ -165,11 +172,37 @@ class SwumPhrasesNode():
 
         return False
 
+    def subtreeNodes(self):
+        yield self
+        for edge in self.edges:
+            yield from edge.child.subtreeNodes()
+
     def annotated(self) -> 'SwumPhrasesNode':
         """Returns a copy of self annotated according to the rule determined by this node's metadata"""
+        # head noun
+        for node in self.subtreeNodes():
+            if node.node_type == 'noun_phrase':
+                for edge in node.edges:
+                    if edge.child.node_type == 'noun':
+                        edge.label = 'head_noun'
+                        break
+
+        # ignorable verbs
+        for node in self.subtreeNodes():
+            if node.node_type == 'verb_phrase':
+                last_node = None
+                for index, edge in enumerate(node.edges):
+                    if edge.child.node_type == 'verb' and last_node is not None and last_node.node_type == 'verb':
+                        node.edges[index-1].label = 'ignorable_verb'
+                    last_node = edge.child
+
+        
         attr_rule = self.get_attr_rule(self.metadata)
 
-        swum_phrase = SwumPhrasesNode(literal=self.metadata.name)
+        if attr_rule is None:
+            return self
+
+        swum_phrase = SwumPhrasesNode(literal=self.metadata.name, metadata=self.metadata)
 
         if attr_rule == SwumAttrRule.verb_default:
             # starts with VG
@@ -393,11 +426,11 @@ def main(argv):
             if metadata.location == 'class':
                 # add to class dict to resolve later
                 class_dict[metadata.name] = metadata
-                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata, annotate=False)
+                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata)
                 print(swum_phrase, file=output_f)
             elif metadata.location == 'function':
                 # annotate
-                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata, annotate=True)
+                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata)
                 print(swum_phrase, file=output_f)
 
             element.clear(keep_tail=True)      
@@ -407,7 +440,7 @@ def fail(error: str, err_code: int = 1):
     sys.exit(err_code)
 
 
-def get_swum_phrase(tokens: List[SwumToken], metadata: SwumMetadata = None, annotate: bool = False):
+def get_swum_phrase(tokens: List[SwumToken], metadata: SwumMetadata = None):
     """Returns a phrasal tree based on the input tokens and identifier metadata
     
     Keyword arguments:
@@ -422,8 +455,7 @@ def get_swum_phrase(tokens: List[SwumToken], metadata: SwumMetadata = None, anno
     swum_phrase.associateWords(tokens)
     swum_phrase.metadata = metadata
 
-    if annotate:
-        swum_phrase = swum_phrase.annotated()
+    swum_phrase = swum_phrase.annotated()
     
     return swum_phrase
 
@@ -438,17 +470,12 @@ def get_parse_tree(input_stream):
 
 def penn_tags_to_swum(pos_tokens:List[str]):
     """Converts POS tags from Penn tagset to SWUM's simplified tagset"""
-    tag_map = {'CC':"CJ", 'CD':"D", "DT":"DT", "EX":"N", "FW":"N", "IN":"P", "JJ":"NM", "JJR":"NM", "JJS":"NM", "LS":"N", "MD":"V", "NN":"N", "NNS":"NPL", "NNP":"N", "NNPS":"NPL", "PDT":"DT", "POS":"N", "PRP":"P", "PRP$":"P", "RB":"VM", "RBR":"VM", "RBS":"VM", "RP":"N", "SYM":"N", "TO":"P", "UH":"N", "VB":"V", "VBD":"V", "VBG":"V", "VBN":"V", "VBP":"V", "VBZ":"V", "WDT":"DT", "WP":"P", "WP,":"P", "WRB":"VM"
-    }
-
-    # assume nouns preceding nouns are noun-modifiers, and verbs proceeding verbs can be ignored
+    # assume nouns preceding nouns are noun-modifiers
     swum_tags = [tag_map[penn_tag] for penn_tag in pos_tokens]
     last_tag = None
     for index, tag in enumerate(swum_tags):
         if last_tag == 'N' and tag == 'N':
             swum_tags[index-1] = 'NM'
-        elif last_tag == 'V' and tag == 'V':
-            swum_tags[index-1] = 'VI' 
         last_tag = tag
     
     return swum_tags

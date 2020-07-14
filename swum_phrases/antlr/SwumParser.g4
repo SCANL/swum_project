@@ -4,7 +4,7 @@ options {tokenVocab=SwumLexer; }
 swum_phrase: (noun_phrase | verb_phrase | prepositional_phrase | verb_group)+;  // experimental starting rule (allow multiple subrules for robustness)
 noun_phrase: Noun_Modifier* Noun;
 prepositional_phrase: Preposition noun_phrase;
-verb_group: Verb_Modifier* Verb_Ignorable* Verb Verb_Particle?;
+verb_group: Verb_Modifier* Verb+ Verb_Particle?;
 verb_phrase: verb_group noun_phrase prepositional_phrase?;
 
 // Equivalences are constructed in a post-processing step after parsing
