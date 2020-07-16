@@ -8,6 +8,8 @@ from dataclasses import dataclass, field
 import copy
 
 from antlr4 import *
+from antlr4.error.ErrorStrategy import BailErrorStrategy
+from antlr4.error.Errors import ParseCancellationException
 from antlr.SwumParser import SwumParser
 from antlr.SwumParserVisitor import SwumParserVisitor
 from antlr.SwumLexer import SwumLexer
@@ -20,7 +22,7 @@ from lxml import etree
 # key is classname, value is metadata for that class
 class_dict = {}
 
-tag_map = {'CC':"CJ", 'CD':"D", "DT":"DT", "EX":"N", "FW":"N", "IN":"P", "JJ":"NM", "JJR":"NM", "JJS":"NM", "LS":"N", "MD":"V", "NN":"N", "NNS":"NPL", "NNP":"N", "NNPS":"NPL", "PDT":"DT", "POS":"N", "PRP":"P", "PRP$":"P", "RB":"VM", "RBR":"VM", "RBS":"VM", "RP":"N", "SYM":"N", "TO":"P", "UH":"N", "VB":"V", "VBD":"V", "VBG":"V", "VBN":"V", "VBP":"V", "VBZ":"V", "WDT":"DT", "WP":"P", "WP,":"P", "WRB":"VM"
+tag_map = {'CC':"CJ", 'CD':"D", "DT":"DT", "EX":"N", "FW":"N", "IN":"P", "JJ":"NM", "JJR":"NM", "JJS":"NM", "LS":"N", "MD":"V", "NN":"N", "NNS":"N", "NNP":"N", "NNPS":"N", "PDT":"DT", "POS":"N", "PRP":"P", "PRP$":"P", "RB":"VM", "RBR":"VM", "RBS":"VM", "RP":"N", "SYM":"N", "TO":"P", "UH":"N", "VB":"V", "VBD":"V", "VBG":"V", "VBN":"V", "VBP":"V", "VBZ":"V", "WDT":"DT", "WP":"P", "WP,":"P", "WRB":"VM"
 }
 
 SwumToken = namedtuple('SwumToken', 'literal pos_tag')
@@ -46,8 +48,11 @@ class SwumMetadata():
     location: str = None
     name: str = None
     tokens: List[SwumToken] = field(default_factory=list)
+    class_name: str = None
     class_tokens: List[SwumToken] = field(default_factory=list)
+    type_name : str = None
     type_tokens: List[SwumToken] = field(default_factory=list)
+    parameter_names : List[str] = field(default_factory=list)
     parameter_tokens: List[List[SwumToken]] = field(default_factory=list)
 
     def is_void(self) -> bool:
@@ -64,6 +69,7 @@ class SwumPhrasesNode():
         self.tokens = tokens
         self.node_type = None
         self.edges: List[SwumPhrasesEdge] = []
+        self.is_annotated = False
 
         if antlr_ctx:
             self.configFromAntlrCtx(antlr_ctx)
@@ -204,9 +210,13 @@ class SwumPhrasesNode():
 
         swum_phrase = SwumPhrasesNode(literal=self.metadata.name, metadata=self.metadata)
 
+        # # consider all functions as verb phrases
+        # swum_phrase.node_type = 'verb_phrase'
+        swum_phrase.node_type = 'swum_phrase'
+
         if attr_rule == SwumAttrRule.verb_default:
             # starts with VG
-            swum_phrase.node_type = 'verb_phrase'
+            # swum_phrase.node_type = 'verb_phrase'
             first_child = self.getChild(0)
 
             # identify action and theme
@@ -237,7 +247,7 @@ class SwumPhrasesNode():
                 swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'aux_arg')
         elif attr_rule == SwumAttrRule.verb_preposition:
             # starts with VG, contains PP
-            swum_phrase.node_type = 'verb_phrase'
+            # swum_phrase.node_type = 'verb_phrase'
 
             # identify action and theme
             first_child = self.getChild(0)
@@ -289,7 +299,7 @@ class SwumPhrasesNode():
                 swum_phrase.addEdge(get_swum_phrase(self.metadata.class_tokens), 'aux_arg')
         elif attr_rule == SwumAttrRule.verb_checker:
             # starts with VG
-            swum_phrase.node_type = 'verb_phrase'
+            # swum_phrase.node_type = 'verb_phrase'
 
             first_child = self.getChild(0)
             # identify action and theme
@@ -379,32 +389,83 @@ class SwumPhrasesNode():
         elif attr_rule == SwumAttrRule.all_preamble:
             fail('Error: preambles are not yet supported')
         else:
-            fail('Error: did not recognize rule for phrase tree')
+            fail('Error: did not recognize annotation rule ' + str(attr_rule))
 
+        swum_phrase.is_annotated = True
         return swum_phrase
 
 
-    def __str__(self):
-        """Returns output in XML format"""
-        str_repr = ''
+    # def __str__(self):
+    #     """Returns output in XML format"""
+    #     str_repr = ''
 
-        if self.node_type != 'swum_phrase':
-            str_repr += '<{}>'.format(self.node_type)
+    #     if self.node_type != 'swum_phrase':
+    #         str_repr += '<{}>'.format(self.node_type)
+
+    #     if self.is_terminal:
+    #         str_repr += self.token.literal
+    #     else:
+    #         for swum_phrases_edge in self.edges:                
+    #             if swum_phrases_edge.label:
+    #                 str_repr += '<{}>'.format(swum_phrases_edge.label)
+    #             str_repr += '{}'.format(str(swum_phrases_edge.child))
+    #             if swum_phrases_edge.label:
+    #                 str_repr += '</{}>'.format(swum_phrases_edge.label)
+
+    #     if self.node_type != 'swum_phrase':
+    #         str_repr += '</{}>'.format(self.node_type)
+
+    #     return str_repr
+
+    def toXML(self) -> etree._Element:
+        root = etree.Element('swum_identifier')
+        if self.metadata is not None:
+            name_node = etree.SubElement(root, 'name')
+            name_node.text = self.metadata.name
+            location_node = etree.SubElement(root, 'location')
+            location_node.text = self.metadata.location
+            if self.metadata.type_name is not None:
+                type_node = etree.SubElement(root, 'type')
+                type_node.text = self.metadata.type_name
+            if self.metadata.class_name is not None:
+                class_name_node = etree.SubElement(root, 'class')
+                class_name_node.text = self.metadata.class_name
+            if len(self.metadata.parameter_names) > 0:
+                parameters_node = etree.SubElement(root, 'parameters')
+                for name in self.metadata.parameter_names:
+                    parameter_node = etree.SubElement(parameters_node, 'parameter')
+                    parameter_node.text = name
+            
+        if self.is_annotated:
+            childXML = self._toXML()
+            if childXML is not None:
+                root.append(childXML)
+
+        return root
+
+    def _toXML(self) -> etree._Element:
+        if self.node_type is None:
+            return None
+        elif self.node_type == 'start_rule':
+            return self.edges[0].child._toXML()
+        
+        root = etree.Element(self.node_type)
 
         if self.is_terminal:
-            str_repr += self.token.literal
+            root.text = self.token.literal
         else:
-            for swum_phrases_edge in self.edges:                
-                if swum_phrases_edge.label:
-                    str_repr += '<{}>'.format(swum_phrases_edge.label)
-                str_repr += '{}'.format(str(swum_phrases_edge.child))
-                if swum_phrases_edge.label:
-                    str_repr += '</{}>'.format(swum_phrases_edge.label)
+            for edge in self.edges:
+                if edge.label:
+                    # new_node = etree.SubElement(root, edge.label)
+                    # new_node.append(edge.child._toXML())
+                    child_node = edge.child._toXML()
+                    child_node.set('swum_attr', edge.label)
+                    root.append(child_node)
+                else:
+                    root.append(edge.child._toXML())
 
-        if self.node_type != 'swum_phrase':
-            str_repr += '</{}>'.format(self.node_type)
+        return root
 
-        return str_repr
 
 @dataclass
 class SwumPhrasesEdge():
@@ -416,24 +477,27 @@ class SwumPhrasesEdge():
 def main(argv):    
     input_filename = argv[1]
     output_filename = argv[2]
-    output_f = open(output_filename, 'w')
-    with open(input_filename, 'rb') as f:
-        for _, element in etree.iterparse(f, tag='swum_identifier', remove_blank_text=True):
-            if element.getparent().tag != 'swum_identifiers': # only process nested identifiers recursively
-                continue
-            
-            metadata = get_metadata(element)
-            if metadata.location == 'class':
-                # add to class dict to resolve later
-                class_dict[metadata.name] = metadata
-                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata)
-                print(swum_phrase, file=output_f)
-            elif metadata.location == 'function':
-                # annotate
-                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata)
-                print(swum_phrase, file=output_f)
+    with open(output_filename, 'wb') as output_f:
+        with open(input_filename, 'rb') as input_f:
+            output_f.write('<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<swum_identifiers>\n'.encode('utf-8'))
 
-            element.clear(keep_tail=True)      
+            for _, element in etree.iterparse(input_f, tag='swum_identifier', remove_blank_text=True):
+                if element.getparent().tag != 'swum_identifiers': # only process nested identifiers recursively
+                    continue
+                
+                metadata = get_metadata(element)
+                if metadata.location == 'class':
+                    # add to class dict to resolve later
+                    class_dict[metadata.name] = metadata
+
+                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata)
+                
+                if swum_phrase is not None:
+                    output_f.write(etree.tostring(swum_phrase.toXML(), encoding='utf-8', pretty_print=True))
+                
+                element.clear(keep_tail=True) 
+
+        output_f.write('</swum_identifiers>'.encode('utf-8'))     
 
 def fail(error: str, err_code: int = 1):
     print(error, file=sys.stderr)
@@ -449,25 +513,35 @@ def get_swum_phrase(tokens: List[SwumToken], metadata: SwumMetadata = None):
     annotate -- annotate semantic relationships in phrasal tree if True (default False)
     """
     swum_pos_tokens = penn_tags_to_swum([swum_token.pos_tag for swum_token in tokens])
-    tree = get_parse_tree(InputStream(' '.join(swum_pos_tokens)))
-    visitor = SwumVisitor()
-    swum_phrase = visitor.visit(tree)
-    swum_phrase.associateWords(tokens)
-    swum_phrase.metadata = metadata
+    tree = get_parse_tree(swum_pos_tokens)
 
-    swum_phrase = swum_phrase.annotated()
+    if tree is not None:
+        visitor = SwumVisitor()
+        swum_phrase = visitor.visit(tree)
+        swum_phrase.associateWords(tokens)
+        swum_phrase.metadata = metadata
+
+        swum_phrase = swum_phrase.annotated()
     
-    return swum_phrase
+        return swum_phrase
+    else:
+        swum_phrase = SwumPhrasesNode(metadata=metadata)
+        return swum_phrase
 
-def get_parse_tree(input_stream):
-    """Returns the raw ANTLR parse tree for input_stream based on SWUM grammar"""
-    lexer = SwumLexer(input_stream)
+def get_parse_tree(swum_pos_tokens : List[str]):
+    """Returns the raw ANTLR parse tree for swum_pos_tokens based on SWUM grammar"""
+    lexer = SwumLexer(InputStream(''.join(swum_pos_tokens)))
     stream = CommonTokenStream(lexer)
     parser = SwumParser(stream)
-    tree = parser.swum_phrase()
+    parser._errHandler = BailErrorStrategy()
 
-    return tree
-
+    try:
+        tree = parser.start_rule()
+        return tree
+    except ParseCancellationException as e:
+        print('Could not parse POS tokens {}'.format(swum_pos_tokens))
+        return None
+    
 def penn_tags_to_swum(pos_tokens:List[str]):
     """Converts POS tags from Penn tagset to SWUM's simplified tagset"""
     # assume nouns preceding nouns are noun-modifiers
@@ -480,7 +554,7 @@ def penn_tags_to_swum(pos_tokens:List[str]):
     
     return swum_tags
 
-def get_metadata(element) -> SwumMetadata:
+def get_metadata(element: etree._Element) -> SwumMetadata:
     """Returns the extracted metadata object from a <swum_identifier> XML node in input"""
     metadata = SwumMetadata()
     for child in element:
@@ -491,13 +565,16 @@ def get_metadata(element) -> SwumMetadata:
         elif child.tag == 'class':
             # resolve class name to class metadata, add to this identifier's metadata
             class_metadata = class_dict[child.text.strip()]
+            metadata.class_name = class_metadata.name
             metadata.class_tokens = class_metadata.tokens
         elif child.tag == 'type':
             type_metadata = get_metadata(child[0])
+            metadata.type_name = type_metadata.name
             metadata.type_tokens = type_metadata.tokens
         elif child.tag == 'parameters':
             for parameter_node in child:
                 parameter_metadata = get_metadata(parameter_node)
+                metadata.parameter_names.append(parameter_metadata.name)
                 metadata.parameter_tokens.append(parameter_metadata.tokens)
         elif child.tag == 'identifier':
             for word_node in child:
@@ -517,7 +594,7 @@ def get_metadata(element) -> SwumMetadata:
 
 class SwumVisitor(SwumParserVisitor):
     """Override ANTLR's default traversal of parse tree to support custom phrasal tree"""
-    def visitSwum_phrase(self, ctx:SwumParser.Swum_phraseContext):
+    def visitStart_rule(self, ctx:SwumParser.Start_ruleContext):
         return SwumPhrasesNode(antlr_ctx=ctx)
 
 if __name__ == '__main__':

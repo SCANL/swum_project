@@ -15,6 +15,7 @@ then
 else
     retval=$?
     echo "Failed with exit code ${retval}"
+    rm $2 # delete output file
 fi
 echo 'deleting antlr files...'
 cd antlr
