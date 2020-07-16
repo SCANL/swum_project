@@ -27,7 +27,7 @@ Be sure to include the leading dot.
 The program accepts a single XML input file containing program (type, location, parameters, etc.) and part of speech information per identifier. The input file may be automatically generated from source code using the [SWUM words](https://github.com/SCANL/swum_project/tree/master/swum_words) layer. See the `examples` directory for sample input.
 
 ## Output
-An XML file containing phrasal structure and annotation information per code identifier in the input file. Program and part of speech information are also preserved.
+An XML file containing phrasal structure and annotation information per code identifier in the input file. Program information per identifier is also preserved.
 ```
 <verb_phrase><action><verb_group><verb>get</verb></verb_group></action><theme><noun_phrase><noun>Area</noun></noun_phrase></theme><aux_arg><noun_phrase><noun>x</noun></noun_phrase></aux_arg><aux_arg><noun_phrase><noun>y</noun></noun_phrase></aux_arg><aux_arg><noun_phrase><noun>int</noun></noun_phrase></aux_arg><aux_arg><prepositional_phrase><preposition>My</preposition><noun_phrase><noun>Class</noun></noun_phrase></prepositional_phrase></aux_arg></verb_phrase>
 ```

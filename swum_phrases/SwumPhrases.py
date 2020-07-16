@@ -475,7 +475,8 @@ def main(argv):
                     
                     element.clear(keep_tail=True) 
             except Exception as e:
-                fail('Error: {} is not a valid XML file'.format(input_filename))
+                print(str(e))
+                fail('Error: {} is not a valid input file. Either the file is not valid XML or contains invalid information'.format(input_filename))
 
         output_f.write('</swum_identifiers>'.encode('utf-8'))     
 
@@ -519,13 +520,16 @@ def get_parse_tree(swum_pos_tokens : List[str]):
         tree = parser.start_rule()
         return tree
     except ParseCancellationException as e:
-        print('Could not parse POS tokens {}'.format(swum_pos_tokens))
+        # print('Could not parse POS tokens {}'.format(swum_pos_tokens))
         return None
     
 def penn_tags_to_swum(pos_tokens:List[str]):
     """Converts POS tags from Penn tagset to SWUM's simplified tagset"""
     # assume nouns preceding nouns are noun-modifiers
-    swum_tags = [tag_map[penn_tag] for penn_tag in pos_tokens]
+    try:
+        swum_tags = [tag_map[penn_tag] for penn_tag in pos_tokens]
+    except KeyError as e:
+        fail('Unrecognized POS tag {} in input file'.format(str(e)))
     last_tag = None
     for index, tag in enumerate(swum_tags):
         if last_tag == 'N' and tag == 'N':
