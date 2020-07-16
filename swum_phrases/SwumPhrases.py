@@ -394,29 +394,6 @@ class SwumPhrasesNode():
         swum_phrase.is_annotated = True
         return swum_phrase
 
-
-    # def __str__(self):
-    #     """Returns output in XML format"""
-    #     str_repr = ''
-
-    #     if self.node_type != 'swum_phrase':
-    #         str_repr += '<{}>'.format(self.node_type)
-
-    #     if self.is_terminal:
-    #         str_repr += self.token.literal
-    #     else:
-    #         for swum_phrases_edge in self.edges:                
-    #             if swum_phrases_edge.label:
-    #                 str_repr += '<{}>'.format(swum_phrases_edge.label)
-    #             str_repr += '{}'.format(str(swum_phrases_edge.child))
-    #             if swum_phrases_edge.label:
-    #                 str_repr += '</{}>'.format(swum_phrases_edge.label)
-
-    #     if self.node_type != 'swum_phrase':
-    #         str_repr += '</{}>'.format(self.node_type)
-
-    #     return str_repr
-
     def toXML(self) -> etree._Element:
         root = etree.Element('swum_identifier')
         if self.metadata is not None:
@@ -481,21 +458,24 @@ def main(argv):
         with open(input_filename, 'rb') as input_f:
             output_f.write('<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<swum_identifiers>\n'.encode('utf-8'))
 
-            for _, element in etree.iterparse(input_f, tag='swum_identifier', remove_blank_text=True):
-                if element.getparent().tag != 'swum_identifiers': # only process nested identifiers recursively
-                    continue
-                
-                metadata = get_metadata(element)
-                if metadata.location == 'class':
-                    # add to class dict to resolve later
-                    class_dict[metadata.name] = metadata
+            try:
+                for _, element in etree.iterparse(input_f, tag='swum_identifier', remove_blank_text=True):
+                    if element.getparent().tag != 'swum_identifiers': # only process nested identifiers recursively
+                        continue
+                    
+                    metadata = get_metadata(element)
+                    if metadata.location == 'class':
+                        # add to class dict to resolve later
+                        class_dict[metadata.name] = metadata
 
-                swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata)
-                
-                if swum_phrase is not None:
-                    output_f.write(etree.tostring(swum_phrase.toXML(), encoding='utf-8', pretty_print=True))
-                
-                element.clear(keep_tail=True) 
+                    swum_phrase = get_swum_phrase(metadata.tokens, metadata=metadata)
+                    
+                    if swum_phrase is not None:
+                        output_f.write(etree.tostring(swum_phrase.toXML(), encoding='utf-8', pretty_print=True))
+                    
+                    element.clear(keep_tail=True) 
+            except Exception as e:
+                fail('Error: {} is not a valid XML file'.format(input_filename))
 
         output_f.write('</swum_identifiers>'.encode('utf-8'))     
 
