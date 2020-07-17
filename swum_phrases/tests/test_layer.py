@@ -23,3 +23,7 @@ def test_simple_success():
 def test_missing_metadata():
     ret, text = run_layer('tests/missing_metadata.xml')
     assert ret != 0
+
+def test_invalid_xml():
+    ret, text = run_layer('tests/invalid_xml.xml')
+    assert ret != 0

@@ -90,6 +90,9 @@ class SwumPhrasesNode():
             self.buildSubtrees()
     
     def addEdge(self, node, label: str = None):
+        # TODO: experimental guard against phrases that don't parse with SWUM grammar
+        if node is None:
+            return
         new_edge = SwumPhrasesEdge(child=node, label=label)
         self.edges.append(new_edge)
     
@@ -422,6 +425,7 @@ class SwumPhrasesNode():
 
     def _toXML(self) -> etree._Element:
         if self.node_type is None:
+            print(self.metadata)
             return None
         elif self.node_type == 'start_rule':
             return self.edges[0].child._toXML()
@@ -436,6 +440,7 @@ class SwumPhrasesNode():
                     # new_node = etree.SubElement(root, edge.label)
                     # new_node.append(edge.child._toXML())
                     child_node = edge.child._toXML()
+                    print('setting {}'.format(edge.label))
                     child_node.set('swum_attr', edge.label)
                     root.append(child_node)
                 else:
@@ -476,7 +481,7 @@ def main(argv):
                     element.clear(keep_tail=True) 
             except Exception as e:
                 print(str(e))
-                fail('Error: {} is not a valid input file. Either the file is not valid XML or contains invalid information'.format(input_filename))
+                fail('Error: Either {} is not a valid input file, or an internal error occurred.'.format(input_filename))
 
         output_f.write('</swum_identifiers>'.encode('utf-8'))     
 
@@ -565,6 +570,8 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
                 pos_node = word_node[0]
                 new_token = SwumToken(word_node.text.strip(), pos_node.text.strip())
                 metadata.tokens.append(new_token)
+    
+    print(metadata)
 
     if metadata.name is None:
         fail('a swum identifier is missing name')
