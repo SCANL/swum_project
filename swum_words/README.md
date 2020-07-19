@@ -4,6 +4,7 @@ In SWUM <sub>words</sub>, there exists a word node for every word ocurrence in a
 ## Installation
 1. SWUM <sub>words</sub> requires [Python 3.7+](https://www.python.org) and has been tested on Python 3.8.
 2. To convert your Java and C++ file, I would recommend downloading [SRCML](https://www.srcml.org) with directions downloading SRCML [here](https://www.srcml.org/#download)
+3. To use SWUM <sub>words</sub>, you have to downdload the [Spiral](https://github.com/casics/spiral) module which includes Ronin(the most advanced identifier splitter in the module). 
 Input: XML file representing a code sample. 
 Output: Prints out the role the word node plays and its name("Role: Name") and XML file of the result.
 ### Example: 
