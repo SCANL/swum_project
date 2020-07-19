@@ -1,8 +1,9 @@
 # SWUM Words
 Analysis of word nodes within SWUM <sub>words</sub>
-## Description of Project
-Using a word node in SWUM <sub>words</sub> in a specific code sample, we split each identifier using the NLTK python library and identifier splitting techniques. Then we annotate each word node with parts of speech tagging and its role in the code. The analysis of the word nodes are then sent to the SWUM <sub>phrases</sub> stage where word relationships are used to develop edges between word nodes.
-## Usage 
+In SWUM <sub>words</sub>, there exists a word node for every word ocurrence in a specific code sample. We analyze each word node by splitting each word using the NLTK python library and identifier splitting techniques. Then we annotate each word node with parts of speech tagging and its role in the code (function, class, variable name, etc.). The analysis of the word nodes are then sent to the SWUM <sub>phrases</sub> stage where word relationships are used to develop edges between word nodes.
+## Installation
+1. SWUM <sub>words</sub> requires [Python 3.7+](www.python.org) and has been tested on Python 3.8.
+2. To convert your Java and C++ file, I would recommend download
 Input: XML file representing a code sample. 
 Output: Prints out the role the word node plays and its name("Role: Name") and XML file of the result.
 ### Example: 
