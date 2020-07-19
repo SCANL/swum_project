@@ -1,7 +1,7 @@
 # Author: Aditya Bhargava (abhargava@g.hmc.edu)
 # Date: Summer 2020
 # Organization: RIT REU Cultivating New Generation Software
-# Function: Takes an XML file and analyzes it based on identifier name and function using a SAX parser. Prints the results in a XML format.
+# Function: Takes an XML file and analyzes it based on identifier name and function using a SAX parser. Saves the results in an XML file. 
 import sys
 # Part of Speech tagging tools
 import nltk
@@ -16,7 +16,8 @@ from lxml import etree
 
 class JavaHandler(xml.sax.ContentHandler):
     def __init__(self):
-        self.input = input('XML File:')
+        self.input = input("XML Input File: ")
+        self.output = input("Name of XML Output File: ")
         self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "import":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument":0, "argument_list":0}
         self.previousTag = ""
@@ -26,20 +27,22 @@ class JavaHandler(xml.sax.ContentHandler):
         self.variableName = ""
         self.functionName = ""
         self.constructorName = ""
-        self.variableType = ""
-        self.functionType = ""
-        self.parameterTyp = ""
         self.className = ""
         self.currentContent = ""
+        # Used for arguments in types
+        self.variableType = ""
+        self.functionType = ""
+        self.argument = []
         # Used for parameters in functions and constructors
         self.parameterList = []
         self.parameterType = []
         self.parameterDict = {}
+        self.parameterTypeString = ""
         # Used for Part of Speech (POS) tagging
         self.dictPOS = {}  
         self.sentence = ""  
     # Call when an element starts
-    def startElement(self, tag, attributes):  
+    def startElement(self, tag, attributes):
         for x in self.dictTag:
             if tag == x:
                 self.dictTag[tag] += 1
@@ -57,19 +60,20 @@ class JavaHandler(xml.sax.ContentHandler):
                 wordTag.text = splitWord[0]
                 partOfSpeechTag = etree.SubElement(wordTag, 'pos')
                 partOfSpeechTag.text = splitWord[1]
-    # XML writer for class names, parameters, variable names, and interface names
+    # XML writer for class names, parameters, and interface names
     def XMLWriter(self,locationTagText,currentContent,parameterType,tree):
         swumIdentifierTag = etree.SubElement(tree, 'swum_identifier')
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
         locationTag.text = locationTagText
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
         nameTag.text = currentContent
+        # Recursive call to write parameter types
         if parameterType and self.parameterList:
             typeTag = etree.SubElement(swumIdentifierTag, 'type')
             self.XMLWriter("type",parameterType,'',typeTag)
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(currentContent, identifierTag)
-    # XML writer for functions and constructor names
+    # XML writer for functions, constructor, and variavle declaration names
     def functionConstructorDeclXMLWriter(self,definedName, role, definedType):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
@@ -80,9 +84,20 @@ class JavaHandler(xml.sax.ContentHandler):
         locationTag.text = role
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
         nameTag.text = name
-        if definedType:
+        if definedType and not self.argument:
             typeTag = etree.SubElement(swumIdentifierTag, 'type')
             self.XMLWriter("type",definedType, '', typeTag)
+        if self.argument:
+            typeTagArgument = etree.SubElement(swumIdentifierTag, 'type')
+            swumIdentifierTagArgument = etree.SubElement(typeTagArgument, 'swum_identifier')
+            locationTagArgument = etree.SubElement(swumIdentifierTagArgument, 'location')
+            locationTagArgument.text = "type"
+            nameTagArgument = etree.SubElement(swumIdentifierTagArgument, 'name')
+            nameTagArgument.text = definedType
+            argumentsTagArgument = etree.SubElement(swumIdentifierTagArgument, 'arguments')
+            for argument in self.argument:
+                argumentTag = etree.SubElement(argumentsTagArgument, 'argument')
+                self.XMLWriter("argument",argument, '',argumentTag)
         if self.parameterList:
             parameterTag = etree.SubElement(swumIdentifierTag, 'parameters')
             for key in self.parameterDict:
@@ -97,6 +112,7 @@ class JavaHandler(xml.sax.ContentHandler):
         self.parameterType = []
         self.parameterList = []
         self.parameterDict.clear()
+        self.argument = []
 
     # Call when an elements ends
     def endElement(self, tag):
@@ -106,6 +122,7 @@ class JavaHandler(xml.sax.ContentHandler):
                     self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
                 if self.functionName:
                     if not self.functionType:
+                        #Makes sure functions have return types
                         raise AttributeError("Functions must have a return type")
                     self.functionConstructorDeclXMLWriter(self.functionName, "function",self.functionType)
                 elif self.constructorName:
@@ -134,9 +151,11 @@ class JavaHandler(xml.sax.ContentHandler):
                                 if (self.dictTag["argument_list"]):
                                     if(self.dictTag["argument"]):
                                         if self.parameterTypeString[-1] == '>':
+                                            self.argument.append(self.currentContent)
                                             self.parameterTypeString= self.parameterTypeString[:-1]
                                             self.parameterTypeString= self.parameterTypeString+","+self.currentContent+">"
                                         else:
+                                            self.argument.append(self.currentContent)
                                             self.parameterTypeString = self.parameterTypeString+"<"+self.currentContent+">"
                                             self.parameterType.remove(self.parameterType[-1])
                                             self.parameterType.append(self.parameterTypeString)
@@ -148,6 +167,7 @@ class JavaHandler(xml.sax.ContentHandler):
                                 self.parameterList.append(self.currentContent)
                         elif (self.dictTag["decl_stmt"] or self.dictTag["decl"]) and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
                             if not self.variableType:
+                                #Makes sure variables have a type 
                                 raise AttributeError("Variables must have a type ")
                             self.variableName = self.currentContent
                             self.functionConstructorDeclXMLWriter(self.variableName, "variable", self.variableType) 
@@ -160,9 +180,11 @@ class JavaHandler(xml.sax.ContentHandler):
                         if (self.dictTag["argument_list"]):
                             if(self.dictTag["argument"]):
                                 if self.functionType[-1] == '>':
+                                    self.argument.append(self.currentContent)
                                     self.functionType = self.functionType[:-1]
                                     self.functionType = self.functionType+","+self.currentContent+">"
                                 else:
+                                    self.argument.append(self.currentContent)
                                     self.functionType = self.functionType+"<"+self.currentContent+">"
                         else:
                             if self.currentContent != ">":
@@ -173,14 +195,17 @@ class JavaHandler(xml.sax.ContentHandler):
                         if (self.dictTag["argument_list"]):
                             if(self.dictTag["argument"]):
                                 if self.variableType[-1] == '>':
+                                    self.argument.append(self.currentContent)
                                     self.variableType = self.variableType[:-1]
                                     self.variableType = self.variableType+","+self.currentContent+">"
                                 else:
+                                    self.argument.append(self.currentContent)
                                     self.variableType = self.variableType+"<"+self.currentContent+">"
                         else:
                             if self.currentContent != ">" and self.currentContent != "[]":
-                                self.variableType = self.currentContent
+                                self.variableType = self.currentContent         
                 else:
+                    # Raises an NameError if self.currentContent is not a valid identifier (only includes alphanumeric characters, underscores, and "$")
                     raise NameError(self.currentContent + " is not a valid identifier")
             self.dictTag[tag] -= 1
             self.previousTag = tag
@@ -207,5 +232,6 @@ if (__name__ == "__main__"):
     Handler = JavaHandler()  
     parser.setContentHandler(Handler)
     parser.parse(Handler.input)
-    Handler.xmlResult = unescape(prettify(Handler.xmlResult))
-    print(Handler.xmlResult)
+    print(prettify(Handler.xmlResult))
+    Handler.xmlResult = Handler.xmlResult.getroottree()
+    Handler.xmlResult.write(str(Handler.output))
