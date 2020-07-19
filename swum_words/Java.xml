@@ -1,5 +1,0 @@
-<!-- XML representation of a Java concept (class, method, etc.)-->
-<main>
-    <function><type><specifier>public</specifier> <specifier>static</specifier> <name>int</name></type> <name>getArea</name><parameter_list>(<parameter><decl><type><specifier>final</specifier> <name>int</name></type> <name>x</name></decl></parameter>, <parameter><decl><type><specifier>final</specifier> <name>int</name></type> <name>y</name></decl></parameter>)</parameter_list> <block>{<block_content>
-    </block_content>}</block></function>
-</main>
