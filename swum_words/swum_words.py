@@ -16,8 +16,8 @@ from lxml import etree
 
 class JavaHandler(xml.sax.ContentHandler):
     def __init__(self):
-        #self.input = input("XML Input File: ")
-        #self.output = input("XML Output File: ")
+        self.input = input("XML Input File: ")
+        self.output = input("XML Output File: ")
         self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "import":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument":0, "argument_list":0}
         self.previousTag = ""
@@ -258,7 +258,7 @@ if (__name__ == "__main__"):
     parser.setFeature(xml.sax.handler.feature_namespaces,0)  
     Handler = JavaHandler()  
     parser.setContentHandler(Handler)
-    parser.parse('ShortWordCount.xml')
+    parser.parse(Handler.input)
     print(prettify(Handler.xmlResult))
     Handler.xmlResult = (Handler.xmlResult).getroottree()
-    #Handler.xmlResult.write(str(Handler.output))
+    Handler.xmlResult.write(str(Handler.output))
