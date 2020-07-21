@@ -16,8 +16,9 @@ from lxml import etree
 
 class JavaHandler(xml.sax.ContentHandler):
     def __init__(self):
-        self.input = input("XML Input File: ")
-        self.output = input("XML Output File: ")
+        #self.input = input("XML Input File: ")
+        #self.output = input("XML Output File: ")
+        #self.checksInputAndOutput(self.input, self.output)
         self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "import":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument":0, "argument_list":0}
         self.previousTag = ""
@@ -33,7 +34,9 @@ class JavaHandler(xml.sax.ContentHandler):
         self.variableType = ""
         self.functionType = ""
         self.argument = []
+        self.genericAttribute = ""
         # Used for parameters in functions and constructors
+        self.parameterGenericList = []
         self.parameterList = []
         self.parameterType = []
         self.parameterDict = {}
@@ -41,12 +44,17 @@ class JavaHandler(xml.sax.ContentHandler):
         self.parameterArgument = []
         # Used for Part of Speech (POS) tagging
         self.dictPOS = {}  
-        self.sentence = ""  
+        self.sentence = ""
+    def checksInputAndOutput(self,inputFile,outputFile):
+        if ".xml" not in inputFile or "xml" not in outputFile:
+            raise NameError("Include the .xml file extension")
     # Call when an element starts
     def startElement(self, tag, attributes):
         for x in self.dictTag:
             if tag == x:
                 self.dictTag[tag] += 1
+        if tag == "parameter_list":
+            self.genericAttribute = attributes.get("type")
     # Part Of Speech (POS) Tagging
     def PartOfSpeechTag(self,currentContent, tree):
         self.sentence = ""
@@ -88,7 +96,6 @@ class JavaHandler(xml.sax.ContentHandler):
                 self.XMLWriter("argument",argument, '',argumentTag, False)          
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(currentContent, identifierTag)
-        self.argument = []
     # XML writer for functions, constructor, and variavle declaration names
     def functionConstructorDeclXMLWriter(self,definedName, role, definedType,genericStatus):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
@@ -114,13 +121,19 @@ class JavaHandler(xml.sax.ContentHandler):
             for argument in self.argument:
                 argumentTag = etree.SubElement(argumentsTagArgument, 'argument')
                 self.XMLWriter("argument",argument, '',argumentTag, False)
+        if self.parameterGenericList:
+            parametersTag = etree.SubElement(swumIdentifierTag, 'parameters')
+            parameterTag = etree.SubElement(parametersTag, 'parameter')
+            for temp in self.parameterGenericList:
+                self.XMLWriter("parameter",temp,'', parameterTag, False)
         if self.parameterList:
-            parameterTag = etree.SubElement(swumIdentifierTag, 'parameters')
+            formalParametersTag = etree.SubElement(swumIdentifierTag, 'formal_parameters')
+            formalParameterTag = etree.SubElement(formalParametersTag, 'formal_parameter')
             for key in self.parameterDict:
                 if "<" in self.parameterDict[key]:
-                    self.XMLWriter("parameter",key,self.parameterDict[key], parameterTag, True)
+                    self.XMLWriter("formal_parameter",key,self.parameterDict[key], formalParameterTag, True)
                 else:
-                    self.XMLWriter("parameter",key,self.parameterDict[key], parameterTag, False)
+                    self.XMLWriter("formal_parameter",key,self.parameterDict[key], formalParameterTag, False)
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(name, identifierTag)
         # Resetting the function, constructor, and parameter attributes
@@ -133,18 +146,19 @@ class JavaHandler(xml.sax.ContentHandler):
         self.parameterArgument = []
         self.parameterDict.clear()
         self.argument = []
+        self.parameterGenericList = []
+        self.genericAttribute = ""
 
     # Call when an elements ends
     def endElement(self, tag):
         # The function and constructor information is complete and therefore sent to their XML writer
         if tag == "parameter_list":
-                for tempNum in range(0,len(self.parameterList)):
-                    self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
                 if self.functionName:
+                    for tempNum in range(0,len(self.parameterList)):
+                        self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
                     if not self.functionType:
                         #Makes sure functions have return types
                         raise AttributeError("Functions must have a return type")
-                    print(self.functionType)
                     if "<" in self.functionType:
                         self.functionConstructorDeclXMLWriter(self.functionName, "function",self.functionType, True)
                     else:
@@ -167,7 +181,9 @@ class JavaHandler(xml.sax.ContentHandler):
                                 self.interfaceName = self.currentContent 
                                 self.XMLWriter("interface", self.currentContent, '', self.xmlResult, False)
                         elif self.dictTag["parameter_list"]:
-                            if self.dictTag["parameter"]and self.dictTag["type"]:
+                            if self.dictTag["parameter"] and self.genericAttribute == "generic":
+                                self.parameterGenericList.append(self.currentContent)
+                            elif self.dictTag["parameter"]and self.dictTag["type"]:
                                 if(self.dictTag["index"]):
                                     self.parameterTypeString = self.parameterTypeString+"[]"
                                     self.parameterType.remove(self.parameterType[-1])
@@ -258,7 +274,7 @@ if (__name__ == "__main__"):
     parser.setFeature(xml.sax.handler.feature_namespaces,0)  
     Handler = JavaHandler()  
     parser.setContentHandler(Handler)
-    parser.parse(Handler.input)
+    parser.parse("ShortGenericsDemo.xml")
     print(prettify(Handler.xmlResult))
     Handler.xmlResult = (Handler.xmlResult).getroottree()
-    Handler.xmlResult.write(str(Handler.output))
+    #Handler.xmlResult.write(str(Handler.output))
