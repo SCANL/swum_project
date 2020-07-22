@@ -19,7 +19,7 @@ class JavaHandler(xml.sax.ContentHandler):
         #self.input = input("XML Input File: ")
         #self.output = input("XML Output File: ")
         #self.checksInputAndOutput(self.input, self.output)
-        self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "import":0,
+        self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "extends":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument":0, "argument_list":0}
         self.previousTag = ""
         self.xmlResult = etree.Element('swum_identifiers')
@@ -34,14 +34,14 @@ class JavaHandler(xml.sax.ContentHandler):
         self.variableType = ""
         self.functionType = ""
         self.argument = []
-        self.genericAttribute = ""
+        self.parameterArgument = []
+        self.genericParameterAttribute = ""
         # Used for parameters in functions and constructors
         self.parameterGenericList = []
         self.parameterList = []
         self.parameterType = []
         self.parameterDict = {}
         self.parameterTypeString = ""
-        self.parameterArgument = []
         # Used for Part of Speech (POS) tagging
         self.dictPOS = {}  
         self.sentence = ""
@@ -54,7 +54,7 @@ class JavaHandler(xml.sax.ContentHandler):
             if tag == x:
                 self.dictTag[tag] += 1
         if tag == "parameter_list":
-            self.genericAttribute = attributes.get("type")
+            self.genericParameterAttribute = attributes.get("type")
     # Part Of Speech (POS) Tagging
     def PartOfSpeechTag(self,currentContent, tree):
         self.sentence = ""
@@ -90,10 +90,10 @@ class JavaHandler(xml.sax.ContentHandler):
             locationTagArgument.text = "type"
             nameTagArgument = etree.SubElement(swumIdentifierTagArgument, 'name')
             nameTagArgument.text = parameterType
-            argumentsTagArgument = etree.SubElement(swumIdentifierTagArgument, 'arguments')
+            argumentsTagArgument = etree.SubElement(swumIdentifierTagArgument, 'parameters')
             for argument in self.parameterArgument:
-                argumentTag = etree.SubElement(argumentsTagArgument, 'argument')
-                self.XMLWriter("argument",argument, '',argumentTag, False)          
+                argumentTag = etree.SubElement(argumentsTagArgument, 'parameter')
+                self.XMLWriter("parameter",argument, '',argumentTag, False)          
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(currentContent, identifierTag)
     # XML writer for functions, constructor, and variavle declaration names
@@ -117,10 +117,10 @@ class JavaHandler(xml.sax.ContentHandler):
             locationTagArgument.text = "type"
             nameTagArgument = etree.SubElement(swumIdentifierTagArgument, 'name')
             nameTagArgument.text = definedType
-            argumentsTagArgument = etree.SubElement(swumIdentifierTagArgument, 'arguments')
+            argumentsTagArgument = etree.SubElement(swumIdentifierTagArgument, 'parameters')
             for argument in self.argument:
-                argumentTag = etree.SubElement(argumentsTagArgument, 'argument')
-                self.XMLWriter("argument",argument, '',argumentTag, False)
+                argumentTag = etree.SubElement(argumentsTagArgument, 'parameter')
+                self.XMLWriter("parameter",argument, '',argumentTag, False)
         if self.parameterGenericList:
             parametersTag = etree.SubElement(swumIdentifierTag, 'parameters')
             parameterTag = etree.SubElement(parametersTag, 'parameter')
@@ -147,33 +147,34 @@ class JavaHandler(xml.sax.ContentHandler):
         self.parameterDict.clear()
         self.argument = []
         self.parameterGenericList = []
-        self.genericAttribute = ""
+        self.genericParameterAttribute = ""
 
     # Call when an elements ends
     def endElement(self, tag):
         # The function and constructor information is complete and therefore sent to their XML writer
         if tag == "parameter_list":
-                if self.functionName:
-                    for tempNum in range(0,len(self.parameterList)):
-                        self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
-                    if not self.functionType:
-                        #Makes sure functions have return types
-                        raise AttributeError("Functions must have a return type")
-                    if "<" in self.functionType:
-                        self.functionConstructorDeclXMLWriter(self.functionName, "function",self.functionType, True)
-                    else:
-                        self.functionConstructorDeclXMLWriter(self.functionName, "function", self.functionType, False)
-                elif self.constructorName:
-                    self.functionConstructorDeclXMLWriter(self.constructorName, "constructor", '',False)
+            if self.functionName:
+                for tempNum in range(0,len(self.parameterList)):
+                    self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
+                if not self.functionType:
+                    #Makes sure functions have return types
+                    raise AttributeError("Functions must have a return type")
+                if "<" in self.functionType:
+                    self.functionConstructorDeclXMLWriter(self.functionName, "function",self.functionType, True)
+                else:
+                    self.functionConstructorDeclXMLWriter(self.functionName, "function", self.functionType, False)
+            elif self.constructorName:
+                self.functionConstructorDeclXMLWriter(self.constructorName, "constructor", '',False)
+            elif self.className:
+                self.functionConstructorDeclXMLWriter(self.className, "class", '',False)
         # Determining self.currentContent's location and attribute
         if tag == "name" or tag == "index":
-            if not (self.dictTag["expr"] or self.dictTag["expr_stmt"] or (self.previousTag == "index" and tag == "name")):
+            if not (self.dictTag["expr"] or self.dictTag["expr_stmt"] or self.dictTag["extends"] or (self.previousTag == "index" and tag == "name")):
                 if not (self.dictTag["type"]) or self.dictTag["parameter_list"]:
                     if self.currentContent.isidentifier() or "$" in self.currentContent or "[]" in self.currentContent or ">" in self.currentContent:
                         if self.dictTag["class"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.className = self.currentContent
-                                self.XMLWriter("class",self.currentContent, '', self.xmlResult, False)
                         elif self.dictTag["constructor"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["parameter"]):
                             self.constructorName = self.currentContent
                         elif (self.dictTag["interface"] or self.dictTag["interface_decl"]) and not(self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
@@ -181,19 +182,23 @@ class JavaHandler(xml.sax.ContentHandler):
                                 self.interfaceName = self.currentContent 
                                 self.XMLWriter("interface", self.currentContent, '', self.xmlResult, False)
                         elif self.dictTag["parameter_list"]:
-                            if self.dictTag["parameter"] and self.genericAttribute == "generic":
+                            if self.dictTag["parameter"] and not (self.dictTag["type"] or self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["constructor"]):
                                 self.parameterGenericList.append(self.currentContent)
+                            elif self.dictTag["parameter"] and self.genericParameterAttribute == "generic":
+                                self.parameterGenericList.append(self.currentContent)                            
                             elif self.dictTag["parameter"]and self.dictTag["type"]:
-                                if(self.dictTag["index"]):
+                                if(tag== "index"):
                                     self.parameterTypeString = self.parameterTypeString+"[]"
                                     self.parameterType.remove(self.parameterType[-1])
                                     self.parameterType.append(self.parameterTypeString)
-                                if (self.dictTag["argument_list"]):
+                                elif (self.dictTag["argument_list"]):
                                     if(self.dictTag["argument"]):
                                         if self.parameterTypeString[-1] == '>':
                                             self.parameterArgument.append(self.currentContent)
                                             self.parameterTypeString= self.parameterTypeString[:-1]
                                             self.parameterTypeString= self.parameterTypeString+","+self.currentContent+">"
+                                            self.parameterType.remove(self.parameterType[-1])
+                                            self.parameterType.append(self.parameterTypeString)
                                         else:
                                             self.parameterArgument.append(self.currentContent)
                                             self.parameterTypeString = self.parameterTypeString+"<"+self.currentContent+">"
@@ -220,7 +225,7 @@ class JavaHandler(xml.sax.ContentHandler):
                     if (self.dictTag["function"] or self.dictTag["function_decl"]) and not(self.dictTag["decl_stmt"] or self.dictTag["decl"]):
                         if(self.dictTag["index"]):
                             self.functionType = self.functionType+"[]"
-                        if (self.dictTag["argument_list"]):
+                        elif (self.dictTag["argument_list"]):
                             if(self.dictTag["argument"]):
                                 if self.functionType[-1] == '>':
                                     self.argument.append(self.currentContent)
@@ -235,7 +240,7 @@ class JavaHandler(xml.sax.ContentHandler):
                     else:
                         if(self.dictTag["index"]):
                             self.variableType= self.variableType+"[]"
-                        if (self.dictTag["argument_list"]):
+                        elif (self.dictTag["argument_list"]):
                             if(self.dictTag["argument"]):
                                 if self.variableType[-1] == '>':
                                     self.argument.append(self.currentContent)
@@ -274,7 +279,7 @@ if (__name__ == "__main__"):
     parser.setFeature(xml.sax.handler.feature_namespaces,0)  
     Handler = JavaHandler()  
     parser.setContentHandler(Handler)
-    parser.parse("ShortGenericsDemo.xml")
+    parser.parse("ShortWordCount.xml")
     print(prettify(Handler.xmlResult))
     Handler.xmlResult = (Handler.xmlResult).getroottree()
     #Handler.xmlResult.write(str(Handler.output))
