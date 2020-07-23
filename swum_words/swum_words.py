@@ -16,9 +16,9 @@ from lxml import etree
 
 class JavaHandler(xml.sax.ContentHandler):
     def __init__(self):
-        #self.input = input("XML Input File: ")
-        #self.output = input("XML Output File: ")
-        #self.checksInputAndOutput(self.input, self.output)
+        self.input = input("XML Input File: ")
+        self.output = input("XML Output File: ")
+        self.checksInputAndOutput(self.input, self.output)
         self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "extends":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument":0, "argument_list":0}
         self.previousTag = ""
@@ -101,8 +101,9 @@ class JavaHandler(xml.sax.ContentHandler):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
         if role == "constructor" or role == "function":
-            classTag = etree.SubElement(swumIdentifierTag, 'class')
-            classTag.text = self.className
+            if self.className:
+                classTag = etree.SubElement(swumIdentifierTag, 'class')
+                classTag.text = self.className
         name = definedName
         locationTag.text = role
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
@@ -153,9 +154,9 @@ class JavaHandler(xml.sax.ContentHandler):
     def endElement(self, tag):
         # The function and constructor information is complete and therefore sent to their XML writer
         if tag == "parameter_list":
+            for tempNum in range(0,len(self.parameterList)):
+                self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
             if self.functionName:
-                for tempNum in range(0,len(self.parameterList)):
-                    self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
                 if not self.functionType:
                     #Makes sure functions have return types
                     raise AttributeError("Functions must have a return type")
@@ -165,8 +166,18 @@ class JavaHandler(xml.sax.ContentHandler):
                     self.functionConstructorDeclXMLWriter(self.functionName, "function", self.functionType, False)
             elif self.constructorName:
                 self.functionConstructorDeclXMLWriter(self.constructorName, "constructor", '',False)
-            elif self.className:
-                self.functionConstructorDeclXMLWriter(self.className, "class", '',False)
+            elif self.className and self.genericParameterAttribute:
+                for swumIdentifierTag in self.xmlResult.findall('swum_identifier'):
+                    nameTagText = swumIdentifierTag.find('name').text
+                    if nameTagText == self.className:
+                        self.xmlResult.remove(swumIdentifierTag)
+                    self.XMLWriter("class", self.className, '', self.xmlResult, False)
+            elif self.className and not  self.genericParameterAttribute:
+                for swumIdentifierTag in self.xmlResult.findall('swum_identifier'):
+                    nameTagText = swumIdentifierTag.find('name').text
+                    if nameTagText == self.className and not swumIdentifierTag.find('parameter'):
+                        self.xmlResult.remove(swumIdentifierTag)
+                    self.functionConstructorDeclXMLWriter(self.className, "class", '',False)
         # Determining self.currentContent's location and attribute
         if tag == "name" or tag == "index":
             if not (self.dictTag["expr"] or self.dictTag["expr_stmt"] or self.dictTag["extends"] or (self.previousTag == "index" and tag == "name")):
@@ -175,6 +186,7 @@ class JavaHandler(xml.sax.ContentHandler):
                         if self.dictTag["class"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.className = self.currentContent
+                                self.XMLWriter("class", self.className, '', self.xmlResult, False)
                         elif self.dictTag["constructor"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["parameter"]):
                             self.constructorName = self.currentContent
                         elif (self.dictTag["interface"] or self.dictTag["interface_decl"]) and not(self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
@@ -279,7 +291,7 @@ if (__name__ == "__main__"):
     parser.setFeature(xml.sax.handler.feature_namespaces,0)  
     Handler = JavaHandler()  
     parser.setContentHandler(Handler)
-    parser.parse("ShortWordCount.xml")
+    parser.parse(Handler.input)
     print(prettify(Handler.xmlResult))
     Handler.xmlResult = (Handler.xmlResult).getroottree()
-    #Handler.xmlResult.write(str(Handler.output))
+    Handler.xmlResult.write(str(Handler.output))
