@@ -168,7 +168,6 @@ class SwumPhrasesNode():
             if idx == index:
                 return edge.child
 
-    # Returns true if phrase subtree contains a node of type NodeType
     def containsNode(self, node_type: str):
         """Returns true if and only if phrasal subtree contains a node x where x.node_type == node_type"""
         if self.node_type == node_type:
