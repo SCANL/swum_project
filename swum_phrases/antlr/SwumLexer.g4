@@ -10,6 +10,7 @@ lexer grammar SwumLexer;
 // Metadata: ~[<>]+ -> channel(METADATA);
 
 Whitespace: ('\t' | ' ' | '\r' | '\n')+   -> skip;
+Stop_Code: 'STOP';
 
 // mode POS;
 Noun_Modifier: 'NM';

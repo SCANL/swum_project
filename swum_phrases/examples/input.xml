@@ -29,7 +29,7 @@
         </identifier>
       </swum_identifier>
     </type>
-    <parameters>
+    <formal_parameters>
       <swum_identifier>
         <location>parameter</location>
         <name>x</name>
@@ -74,7 +74,7 @@
           </swum_identifier>
         </type>
       </swum_identifier>
-    </parameters>
+    </formal_parameters>
     <identifier>
       <word>
         get
