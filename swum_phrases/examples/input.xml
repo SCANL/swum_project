@@ -31,7 +31,7 @@
     </type>
     <formal_parameters>
       <swum_identifier>
-        <location>parameter</location>
+        <location>formal_parameter</location>
         <name>x</name>
         <identifier>
           <word>
@@ -53,7 +53,7 @@
         </type>
       </swum_identifier>
       <swum_identifier>
-        <location>parameter</location>
+        <location>formal_parameter</location>
         <name>y</name>
         <identifier>
           <word>

@@ -36,7 +36,6 @@ class SwumMetadata():
     location: str = None
     name: str = None
     tokens: List[SwumToken] = field(default_factory=list)
-    # TODO: consider nested metadata for class and type info (since generic classes and generic types each have parameter of their own)
     class_m: 'SwumMetadata' = None
     type_m: 'SwumMetadata' = None
     parameter_m: List['SwumMetadata'] = field(default_factory=list) # parameterized types, methods, classes
@@ -115,7 +114,6 @@ class SwumPhrasesNode():
                     self.add_edge(child_node)
     
     def add_edge(self, node, label: str = None):
-        # TODO: remove experimental guard against phrases that don't parse with SWUM grammar
         if node is None:
             raise SwumException('Tried to add a NoneType node as child on phrase tree')
         new_edge = SwumPhrasesEdge(child=node, label=label)
@@ -176,13 +174,13 @@ class SwumPhrasesNode():
 
 class SwumPhrasesRoot(SwumPhrasesNode):
     """Mapped to unique code identifier"""
-    def __init__(self, antlr_ctx=None, tokens: List[SwumToken] = None, metadata: SwumMetadata = None):
+    def __init__(self, antlr_ctx=None, metadata: SwumMetadata = None):
         self.metadata = metadata
         super().__init__(antlr_ctx)
-        self.node_type = 'swum_phrase'
+        # self.node_type = 'swum_phrase'
 
         if antlr_ctx:
-            self.associate_words(tokens)
+            self.associate_words(metadata.tokens)
             self.annotate()
     
     def annotate(self):
@@ -202,6 +200,36 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                     if edge.child.node_type == 'verb' and index > 0 and node.edges[index-1].child.node_type == 'verb':
                         node.edges[index-1].label = 'ignorable_verb'
 
+        # parameterized identifiers
+        for node in self.subtree_nodes():
+            if isinstance(node, SwumPhrasesRoot) and len(node.metadata.parameter_m) > 0:
+                # try and parse (param1, param2, ..., identifier) into single phrase
+                param_tokens: List[SwumToken] = []
+                for param_metadata in node.metadata.parameter_m:
+                    param_tokens += param_metadata.tokens
+                tokens = param_tokens + node.metadata.tokens
+                print(tokens)
+                combined_swum_phrase = get_swum_phrase_from_tokens(tokens)
+                if combined_swum_phrase is None:
+                    print('could not combine parameters and identifier')
+                    # add params as attributes
+                    for param_metadata in node.metadata.parameter_m:
+                        node.add_edge(get_swum_phrase_from_metadata(param_metadata.tokens), 'param')
+                else:
+                    # label param edges within the single phrase
+                    print('combining parameters and identifier')
+                    param_token_literals = [token.literal for token in param_tokens] 
+                    for parent_node in combined_swum_phrase.subtree_nodes():
+                        for edge in parent_node.edges:
+                            if len(edge.child.edges) > 0:
+                                continue
+                            if edge.child.token.literal in param_token_literals:
+                                edge.label = 'param'
+                                # keep track of which params have been marked already
+                                param_token_literals.remove(edge.child.token.literal)
+                        
+                    node.node_type = copy.deepcopy(combined_swum_phrase.node_type)
+                    node.edges = copy.deepcopy(combined_swum_phrase.edges)
         
         attr_rule = self.get_attr_rule()
 
@@ -227,21 +255,21 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                 if len(self.edges) > 1:
                     swum_phrase.add_edge(self.get_child(1), 'theme')
                 elif len(self.metadata.formal_parameter_metadata) > 0:
-                    swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.formal_parameter_metadata.pop(0)), 'theme')
+                    swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.formal_parameter_metadata.pop(0)), 'theme')
                 else:
-                    swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'theme')
+                    swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'theme')
                     class_is_theme = True
 
             # identify aux args
             # formal parameters
             for formal_parameter_metadata in self.metadata.formal_parameter_m:
-                swum_phrase.add_edge(get_swum_phrase(metadata=formal_parameter_metadata), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'aux_arg')
             # return type
             if not self.metadata.is_void():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.type_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.type_m), 'aux_arg')
             # class
             if not class_is_theme:
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'aux_arg')
         elif attr_rule == SwumAttrRule.verb_preposition:
             # starts with VG, contains PP
 
@@ -274,7 +302,7 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                         swum_phrase.add_edge(second_child, 'theme')
                 else:   # class
                     if self.metadata.class_metadata is not None:
-                        swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'theme')
+                        swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'theme')
 
                 # secondary args
                 for edge in self.edges:
@@ -286,13 +314,13 @@ class SwumPhrasesRoot(SwumPhrasesNode):
             # identify aux args
             # formal parameters
             for formal_parameter_metadata in self.metadata.formal_parameter_metadata:
-                swum_phrase.add_edge(get_swum_phrase(metadata=formal_parameter_metadata), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'aux_arg')
             # return type
             if not self.metadata.is_void():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.type_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.type_m), 'aux_arg')
             # class
             if self.metadata.class_metadata is not None:
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'aux_arg')
         elif attr_rule == SwumAttrRule.verb_checker:
             # starts with VG
 
@@ -309,21 +337,21 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                 if len(self.edges) > 1:
                     swum_phrase.add_edge(self.get_child(1), 'condition')
                 elif len(self.metadata.parameter_tokens) > 0:
-                    swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.parameter_m.pop(0)), 'condition')
+                    swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.parameter_m.pop(0)), 'condition')
                 else:
-                    swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'condition')
+                    swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'condition')
                 
             # identify secondary args
             # class
             if self.metadata.is_method():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'subject')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'subject')
 
             # identify aux args
             # formal parameters
             for formal_parameter_metadata in self.metadata.formal_parameter_m:
-                swum_phrase.add_edge(get_swum_phrase(metadata=formal_parameter_metadata), 'subject')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'subject')
         elif attr_rule in [SwumAttrRule.general, SwumAttrRule.event_handler, SwumAttrRule.starts_with_prep0, SwumAttrRule.noun_phrase_void]:
-            swum_phrase.add_edge(get_swum_phrase(tokens=[SwumToken(literal='handle', pos_tag='VBZ')]), 'action')
+            swum_phrase.add_edge(get_swum_phrase_from_tokens([SwumToken(literal='handle', pos_tag='VBZ')]), 'action')
             # if identifier parses into multiple phrases, have multiple themes
             for edge in self.edges:
                 swum_phrase.add_edge(edge.child, 'theme')
@@ -331,15 +359,15 @@ class SwumPhrasesRoot(SwumPhrasesNode):
             # identify aux args
             # formal parameters
             for formal_parameter_metadata in self.metadata.formal_parameter_m:
-                swum_phrase.add_edge(get_swum_phrase(metadata=formal_parameter_metadata), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'aux_arg')
             # return type
             if not self.metadata.is_void():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.type_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.type_m), 'aux_arg')
             # class
             if self.metadata.is_method():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'aux_arg')
         elif attr_rule in [SwumAttrRule.starts_with_prep1, SwumAttrRule.starts_with_prep_default]:
-            swum_phrase.add_edge(get_swum_phrase(tokens=[SwumToken(literal='convert', pos_tag='VBZ')]), 'action')
+            swum_phrase.add_edge(get_swum_phrase_from_tokens([SwumToken(literal='convert', pos_tag='VBZ')]), 'action')
             # if identifier parses into multiple phrases, have multiple secondary args
             for edge in self.edges:
                 swum_phrase.add_edge(edge.child, 'secondary_arg')
@@ -347,15 +375,15 @@ class SwumPhrasesRoot(SwumPhrasesNode):
             # identify aux args
             # formal parameters
             for formal_parameter_metadata in self.metadata.formal_parameter_m:
-                swum_phrase.add_edge(get_swum_phrase(metadata=formal_parameter_metadata), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'aux_arg')
             # return type
             if not self.metadata.is_void():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.type_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.type_m), 'aux_arg')
             # class
             if self.metadata.is_method():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'aux_arg')
         elif attr_rule == SwumAttrRule.noun_phrase_non_void:
-            swum_phrase.add_edge(get_swum_phrase(tokens=[SwumToken(literal='get', pos_tag='VBZ')]), 'action')
+            swum_phrase.add_edge(get_swum_phrase_from_tokens([SwumToken(literal='get', pos_tag='VBZ')]), 'action')
             # if identifier parses into multiple phrases, have multiple themes
             for edge in self.edges:
                 swum_phrase.add_edge(edge.child, 'theme')
@@ -363,16 +391,16 @@ class SwumPhrasesRoot(SwumPhrasesNode):
             # identify aux args
             # formal parameters
             for formal_parameter_metadata in self.metadata.formal_parameter_m:
-                swum_phrase.add_edge(get_swum_phrase(metadata=formal_parameter_metadata), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'aux_arg')
             # return type
             if not self.metadata.is_void():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.type_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.type_m), 'aux_arg')
             # class
             if self.metadata.is_method():
-                swum_phrase.add_edge(get_swum_phrase(metadata=self.metadata.class_m), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'aux_arg')
         elif attr_rule == SwumAttrRule.constructor:
-            swum_phrase.add_edge(get_swum_phrase(tokens=[SwumToken(literal='create', pos_tag='VBZ')]), 'action')
-            swum_phrase.add_edge(get_swum_phrase(tokens=[SwumToken(literal='construct', pos_tag='VBZ')]), 'action')
+            swum_phrase.add_edge(get_swum_phrase_from_tokens([SwumToken(literal='create', pos_tag='VBZ')]), 'action')
+            swum_phrase.add_edge(get_swum_phrase_from_tokens([SwumToken(literal='construct', pos_tag='VBZ')]), 'action')
             # if identifier parses into multiple phrases, have multiple themes
             for edge in self.edges:
                 swum_phrase.add_edge(edge.child, 'theme')
@@ -380,11 +408,11 @@ class SwumPhrasesRoot(SwumPhrasesNode):
             # identify aux args
             # formal parameters
             for formal_parameter_metadata in self.metadata.formal_parameter_m:
-                swum_phrase.add_edge(get_swum_phrase(metadata=formal_parameter_metadata), 'aux_arg')
+                swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'aux_arg')
         elif attr_rule == SwumAttrRule.all_preamble:
             fail('Error: preambles are not yet supported')
         else:
-            fail('Error: did not recognize annotation rule ' + str(attr_rule))
+            fail('Error: did not recognize annotation rule {}'.format(str(attr_rule)))
 
         # copy newly constructed tree into self (metadata is already shared, token not applicable for root)
         self.node_type = copy.deepcopy(swum_phrase.node_type)
@@ -433,11 +461,14 @@ class SwumPhrasesRoot(SwumPhrasesNode):
         for xml_element in self.metadata.to_xml_elements():
             root.append(xml_element)
             
-        for edge in self.edges:
-            child_node = edge.child.to_xml()
-            if edge.label is not None:
-                child_node.set('swum_attr', edge.label)
-            root.append(child_node)
+        if len(self.edges) > 0:
+            phrase_root = etree.Element('swum_phrase')
+            for edge in self.edges:
+                child_node = edge.child.to_xml()
+                if edge.label is not None:
+                    child_node.set('swum_attr', edge.label)
+                phrase_root.append(child_node)
+            root.append(phrase_root)
         
         return root
 
@@ -466,7 +497,7 @@ def main(argv):
                         # add to class dict to resolve later
                         class_dict[metadata.name] = metadata
 
-                    swum_phrase = get_swum_phrase(metadata=metadata)
+                    swum_phrase = get_swum_phrase_from_metadata(metadata)
                     
                     if swum_phrase is not None:
                         output_f.write(etree.tostring(swum_phrase.to_xml(), encoding='utf-8', pretty_print=True))
@@ -484,34 +515,40 @@ def fail(error: str, err_code: int = 1):
     sys.exit(err_code)
 
 
-def get_swum_phrase(*, tokens: List[SwumToken] = None, metadata: SwumMetadata = None):
-    """Returns a phrasal tree based on the input tokens and identifier metadata
+def get_swum_phrase_from_tokens(tokens: List[SwumToken] = None):
+    """Returns a phrasal tree based on the input tokens
     
     Keyword arguments:
     tokens -- list of consituent tokens for identifier
-    metadata -- program-level and NL metadata for identifier; if not None, metadata tokens override tokens argument
     """
-    if tokens is not None and metadata is not None:
-        raise SwumException('Call to get_swum_phrase sets both tokens and metadata')
-
-    if metadata is not None:
-        tokens = metadata.tokens
     swum_pos_tokens = penn_tags_to_swum([swum_token.pos_tag for swum_token in tokens])
     tree = get_parse_tree(swum_pos_tokens + ['STOP'])
     visitor = SwumVisitor()
 
-    if metadata is None:
-        if tree is None:
-            return None
-        else:
-            node = SwumPhrasesNode(visitor.visit(tree))
-            node.associate_words(tokens)
-            return node
+    if tree is None:
+        print('could not parse {}, {}'.format([swum_token.literal for swum_token in tokens], [swum_token.pos_tag for swum_token in tokens]))
+        return None
     else:
-        if tree is None:
-            return SwumPhrasesRoot(metadata=metadata)
-        else:
-            return SwumPhrasesRoot(visitor.visit(tree), tokens, metadata)
+        node = SwumPhrasesNode(visitor.visit(tree))
+        node.associate_words(tokens)
+        return node
+
+def get_swum_phrase_from_metadata(metadata: SwumMetadata = None):
+    """Returns a phrasal tree based on identifier metadata
+    
+    Keyword arguments:
+    metadata -- program-level and NL metadata for identifier
+    """
+
+    swum_pos_tokens = penn_tags_to_swum([swum_token.pos_tag for swum_token in metadata.tokens])
+    tree = get_parse_tree(swum_pos_tokens + ['STOP'])
+    visitor = SwumVisitor()
+
+    if tree is None:
+        print('could not parse {}, {}'.format([swum_token.literal for swum_token in metadata.tokens], [swum_token.pos_tag for swum_token in metadata.tokens]))
+        return SwumPhrasesRoot(metadata=metadata)
+    else:
+        return SwumPhrasesRoot(visitor.visit(tree), metadata)
 
 def get_parse_tree(swum_pos_tokens : List[str]):
     """Returns the raw ANTLR parse tree for swum_pos_tokens based on SWUM grammar.
@@ -558,10 +595,10 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
             metadata.type_m = get_metadata(child[0])
         elif child.tag == 'parameters':
             for parameter_node in child:
-                metadata.parameter_m.append(get_metadata(parameter_node))
+                metadata.parameter_m.append(get_metadata(parameter_node[0]))
         elif child.tag == 'formal_parameters':
             for formal_parameter_node in child:
-                metadata.formal_parameter_m.append(get_metadata(formal_parameter_node))
+                metadata.formal_parameter_m.append(get_metadata(formal_parameter_node[0]))
         elif child.tag == 'identifier':
             for word_node in child:
                 pos_node = word_node[0]
@@ -569,8 +606,10 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
                 metadata.tokens.append(new_token)
     
     if metadata.name is None:
+        print(etree.tostring(element))
         fail('a swum identifier is missing name')
     elif len(metadata.tokens) == 0:
+        print(etree.tostring(element))
         fail('{} is missing tokens'.format(metadata.name))
     elif metadata.location is None:
         fail('{} is missing location'.format(metadata.name))
