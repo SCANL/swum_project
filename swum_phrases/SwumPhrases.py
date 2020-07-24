@@ -33,6 +33,7 @@ class SwumToken():
 @dataclass
 class SwumMetadata():
     """Program-level and natural language information read from input file per identifier"""
+    id_num: str = None
     location: str = None
     name: str = None
     tokens: List[SwumToken] = field(default_factory=list)
@@ -57,6 +58,8 @@ class SwumMetadata():
             node.text = text
             xml_elements.append(node)
         
+        if self.id_num is not None:
+            append_xml('id', self.id_num)
         append_xml('name', self.name)
         append_xml('location', self.location)
         if self.class_m is not None:
@@ -185,21 +188,6 @@ class SwumPhrasesRoot(SwumPhrasesNode):
     
     def annotate(self):
         """Returns a copy of self annotated according to the rule determined by this node's metadata"""
-        # head noun
-        for node in self.subtree_nodes():
-            if node.node_type == 'noun_phrase':
-                for edge in node.edges:
-                    if edge.child.node_type == 'noun':
-                        edge.label = 'head_noun'
-                        break
-
-        # ignorable verbs
-        for node in self.subtree_nodes():
-            if node.node_type == 'verb_phrase':
-                for index, edge in enumerate(node.edges):
-                    if edge.child.node_type == 'verb' and index > 0 and node.edges[index-1].child.node_type == 'verb':
-                        node.edges[index-1].label = 'ignorable_verb'
-
         # parameterized identifiers
         for node in self.subtree_nodes():
             if isinstance(node, SwumPhrasesRoot) and len(node.metadata.parameter_m) > 0:
@@ -214,7 +202,7 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                     print('could not combine parameters and identifier')
                     # add params as attributes
                     for param_metadata in node.metadata.parameter_m:
-                        node.add_edge(get_swum_phrase_from_metadata(param_metadata.tokens), 'param')
+                        node.add_edge(get_swum_phrase_from_metadata(param_metadata), 'param')
                 else:
                     # label param edges within the single phrase
                     print('combining parameters and identifier')
@@ -230,6 +218,24 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                         
                     node.node_type = copy.deepcopy(combined_swum_phrase.node_type)
                     node.edges = copy.deepcopy(combined_swum_phrase.edges)
+        
+        # head noun
+        for node in self.subtree_nodes():
+            if node.node_type == 'noun_phrase':
+                for edge in node.edges:
+                    if edge.child.node_type == 'noun':
+                        edge.label = 'head_noun'
+                        break
+
+        # ignorable verbs
+        for node in self.subtree_nodes():
+            if node.node_type == 'verb_phrase':
+                for index, edge in enumerate(node.edges):
+                    if edge.child.node_type == 'verb' and index > 0 and node.edges[index-1].child.node_type == 'verb':
+                        node.edges[index-1].label = 'ignorable_verb'
+
+        # TODO: implement equivalences (link together NPs and VPs that share same head noun/non-ignorable verb)
+                
         
         attr_rule = self.get_attr_rule()
 
@@ -493,14 +499,15 @@ def main(argv):
                         continue
                     
                     metadata = get_metadata(element)
-                    if metadata.location == 'class':
-                        # add to class dict to resolve later
-                        class_dict[metadata.name] = metadata
-
                     swum_phrase = get_swum_phrase_from_metadata(metadata)
                     
                     if swum_phrase is not None:
                         output_f.write(etree.tostring(swum_phrase.to_xml(), encoding='utf-8', pretty_print=True))
+
+                    if metadata.location == 'class':
+                        # add to class dict to resolve later
+                        metadata.id_num = None  # only top level identifiers should have an id num
+                        class_dict[metadata.name] = metadata
                     
                     element.clear(keep_tail=True) 
             except Exception as e:
@@ -585,7 +592,9 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
     """Returns the extracted metadata object from a <swum_identifier> XML node in input"""
     metadata: SwumMetadata = SwumMetadata()
     for child in element:
-        if child.tag == 'location':
+        if child.tag == 'id':
+            metadata.id_num = child.text.strip()
+        elif child.tag == 'location':
             metadata.location = child.text.strip()
         elif child.tag == 'name':
             metadata.name = child.text.strip()
@@ -608,6 +617,8 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
     if metadata.name is None:
         print(etree.tostring(element))
         fail('a swum identifier is missing name')
+    # elif metadata.id_num is None:
+    #     fail('{} is missing a unique ID'.format(metadata.name))
     elif len(metadata.tokens) == 0:
         print(etree.tostring(element))
         fail('{} is missing tokens'.format(metadata.name))
