@@ -180,7 +180,6 @@ class SwumPhrasesRoot(SwumPhrasesNode):
     def __init__(self, antlr_ctx=None, metadata: SwumMetadata = None):
         self.metadata = metadata
         super().__init__(antlr_ctx)
-        # self.node_type = 'swum_phrase'
 
         if antlr_ctx:
             self.associate_words(metadata.tokens)
@@ -469,6 +468,7 @@ class SwumPhrasesRoot(SwumPhrasesNode):
             
         if len(self.edges) > 0:
             phrase_root = etree.Element('swum_phrase')
+            # self.nodeType is either start_rule or fail_rule - either way skip directly to outputting edges
             for edge in self.edges:
                 child_node = edge.child.to_xml()
                 if edge.label is not None:
@@ -536,7 +536,15 @@ def get_swum_phrase_from_tokens(tokens: List[SwumToken] = None):
         print('could not parse {}, {}'.format([swum_token.literal for swum_token in tokens], [swum_token.pos_tag for swum_token in tokens]))
         return None
     else:
-        node = SwumPhrasesNode(visitor.visit(tree))
+        print('getting from tokens: {}'.format(tokens))
+        ctx = visitor.visit(tree)
+        print(type(ctx))
+        if isinstance(ctx, SwumParser.Start_ruleContext):
+            print('yes, isinstance')
+            ctx = ctx.getChild(0)
+        print(type(ctx))
+        # node = SwumPhrasesNode(visitor.visit(tree))
+        node = SwumPhrasesNode(ctx)
         node.associate_words(tokens)
         return node
 
@@ -566,12 +574,15 @@ def get_parse_tree(swum_pos_tokens : List[str]):
     parser = SwumParser(stream)
     parser._errHandler = BailErrorStrategy()
 
-    # TODO: force antlr to match entire input else throw an exception
     try:
         tree = parser.start_rule()
         return tree
     except ParseCancellationException as e:
-        return None
+        try:
+            tree = parser.fail_rule()
+            return tree
+        except ParseCancellationException as e:
+            return None
     
 def penn_tags_to_swum(pos_tokens:List[str]):
     """Converts POS tags from Penn tagset to SWUM's simplified tagset"""
@@ -616,6 +627,7 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
     
     if metadata.name is None:
         print(etree.tostring(element))
+        print(metadata)
         fail('a swum identifier is missing name')
     # elif metadata.id_num is None:
     #     fail('{} is missing a unique ID'.format(metadata.name))
@@ -633,6 +645,9 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
 class SwumVisitor(SwumParserVisitor):
     """Override ANTLR's default traversal of parse tree to support custom phrasal tree"""
     def visitStart_rule(self, ctx:SwumParser.Start_ruleContext):
+        return ctx
+
+    def visitFail_rule(self, ctx:SwumParser.Fail_ruleContext):
         return ctx
 
 if __name__ == '__main__':

@@ -1,11 +1,14 @@
 parser grammar SwumParser;
 options {tokenVocab=SwumLexer; }
 
-start_rule: (noun_phrase | verb_phrase | prepositional_phrase | verb_group) Stop_Code;  // experimental starting rule (allow multiple subrules for robustness)
+start_rule: (noun_phrase | verb_phrase | prepositional_phrase | verb_group) Stop_Code;
 noun_phrase: Noun_Modifier* Noun;
 prepositional_phrase: Preposition noun_phrase;
 verb_group: Verb_Modifier* Verb+ Verb_Particle?;
 verb_phrase: verb_group noun_phrase prepositional_phrase?;
+
+fail_rule: unknown_phrase;
+unknown_phrase: (Noun_Modifier | Noun | Verb_Modifier | Verb_Particle | Verb | Conjunction | Determiner | Digit | Pronoun | Preposition)+ Stop_Code; // match all possible lexer tokens
 
 // Equivalences are constructed in a post-processing step after parsing
 
