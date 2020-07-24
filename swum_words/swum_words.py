@@ -19,7 +19,7 @@ class JavaHandler(xml.sax.ContentHandler):
         self.input = input("XML Input File: ")
         self.output = input("XML Output File: ")
         self.checksInputAndOutput(self.input, self.output)
-        self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "extends":0,
+        self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "extends":0, "implements":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument":0, "argument_list":0}
         self.previousTag = ""
         self.xmlResult = etree.Element('swum_identifiers')
@@ -93,7 +93,13 @@ class JavaHandler(xml.sax.ContentHandler):
             argumentsTagArgument = etree.SubElement(swumIdentifierTagArgument, 'parameters')
             for argument in self.parameterArgument:
                 argumentTag = etree.SubElement(argumentsTagArgument, 'parameter')
-                self.XMLWriter("parameter",argument, '',argumentTag, False)          
+                self.XMLWriter("parameter",argument, '',argumentTag, False)
+        if "<" in currentContent:
+            currentContent = currentContent.replace("<", '')
+            currentContent = currentContent.replace(">", '')
+        if "[" in currentContent:
+            currentContent = currentContent.replace("[", '')
+            currentContent = currentContent.replace("]", '')
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(currentContent, identifierTag)
     # XML writer for functions, constructor, and variavle declaration names
@@ -101,7 +107,10 @@ class JavaHandler(xml.sax.ContentHandler):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
         if role == "constructor" or role == "function":
-            if self.className:
+            if self.interfaceName:
+                interfaceTag = etree.SubElement(swumIdentifierTag, 'interface')
+                interfaceTag.text = self.interfaceName
+            elif self.className:
                 classTag = etree.SubElement(swumIdentifierTag, 'class')
                 classTag.text = self.className
         name = definedName
@@ -122,6 +131,10 @@ class JavaHandler(xml.sax.ContentHandler):
             for argument in self.argument:
                 argumentTag = etree.SubElement(argumentsTagArgument, 'parameter')
                 self.XMLWriter("parameter",argument, '',argumentTag, False)
+            locationOfBeginningTag = definedType.index("<")
+            definedType = definedType[0:locationOfBeginningTag]
+            identifierTag = etree.SubElement(swumIdentifierTagArgument, 'identifier')
+            self.PartOfSpeechTag(definedType, identifierTag)
         if self.parameterGenericList:
             parametersTag = etree.SubElement(swumIdentifierTag, 'parameters')
             parameterTag = etree.SubElement(parametersTag, 'parameter')
@@ -153,6 +166,10 @@ class JavaHandler(xml.sax.ContentHandler):
     # Call when an elements ends
     def endElement(self, tag):
         # The function and constructor information is complete and therefore sent to their XML writer
+        if tag == "interface":
+            self.interfaceName = ""
+        if tag == "class":
+            self.className = ""
         if tag == "parameter_list":
             for tempNum in range(0,len(self.parameterList)):
                 self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
@@ -166,24 +183,30 @@ class JavaHandler(xml.sax.ContentHandler):
                     self.functionConstructorDeclXMLWriter(self.functionName, "function", self.functionType, False)
             elif self.constructorName:
                 self.functionConstructorDeclXMLWriter(self.constructorName, "constructor", '',False)
-            elif self.className and self.genericParameterAttribute:
+            elif (self.className or self.interfaceName) and self.genericParameterAttribute:
                 for swumIdentifierTag in self.xmlResult.findall('swum_identifier'):
                     nameTagText = swumIdentifierTag.find('name').text
-                    if nameTagText == self.className:
+                    if nameTagText == self.interfaceName:
                         self.xmlResult.remove(swumIdentifierTag)
-                    self.XMLWriter("class", self.className, '', self.xmlResult, False)
-            elif self.className and not  self.genericParameterAttribute:
+                        self.XMLWriter("interface", self.interfaceName, '', self.xmlResult, False)
+                    elif nameTagText == self.className:
+                        self.xmlResult.remove(swumIdentifierTag)
+                        self.XMLWriter("class", self.className, '', self.xmlResult, False)
+            elif (self.className or self.interfaceName) and not  self.genericParameterAttribute:
                 for swumIdentifierTag in self.xmlResult.findall('swum_identifier'):
                     nameTagText = swumIdentifierTag.find('name').text
-                    if nameTagText == self.className and not swumIdentifierTag.find('parameter'):
+                    if nameTagText == self.interfaceName and not swumIdentifierTag.find('parameter'): 
                         self.xmlResult.remove(swumIdentifierTag)
-                    self.functionConstructorDeclXMLWriter(self.className, "class", '',False)
+                        self.functionConstructorDeclXMLWriter(self.interfaceName, "interface", '',False)                       
+                    elif nameTagText == self.className and not swumIdentifierTag.find('parameter'):
+                        self.xmlResult.remove(swumIdentifierTag)
+                        self.functionConstructorDeclXMLWriter(self.className, "class", '',False)
         # Determining self.currentContent's location and attribute
         if tag == "name" or tag == "index":
-            if not (self.dictTag["expr"] or self.dictTag["expr_stmt"] or self.dictTag["extends"] or (self.previousTag == "index" and tag == "name")):
+            if not (self.dictTag["expr"] or self.dictTag["expr_stmt"] or self.dictTag["extends"] or self.dictTag["implements"] or (self.previousTag == "index" and tag == "name")):
                 if not (self.dictTag["type"]) or self.dictTag["parameter_list"]:
                     if self.currentContent.isidentifier() or "$" in self.currentContent or "[]" in self.currentContent or ">" in self.currentContent:
-                        if self.dictTag["class"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
+                        if self.dictTag["class"] and not (self.dictTag["interface"] or self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.className = self.currentContent
                                 self.XMLWriter("class", self.className, '', self.xmlResult, False)
