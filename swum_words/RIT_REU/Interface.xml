@@ -1,0 +1,153 @@
+
+    <unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="huh.java"><import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Iterator</name></name>;</import>
+    
+    <comment type="block" format="javadoc">/**
+     * Interface for a simple List. Random access to all items in the list is provided. 
+     * The numbering of elements in the list begins at 0.
+     *
+     */</comment>
+    <interface><specifier>public</specifier> interface <name><name>IList</name><parameter_list>&lt;<parameter><name>E</name></parameter>&gt;</parameter_list></name> <super_list><extends>extends <super><name><name>Iterable</name><argument_list type="generic">&lt;<argument><name>E</name></argument>&gt;</argument_list></name></super></extends></super_list><block>{
+    
+        <comment type="block" format="javadoc">/**
+         * Add an item to the end of this list.
+         * &lt;br&gt;pre: none
+         * &lt;br&gt;post: size() = old size() + 1, get(size() - 1) = item
+         * @param item the data to be added to the end of this list
+         */</comment>
+        <function_decl><type><name>void</name></type> <name>add</name><parameter_list>(<parameter><decl><type><name>E</name></type> <name>item</name></decl></parameter>)</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * Insert an item at a specified position in the list.
+         * &lt;br&gt;pre: 0 &lt;= pos &lt;= size()
+         * &lt;br&gt;post: size() = old size() + 1, get(pos) = item, all elements in
+         * the list with a positon &gt;= pos have a position = old position + 1
+         * @param pos the position to insert the data at in the list
+         * @param item the data to add to the list
+        */</comment>
+        <function_decl><type><name>void</name></type> <name>insert</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>pos</name></decl></parameter>, <parameter><decl><type><name>E</name></type> <name>item</name></decl></parameter>)</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * Change the data at the specified position in the list.
+         * the old data at that position is returned.
+         * &lt;br&gt;pre: 0 &lt;= pos &lt; size()
+         * &lt;br&gt;post: get(pos) = item, return the
+         * old get(pos)
+         * @param pos the position in the list to overwrite	 
+         * @param item the new item that will overwrite the old item
+         * @return the old data at the specified position
+         */</comment>
+        <function_decl><type><name>E</name></type> <name>set</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>pos</name></decl></parameter>, <parameter><decl><type><name>E</name></type> <name>item</name></decl></parameter>)</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * Get an element from the list.
+         * &lt;br&gt;pre: 0 &lt;= pos &lt; size()
+         * &lt;br&gt;post: return the item at pos
+         * @param pos specifies which element to get
+         * @return the element at the specified position in the list
+         */</comment>
+        <function_decl><type><name>E</name></type> <name>get</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>pos</name></decl></parameter>)</parameter_list>;</function_decl>
+    
+    
+        <comment type="block" format="javadoc">/**
+         * Remove an element in the list based on position.
+         * &lt;br&gt;pre: 0 &lt;= pos &lt; size()
+         * &lt;br&gt;post: size() = old size() - 1, all elements of
+         * list with a positon &gt; pos have a position = old position - 1
+         * @param pos the position of the element to remove from the list
+         * @return the data at position pos
+         */</comment>
+        <function_decl><type><name>E</name></type> <name>remove</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>pos</name></decl></parameter>)</parameter_list>;</function_decl>
+        
+        <comment type="block" format="javadoc">/**
+         * Remove the first occurrence of obj in this list.
+         * Return &lt;tt&gt;true&lt;/tt&gt; if this list changed as a result of this call, &lt;tt&gt;false&lt;/tt&gt; otherwise.
+         * &lt;br&gt;pre: none
+         * &lt;br&gt;post: if obj is in this list the first occurence has been removed and size() = old size() - 1. 
+         * If obj is not present the list is not altered in any way.
+         * @param obj The item to remove from this list.
+         * @return Return &lt;tt&gt;true&lt;/tt&gt; if this list changed as a result of this call, &lt;tt&gt;false&lt;/tt&gt; otherwise.
+         */</comment>
+        <function_decl><type><name>boolean</name></type> <name>remove</name><parameter_list>(<parameter><decl><type><name>E</name></type> <name>obj</name></decl></parameter>)</parameter_list>;</function_decl>
+        
+        <comment type="block" format="javadoc">/**
+         * Return a sublist of elements in this list from &lt;tt&gt;start&lt;/tt&gt; inclusive to &lt;tt&gt;stop&lt;/tt&gt; exclusive.
+         * This list is not changed as a result of this call.
+         * &lt;br&gt;pre: &lt;tt&gt;0 &lt;= start &lt; size(), start &lt;= stop &lt;= size()&lt;/tt&gt;
+         * &lt;br&gt;post: return a list whose size is stop - start and contains the elements at positions start through stop - 1 in this list.
+         * @param start index of the first element of the sublist.
+         * @param stop stop - 1 is the index of the last element of the sublist.
+         * @return a list with &lt;tt&gt;stop - start&lt;/tt&gt; elements, The elements are from positions &lt;tt&gt;start&lt;/tt&gt; inclusive to
+         * &lt;tt&gt;stop&lt;/tt&gt; exclusive in this list.
+         */</comment>
+        <function_decl><type><name><name>IList</name><argument_list type="generic">&lt;<argument><name>E</name></argument>&gt;</argument_list></name></type> <name>getSubList</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>start</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>stop</name></decl></parameter>)</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * Return the size of this list. In other words the number of elements in this list.
+         * &lt;br&gt;pre: none
+         * &lt;br&gt;post: return the number of items in this list
+         * @return the number of items in this list
+         */</comment>
+        <function_decl><type><name>int</name></type> <name>size</name><parameter_list>()</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * Find the position of an element in the list.
+         * &lt;br&gt;pre: none
+         * &lt;br&gt;post: return the index of the first element equal to item
+         * or -1 if item is not present
+         * @param item the element to search for in the list
+         * @return return the index of the first element equal to item or a -1 if item is not present
+         */</comment>
+        <function_decl><type><name>int</name></type> <name>indexOf</name><parameter_list>(<parameter><decl><type><name>E</name></type> <name>item</name></decl></parameter>)</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * find the position of an element in the list starting at a specified position.
+         * &lt;br&gt;pre: 0 &lt;= pos &lt; size()
+         * &lt;br&gt;post: return the index of the first element equal to item starting at pos
+         * or -1 if item is not present from position pos onward
+         * @param item the element to search for in the list
+         * @param pos the position in the list to start searching from
+         * @return starting from the specified position return the index of the first element equal to item or a -1 if item is not present between pos and the end of the list
+         */</comment>
+        <function_decl><type><name>int</name></type> <name>indexOf</name><parameter_list>(<parameter><decl><type><name>E</name></type> <name>item</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>pos</name></decl></parameter>)</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * return the list to an empty state.
+         * &lt;br&gt;pre: none
+         * &lt;br&gt;post: size() = 0
+         */</comment>
+        <function_decl><type><name>void</name></type> <name>makeEmpty</name><parameter_list>()</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+        * return an Iterator for this list.
+        * &lt;br&gt;pre: none
+        * &lt;br&gt;post: return an Iterator object for this List
+        */</comment>
+        <function_decl><type><name><name>Iterator</name><argument_list type="generic">&lt;<argument><name>E</name></argument>&gt;</argument_list></name></type> <name>iterator</name><parameter_list>()</parameter_list>;</function_decl>
+    
+        <comment type="block" format="javadoc">/**
+         * Remove all elements in this list from &lt;tt&gt;start&lt;/tt&gt; inclusive to &lt;tt&gt;stop&lt;/tt&gt; exclusive.
+         * &lt;br&gt;pre: &lt;tt&gt;0 &lt;= start &lt; size(), start &lt;= stop &lt;= size()&lt;/tt&gt;
+         * &lt;br&gt;post: &lt;tt&gt;size() = old size() - (stop - start)&lt;/tt&gt;
+         * @param start position at beginning of range of elements to be removed
+         * @param stop stop - 1 is the position at the end of the range of elements to be removed
+         */</comment>
+        <function_decl><type><name>void</name></type> <name>removeRange</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>start</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>stop</name></decl></parameter>)</parameter_list>;</function_decl>
+        
+        <comment type="block" format="javadoc">/**
+         * Return a String version of this list enclosed in
+         * square brackets, []. Elements are in
+         * are in order based on position in the 
+         * list with the first element
+         * first. Adjacent elements are seperated by comma's
+         * @return a String representation of this IList
+         */</comment>
+        <function_decl><type><specifier>public</specifier> <name>String</name></type> <name>toString</name><parameter_list>()</parameter_list>;</function_decl>
+        
+        <comment type="block" format="javadoc">/**
+         * Determine if this IList is equal to other. Two
+         * ILists are equal if they contain the same elements
+         * in the same order.
+         * @return true if this IList is equal to other, false otherwise
+         */</comment>
+        <function_decl><type><specifier>public</specifier> <name>boolean</name></type> <name>equals</name><parameter_list>(<parameter><decl><type><name>Object</name></type> <name>other</name></decl></parameter>)</parameter_list>;</function_decl>
+    }</block></interface></unit>
