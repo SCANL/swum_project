@@ -6,7 +6,7 @@ In SWUM <sub>words</sub>, there exists a word node for every word ocurrence in a
 2. To convert your Java and C++ file to a XML file, download [SRCML](https://www.srcml.org) with directions downloading SRCML [here](https://www.srcml.org/#download) 
 3. To use SWUM <sub>words</sub>, you have to downdload the [Spiral](https://github.com/casics/spiral) module which includes Ronin(the most advanced identifier splitter in the module). 
 4. Install [lxml](https://pypi.org/project/lxml/) which helps write the XML file
-5. Download this XSLT [file] (https://github.com/SCANL/swum_project/blob/master/swum_words/XSLT_Script.xsl) to help change the input XML file with corresponding ID numbers
+5. Download this [XSLT file](https://github.com/SCANL/swum_project/blob/master/swum_words/XSLT_Script.xsl) to help change the input XML file with corresponding ID numbers
 ## Usage
 Write this command in the terminal window or IDE 
 ```python
