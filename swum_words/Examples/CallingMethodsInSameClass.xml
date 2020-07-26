@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="CallingMethodsInSameClass.java"><comment type="block">/* CallingMethodsInSameClass.java
+ *
+ * illustrates how to call static methods a class
+ * from a method in the same class
+ */</comment>
+
+<class><specifier>public</specifier> class <name>CallingMethodsInSameClass</name>
+<block>{
+	<function><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list> <block>{<block_content>
+		<expr_stmt><expr><call><name>printOne</name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+		<expr_stmt><expr><call><name>printOne</name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+		<expr_stmt><expr><call><name>printTwo</name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+	</block_content>}</block></function>
+
+	<function><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>printOne</name><parameter_list>()</parameter_list> <block>{<block_content>
+		<expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Hello World"</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+	</block_content>}</block></function>
+
+	<function><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>printTwo</name><parameter_list>()</parameter_list> <block>{<block_content>
+		<expr_stmt><expr><call><name>printOne</name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+		<expr_stmt><expr><call><name>printOne</name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+	</block_content>}</block></function>
+}</block></class></unit>

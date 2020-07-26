@@ -1,6 +1,6 @@
 <!-- XML representation of a Java concept (class, method, etc.)-->
 <main>
-    <unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="MyClass.java"><class><specifier>public</specifier> class <name>MyClass</name> <block>{
+ <class><specifier>public</specifier> class <name>MyClass</name> <block>{
         <constructor><specifier>public</specifier> <name>MyClass</name><parameter_list>()</parameter_list><block>{<block_content>
       
         </block_content>}</block></constructor>
@@ -8,5 +8,5 @@
           <decl_stmt><decl><type><name>int</name></type> <name>z</name> <init>= <expr><name>x</name> <operator>*</operator> <name>y</name></expr></init></decl>;</decl_stmt>
           <return>return <expr><name>z</name></expr>;</return>
         </block_content>}</block></function>
-        }</block></class></unit>
+        }</block></class>
 </main>

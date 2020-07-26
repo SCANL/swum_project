@@ -1,0 +1,27 @@
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="MaximumTest.java"><class><specifier>public</specifier> class <name>MaximumTest</name> <block>{
+   <comment type="line">// determines the largest of three Comparable objects</comment>
+   
+   <function><type><specifier>public</specifier> <specifier>static</specifier> <parameter_list type="generic">&lt;<parameter><name>T</name> <extends>extends <name><name>Comparable</name><argument_list type="generic">&lt;<argument><name>T</name></argument>&gt;</argument_list></name></extends></parameter>&gt;</parameter_list> <name>T</name></type> <name>maximum</name><parameter_list>(<parameter><decl><type><name>T</name></type> <name>x</name></decl></parameter>, <parameter><decl><type><name>T</name></type> <name>y</name></decl></parameter>, <parameter><decl><type><name>T</name></type> <name>z</name></decl></parameter>)</parameter_list> <block>{<block_content>
+      <decl_stmt><decl><type><name>T</name></type> <name>max</name> <init>= <expr><name>x</name></expr></init></decl>;</decl_stmt>   <comment type="line">// assume x is initially the largest</comment>
+      
+      <if_stmt><if>if<condition>(<expr><call><name><name>y</name><operator>.</operator><name>compareTo</name></name><argument_list>(<argument><expr><name>max</name></expr></argument>)</argument_list></call> <operator>&gt;</operator> <literal type="number">0</literal></expr>)</condition> <block>{<block_content>
+         <expr_stmt><expr><name>max</name> <operator>=</operator> <name>y</name></expr>;</expr_stmt>   <comment type="line">// y is the largest so far</comment>
+      </block_content>}</block></if></if_stmt>
+      
+      <if_stmt><if>if<condition>(<expr><call><name><name>z</name><operator>.</operator><name>compareTo</name></name><argument_list>(<argument><expr><name>max</name></expr></argument>)</argument_list></call> <operator>&gt;</operator> <literal type="number">0</literal></expr>)</condition> <block>{<block_content>
+         <expr_stmt><expr><name>max</name> <operator>=</operator> <name>z</name></expr>;</expr_stmt>   <comment type="line">// z is the largest now                 </comment>
+      </block_content>}</block></if></if_stmt>
+      <return>return <expr><name>max</name></expr>;</return>   <comment type="line">// returns the largest object   </comment>
+   </block_content>}</block></function>
+   
+   <function><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list> <block>{<block_content>
+      <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>printf</name></name><argument_list>(<argument><expr><literal type="string">"Max of %d, %d and %d is %d\n\n"</literal></expr></argument>, 
+         <argument><expr><literal type="number">3</literal></expr></argument>, <argument><expr><literal type="number">4</literal></expr></argument>, <argument><expr><literal type="number">5</literal></expr></argument>, <argument><expr><call><name>maximum</name><argument_list>( <argument><expr><literal type="number">3</literal></expr></argument>, <argument><expr><literal type="number">4</literal></expr></argument>, <argument><expr><literal type="number">5</literal></expr></argument> )</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+
+      <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>printf</name></name><argument_list>(<argument><expr><literal type="string">"Max of %.1f,%.1f and %.1f is %.1f\n\n"</literal></expr></argument>,
+         <argument><expr><literal type="number">6.6</literal></expr></argument>, <argument><expr><literal type="number">8.8</literal></expr></argument>, <argument><expr><literal type="number">7.7</literal></expr></argument>, <argument><expr><call><name>maximum</name><argument_list>( <argument><expr><literal type="number">6.6</literal></expr></argument>, <argument><expr><literal type="number">8.8</literal></expr></argument>, <argument><expr><literal type="number">7.7</literal></expr></argument> )</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+
+      <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>printf</name></name><argument_list>(<argument><expr><literal type="string">"Max of %s, %s and %s is %s\n"</literal></expr></argument>,<argument><expr><literal type="string">"pear"</literal></expr></argument>,
+         <argument><expr><literal type="string">"apple"</literal></expr></argument>, <argument><expr><literal type="string">"orange"</literal></expr></argument>, <argument><expr><call><name>maximum</name><argument_list>(<argument><expr><literal type="string">"pear"</literal></expr></argument>, <argument><expr><literal type="string">"apple"</literal></expr></argument>, <argument><expr><literal type="string">"orange"</literal></expr></argument>)</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+   </block_content>}</block></function>
+}</block></class></unit>
