@@ -51,13 +51,13 @@ class JavaHandler(XMLFilterBase):
         self.idCount = 0
     def checksInputAndOutput(self,inputFile,outputFile):
         if ".xml" not in inputFile or "xml" not in outputFile:
-            raise NameError("Make sure the input/output file is valid")
+            raise NameError("Include the .xml file extension")
     # Call when an element starts
     def startElement(self, tag, attributes):
         for x in self.dictTag:
             if tag == x:
                 self.dictTag[tag] += 1
-        if not (tag == "interface" and tag == "constructor" and tag == "function" and tag == "class"):     
+        if not tag == "interface" and not tag == "constructor" and not tag == "function" and not tag == "class":     
             super().startElement(tag, attributes)
         else:
             if tag == "interface":
@@ -193,16 +193,17 @@ class JavaHandler(XMLFilterBase):
     # Call when an elements ends
     def endElement(self, tag):
         super().endElement(tag)
+        # The function and constructor information is complete and therefore sent to their XML writer
         if tag == "interface":
             self.interfaceName = ""
         if tag == "class":
             self.className = ""
-        # The function and constructor information is complete and therefore sent to their XML writer
         if tag == "parameter_list":
             for tempNum in range(0,len(self.parameterList)):
                 self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
             if self.functionName:
                 if not self.functionType:
+                    #Makes sure functions have return types
                     raise AttributeError("Functions must have a return type")
                 if "<" in self.functionType:
                     self.functionConstructorDeclXMLWriter(self.functionName, "function",self.functionType, True)
@@ -319,6 +320,7 @@ class JavaHandler(XMLFilterBase):
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.variableType = self.currentContent         
                 else:
+                    # Raises an NameError if self.currentContent is not a valid identifier (only includes alphanumeric characters, underscores, and "$")
                     raise NameError(self.currentContent + " is not a valid identifier")
             self.dictTag[tag] -= 1
             self.previousTag = tag
@@ -351,7 +353,7 @@ if (__name__ == "__main__"):
     Handler.xmlResult = (Handler.xmlResult).getroottree()
     Handler.xmlResult.write(str(Handler.output))
 
-    #Used to write a changed XML input file labeled with ID numbers
+    #Used to write a changed XML input file labelled with ID numb
     inputStatus = False
     reader = JavaHandler(make_parser(),inputStatus)
     index = Handler.input.index(".xml")
