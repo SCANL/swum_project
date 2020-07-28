@@ -1,24 +1,26 @@
 # Author: Aditya Bhargava (abhargava@g.hmc.edu)
 # Date: Summer 2020
 # Organization: RIT REU Cultivating New Generation Software
-# Function: Takes an XML file and analyzes it based on identifier name and function using a SAX parser. Saves the results in an XML file. 
+# Function: Takes an XML file and analyzes it based on identifier names and roles using a SAX parser. Saves the results as an XML file and outputs the respective input file with corresponding ID numbers.
 import sys
 # Part of Speech tagging tools
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from spiral import ronin
 # XML Writer
-import xml.sax 
-from xml.sax.saxutils import unescape
+from xml.sax import make_parser
+from xml.sax.saxutils import XMLFilterBase, XMLGenerator
 from xml.etree import ElementTree
 from xml.dom import minidom
-from lxml import etree 
+from lxml import etree
 
-class JavaHandler(xml.sax.ContentHandler):
-    def __init__(self):
-        self.input = input("XML Input File: ")
-        self.output = input("XML Output File: ")
-        self.checksInputAndOutput(self.input, self.output)
+class JavaHandler(XMLFilterBase):
+    def __init__(self, parent = None):
+        if inputStatus:
+            self.input = input("XML Input File: ")
+            self.output = input("XML Output File: ")
+            self.checksInputAndOutput(self.input, self.output)
+        super().__init__(parent)
         self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index":0, "extends":0, "implements":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument":0, "argument_list":0}
         self.previousTag = ""
@@ -45,6 +47,8 @@ class JavaHandler(xml.sax.ContentHandler):
         # Used for Part of Speech (POS) tagging
         self.dictPOS = {}  
         self.sentence = ""
+        # Used for tracing SRCML and SWUM
+        self.idCount = 0
     def checksInputAndOutput(self,inputFile,outputFile):
         if ".xml" not in inputFile or "xml" not in outputFile:
             raise NameError("Include the .xml file extension")
@@ -53,6 +57,21 @@ class JavaHandler(xml.sax.ContentHandler):
         for x in self.dictTag:
             if tag == x:
                 self.dictTag[tag] += 1
+        if not tag == "interface" and not tag == "constructor" and not tag == "function" and not tag == "class":     
+            super().startElement(tag, attributes)
+        else:
+            if tag == "interface":
+                attr = {"swum_id":str(self.idCount)}
+                super().startElement(tag,attr)
+            if tag == "constructor":
+                attr = {"swum_id":str(self.idCount)}
+                super().startElement(tag,attr)
+            if tag == "function":
+                attr = {"swum_id":str(self.idCount)}
+                super().startElement(tag,attr)
+            if tag == "class":
+                attr = {"swum_id":str(self.idCount)}
+                super().startElement(tag,attr)
         if tag == "parameter_list":
             self.genericParameterAttribute = attributes.get("type")
     # Part Of Speech (POS) Tagging
@@ -69,9 +88,13 @@ class JavaHandler(xml.sax.ContentHandler):
                 wordTag.text = splitWord[0]
                 partOfSpeechTag = etree.SubElement(wordTag, 'pos')
                 partOfSpeechTag.text = splitWord[1]
-    # XML writer for class names, parameters, and interface names
+    # XML writer for temporary class/interface names, parameters, types, formal parameters
     def XMLWriter(self,locationTagText,currentContent,parameterType,tree, genericStatus):
         swumIdentifierTag = etree.SubElement(tree, 'swum_identifier')
+        if locationTagText == "class" or locationTagText == "constructor" or locationTagText == "interface" or locationTagText == "function":
+            idTag = etree.SubElement(swumIdentifierTag, 'swum_ID')
+            idTag.text = str(self.idCount)
+            self.idCount = self.idCount+1
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
         locationTag.text = locationTagText
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
@@ -102,9 +125,13 @@ class JavaHandler(xml.sax.ContentHandler):
             currentContent = currentContent.replace("]", '')
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
         self.PartOfSpeechTag(currentContent, identifierTag)
-    # XML writer for functions, constructor, and variavle declaration names
+    # XML writer for functions, constructor, class, variable declaration names
     def functionConstructorDeclXMLWriter(self,definedName, role, definedType,genericStatus):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
+        if role == "class" or role == "constructor" or role == "interface" or role == "function":
+            idTag = etree.SubElement(swumIdentifierTag, 'swum_ID')
+            idTag.text = str(self.idCount)
+            self.idCount = self.idCount+1
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
         if role == "constructor" or role == "function":
             if self.interfaceName:
@@ -165,6 +192,7 @@ class JavaHandler(xml.sax.ContentHandler):
 
     # Call when an elements ends
     def endElement(self, tag):
+        super().endElement(tag)
         # The function and constructor information is complete and therefore sent to their XML writer
         if tag == "interface":
             self.interfaceName = ""
@@ -188,18 +216,22 @@ class JavaHandler(xml.sax.ContentHandler):
                     nameTagText = swumIdentifierTag.find('name').text
                     if nameTagText == self.interfaceName:
                         self.xmlResult.remove(swumIdentifierTag)
+                        self.idCount = self.idCount-1
                         self.XMLWriter("interface", self.interfaceName, '', self.xmlResult, False)
                     elif nameTagText == self.className:
                         self.xmlResult.remove(swumIdentifierTag)
+                        self.idCount = self.idCount-1
                         self.XMLWriter("class", self.className, '', self.xmlResult, False)
             elif (self.className or self.interfaceName) and not  self.genericParameterAttribute:
                 for swumIdentifierTag in self.xmlResult.findall('swum_identifier'):
                     nameTagText = swumIdentifierTag.find('name').text
                     if nameTagText == self.interfaceName and not swumIdentifierTag.find('parameter'): 
                         self.xmlResult.remove(swumIdentifierTag)
+                        self.idCount = self.idCount-1
                         self.functionConstructorDeclXMLWriter(self.interfaceName, "interface", '',False)                       
                     elif nameTagText == self.className and not swumIdentifierTag.find('parameter'):
                         self.xmlResult.remove(swumIdentifierTag)
+                        self.idCount = self.idCount-1
                         self.functionConstructorDeclXMLWriter(self.className, "class", '',False)
         # Determining self.currentContent's location and attribute
         if tag == "name" or tag == "index":
@@ -302,6 +334,7 @@ class JavaHandler(xml.sax.ContentHandler):
     def characters(self, content):
         self.currentContent = ""
         self.currentContent += content
+        super().characters(content)
 
 # Source: PyMOTW-3 "Building Documents with Element Nodes"
 # Prints the XML file into an understandable and comprehensible format
@@ -310,11 +343,21 @@ def prettify(elem):
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="   ")
 if (__name__ == "__main__"):
-    parser = xml.sax.make_parser()
-    parser.setFeature(xml.sax.handler.feature_namespaces,0)  
-    Handler = JavaHandler()  
+    #Used to parse an XML File and return an XML output file with the results
+    parser = make_parser()
+    inputStatus = True
+    Handler = JavaHandler(inputStatus)  
     parser.setContentHandler(Handler)
     parser.parse(Handler.input)
     print(prettify(Handler.xmlResult))
     Handler.xmlResult = (Handler.xmlResult).getroottree()
     Handler.xmlResult.write(str(Handler.output))
+    
+    inputStatus = False
+    reader = make_parser()
+    handler = JavaHandler(inputStatus)
+    with open("ChangedInput.xml", 'w') as f:
+        handler = XMLGenerator(f)
+        reader.setContentHandler(handler)
+        handler.input = Handler.input
+        reader.parse(handler.input) 
