@@ -15,7 +15,7 @@ from xml.dom import minidom
 from lxml import etree
 
 class JavaHandler(XMLFilterBase):
-    def __init__(self, parent = None):
+    def __init__(self, parent = None,inputStatus = True):
         if inputStatus:
             self.input = input("XML Input File: ")
             self.output = input("XML Output File: ")
@@ -346,7 +346,7 @@ if (__name__ == "__main__"):
     #Used to parse an XML File and return an XML output file with the results
     parser = make_parser()
     inputStatus = True
-    Handler = JavaHandler(inputStatus)  
+    Handler = JavaHandler((),inputStatus)  
     parser.setContentHandler(Handler)
     parser.parse(Handler.input)
     print(prettify(Handler.xmlResult))
@@ -354,8 +354,7 @@ if (__name__ == "__main__"):
     Handler.xmlResult.write(str(Handler.output))
     
     inputStatus = False
-    reader = make_parser()
-    handler = JavaHandler(inputStatus)
+    reader = JavaHandler(make_parser(),inputStatus)
     with open("ChangedInput.xml", 'w') as f:
         handler = XMLGenerator(f)
         reader.setContentHandler(handler)
