@@ -259,8 +259,8 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                 
                 if len(self.edges) > 1:
                     swum_phrase.add_edge(self.get_child(1), 'theme')
-                elif len(self.metadata.formal_parameter_metadata) > 0:
-                    swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.formal_parameter_metadata.pop(0)), 'theme')
+                elif len(self.metadata.formal_parameter_m) > 0:
+                    swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.formal_parameter_m.pop(0)), 'theme')
                 else:
                     swum_phrase.add_edge(get_swum_phrase_from_metadata(self.metadata.class_m), 'theme')
                     class_is_theme = True
@@ -318,7 +318,7 @@ class SwumPhrasesRoot(SwumPhrasesNode):
 
             # identify aux args
             # formal parameters
-            for formal_parameter_metadata in self.metadata.formal_parameter_metadata:
+            for formal_parameter_metadata in self.metadata.formal_parameter_m:
                 swum_phrase.add_edge(get_swum_phrase_from_metadata(formal_parameter_metadata), 'aux_arg')
             # return type
             if not self.metadata.is_void():
