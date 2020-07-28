@@ -4,7 +4,7 @@ In SWUM <sub>words</sub>, there exists a word node for every word ocurrence in a
 ## Installation
 1. SWUM <sub>words</sub> requires [Python 3.7+](https://www.python.org) and has been tested on Python 3.8.
 2. To convert your Java and C++ file to a XML file, download [SRCML](https://www.srcml.org) with directions downloading SRCML [here](https://www.srcml.org/#download) 
-3. To use SWUM <sub>words</sub>, you have to downdload the [Spiral](https://github.com/casics/spiral) module which includes Ronin( the most advanced identifier splitter in the module). 
+3. To use SWUM <sub>words</sub>, you have to downdload the [Spiral](https://github.com/casics/spiral) module which includes Ronin(the most advanced identifier splitter in the module). 
 4. Install [lxml](https://pypi.org/project/lxml/) which helps write the XML file
 ## Usage
 Write this command in the terminal window or IDE 

@@ -1,0 +1,174 @@
+
+    <unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="WordCount.java"><import>import <name><name>java</name><operator>.</operator><name>io</name><operator>.</operator><name>File</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>io</name><operator>.</operator><name>FileNotFoundException</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>ArrayList</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>HashMap</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Iterator</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Map</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Scanner</name></name>;</import>
+    
+    <import>import <name><name>javax</name><operator>.</operator><name>swing</name><operator>.</operator><name>JFileChooser</name></name>;</import>
+    <import>import <name><name>javax</name><operator>.</operator><name>swing</name><operator>.</operator><name>UIManager</name></name>;</import>
+    
+    
+    <class><specifier>public</specifier> class <name>WordCount</name> <block>{
+    
+        <function><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <expr_stmt><expr><call><name>countWordsViaGUI</name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+        </block_content>}</block></function>
+    
+    
+        <comment type="line">// allow user to pick file to exam via GUI.</comment>
+        <comment type="line">// allow multiple picks</comment>
+        <function><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>countWordsViaGUI</name><parameter_list>()</parameter_list> <block>{<block_content>
+            <expr_stmt><expr><call><name>setLookAndFeel</name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+            <try>try <block>{<block_content>
+                <decl_stmt><decl><type><name>Scanner</name></type> <name>key</name> <init>= <expr><operator>new</operator> <call><name>Scanner</name><argument_list>(<argument><expr><name><name>System</name><operator>.</operator><name>in</name></name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                <do>do <block>{<block_content>
+                    <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Opening GUI to choose file."</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                    <decl_stmt><decl><type><name>Scanner</name></type> <name>fileScanner</name> <init>= <expr><operator>new</operator> <call><name>Scanner</name><argument_list>(<argument><expr><call><name>getFile</name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                    <decl_stmt><decl><type><name>Stopwatch</name></type> <name>st</name> <init>= <expr><operator>new</operator> <call><name>Stopwatch</name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+                    <expr_stmt><expr><call><name><name>st</name><operator>.</operator><name>start</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                    <decl_stmt><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>String</name></argument>&gt;</argument_list></name></type> <name>words</name> <init>= <expr><call><name>countWordsWithArrayList</name><argument_list>(<argument><expr><name>fileScanner</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                    <expr_stmt><expr><call><name><name>st</name><operator>.</operator><name>stop</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                    <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"time to count: "</literal> <operator>+</operator> <name>st</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                    <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>print</name></name><argument_list>(<argument><expr><literal type="string">"Enter number of words to display: "</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                    <decl_stmt><decl><type><name>int</name></type> <name>numWordsToShow</name> <init>= <expr><call><name><name>Integer</name><operator>.</operator><name>parseInt</name></name><argument_list>(<argument><expr><call><name><name>key</name><operator>.</operator><name>nextLine</name></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                    <expr_stmt><expr><call><name>showWords</name><argument_list>(<argument><expr><name>words</name></expr></argument>, <argument><expr><name>numWordsToShow</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                    <expr_stmt><expr><call><name><name>fileScanner</name><operator>.</operator><name>close</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                    <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>print</name></name><argument_list>(<argument><expr><literal type="string">"Perform another count? "</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                </block_content>}</block> while<condition>(<expr><call><name><name>key</name><operator>.</operator><name>nextLine</name></name><argument_list>()</argument_list></call><operator>.</operator><call><name>toLowerCase</name><argument_list>()</argument_list></call><operator>.</operator><call><name>charAt</name><argument_list>(<argument><expr><literal type="number">0</literal></expr></argument>)</argument_list></call> <operator>==</operator> <literal type="char">'y'</literal></expr>)</condition>;</do>
+                <expr_stmt><expr><call><name><name>key</name><operator>.</operator><name>close</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block>
+            <catch>catch<parameter_list>(<parameter><decl><type><name>FileNotFoundException</name></type> <name>e</name></decl></parameter>)</parameter_list> <block>{<block_content>
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Problem reading the data file. Exiting the program."</literal> <operator>+</operator> <name>e</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></catch></try>
+        </block_content>}</block></function>
+    
+    
+        <comment type="line">// determine distinct words in a file using an array list</comment>
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>String</name></argument>&gt;</argument_list></name></type> <name>countWordsWithArrayList</name><parameter_list>(<parameter><decl><type><name>Scanner</name></type> <name>fileScanner</name></decl></parameter>)</parameter_list> <block>{<block_content>
+    
+    
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Total number of words: "</literal> <operator>+</operator> <name>numWords</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"number of distincy words: "</literal> <operator>+</operator> <call><name><name>result</name><operator>.</operator><name>size</name></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <return>return <expr><name>result</name></expr>;</return>
+        </block_content>}</block></function>
+    
+    
+        <comment type="line">// determine distinct words in a file and frequency of each word with a Map</comment>
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name><name>Map</name><argument_list type="generic">&lt;<argument><name>String</name></argument>, <argument><name>Integer</name></argument>&gt;</argument_list></name></type> <name>countWordsWithMap</name><parameter_list>(<parameter><decl><type><name>Scanner</name></type> <name>fileScanner</name></decl></parameter>)</parameter_list> <block>{<block_content>
+    
+    
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Total number of words: "</literal> <operator>+</operator> <name>numWords</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"number of distincy words: "</literal> <operator>+</operator> <call><name><name>result</name><operator>.</operator><name>size</name></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <return>return <expr><name>result</name></expr>;</return>
+        </block_content>}</block></function>
+    
+    
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name>void</name></type> <name>showWords</name><parameter_list>(<parameter><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>String</name></argument>&gt;</argument_list></name></type> <name>words</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>numWordsToShow</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <for>for<control>(<init><decl><type><name>int</name></type> <name>i</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>i</name> <operator>&lt;</operator> <call><name><name>words</name><operator>.</operator><name>size</name></name><argument_list>()</argument_list></call> <operator>&amp;&amp;</operator> <name>i</name> <operator>&lt;</operator> <name>numWordsToShow</name></expr>;</condition> <incr><expr><name>i</name><operator>++</operator></expr></incr>)</control><block type="pseudo"><block_content>
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><call><name><name>words</name><operator>.</operator><name>get</name></name><argument_list>(<argument><expr><name>i</name></expr></argument>)</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt></block_content></block></for>
+        </block_content>}</block></function>
+    
+    
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name>void</name></type> <name>showWords</name><parameter_list>(<parameter><decl><type><name><name>Map</name><argument_list type="generic">&lt;<argument><name>String</name></argument>, <argument><name>Integer</name></argument>&gt;</argument_list></name></type> <name>words</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>numWordsToShow</name></decl></parameter>)</parameter_list> <block>{<block_content>
+    
+    
+    
+        </block_content>}</block></function>
+    
+    
+        <comment type="line">// perform a series of experiments on files. Determine average time to</comment>
+        <comment type="line">// count words in files of various sizes</comment>
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name>void</name></type> <name>performExp</name><parameter_list>()</parameter_list> <block>{<block_content>
+            <decl_stmt><decl><type><name><name>String</name><index>[]</index></name></type> <name>smallerWorks</name> <init>= <expr><block>{<expr><literal type="string">"smallWords.txt"</literal></expr>, <expr><literal type="string">"2BR02B.txt"</literal></expr>, <expr><literal type="string">"Alice.txt"</literal></expr>, <expr><literal type="string">"SherlockHolmes.txt"</literal></expr>}</block></expr></init></decl>;</decl_stmt><empty_stmt>;</empty_stmt>
+            <decl_stmt><decl><type><name><name>String</name><index>[]</index></name></type> <name>bigFile</name> <init>= <expr><block>{<expr><literal type="string">"ciaFactBook2008.txt"</literal></expr>}</block></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><call><name>timingExpWithArrayList</name><argument_list>(<argument><expr><name>smallerWorks</name></expr></argument>, <argument><expr><literal type="number">50</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name>timingExpWithArrayList</name><argument_list>(<argument><expr><name>bigFile</name></expr></argument>, <argument><expr><literal type="number">3</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name>timingExpWithMap</name><argument_list>(<argument><expr><name>smallerWorks</name></expr></argument>, <argument><expr><literal type="number">50</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name>timingExpWithMap</name><argument_list>(<argument><expr><name>bigFile</name></expr></argument>, <argument><expr><literal type="number">3</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+        </block_content>}</block></function>
+    
+    
+        <comment type="line">// pre: titles != null, elements of titles refer to files in the</comment>
+        <comment type="line">// same path as this program, numExp &gt;= 0</comment>
+        <comment type="line">// read words from files and print average time to cound words.</comment>
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name>void</name></type> <name>timingExpWithMap</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>titles</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>numExp</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <try>try <block>{<block_content>
+                <decl_stmt><decl><type><name><name>double</name><index>[]</index></name></type> <name>times</name> <init>= <expr><operator>new</operator> <name><name>double</name><index>[<expr><name><name>titles</name><operator>.</operator><name>length</name></name></expr>]</index></name></expr></init></decl>;</decl_stmt>
+                <decl_stmt><decl><type><specifier>final</specifier> <name>int</name></type> <name>NUM_EXP</name> <init>= <expr><literal type="number">50</literal></expr></init></decl>;</decl_stmt>
+                <for>for<control>(<init><decl><type><name>int</name></type> <name>i</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>i</name> <operator>&lt;</operator> <name>NUM_EXP</name></expr>;</condition> <incr><expr><name>i</name><operator>++</operator></expr></incr>)</control> <block>{<block_content>
+                    <for>for<control>(<init><decl><type><name>int</name></type> <name>j</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>j</name> <operator>&lt;</operator> <name><name>titles</name><operator>.</operator><name>length</name></name></expr>;</condition> <incr><expr><name>j</name><operator>++</operator></expr></incr>)</control> <block>{<block_content>
+                        <decl_stmt><decl><type><name>Scanner</name></type> <name>fileScanner</name> <init>= <expr><operator>new</operator> <call><name>Scanner</name><argument_list>(<argument><expr><operator>new</operator> <call><name>File</name><argument_list>(<argument><expr><name><name>titles</name><index>[<expr><name>j</name></expr>]</index></name></expr></argument>)</argument_list></call></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                        <decl_stmt><decl><type><name>Stopwatch</name></type> <name>st</name> <init>= <expr><operator>new</operator> <call><name>Stopwatch</name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+                        <expr_stmt><expr><call><name><name>st</name><operator>.</operator><name>start</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                        <decl_stmt><decl><type><name><name>Map</name><argument_list type="generic">&lt;<argument><name>String</name></argument>, <argument><name>Integer</name></argument>&gt;</argument_list></name></type> <name>words</name> <init>= <expr><call><name>countWordsWithMap</name><argument_list>(<argument><expr><name>fileScanner</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                        <expr_stmt><expr><call><name><name>st</name><operator>.</operator><name>stop</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                        <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><call><name><name>words</name><operator>.</operator><name>size</name></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                        <expr_stmt><expr><name><name>times</name><index>[<expr><name>j</name></expr>]</index></name> <operator>+=</operator> <call><name><name>st</name><operator>.</operator><name>time</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                        <expr_stmt><expr><call><name><name>fileScanner</name><operator>.</operator><name>close</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                    </block_content>}</block></for>
+                </block_content>}</block></for>
+                <for>for<control>(<init><decl><type><name>double</name></type> <name>a</name> <range>: <expr><name>times</name></expr></range></decl></init>)</control><block type="pseudo"><block_content>
+                    <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><name>a</name> <operator>/</operator> <name>NUM_EXP</name></expr></argument>)</argument_list></call></expr>;</expr_stmt></block_content></block></for>
+            </block_content>}</block>
+            <catch>catch<parameter_list>(<parameter><decl><type><name>FileNotFoundException</name></type> <name>e</name></decl></parameter>)</parameter_list> <block>{<block_content>
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Problem reading the data file. Exiting the program."</literal> <operator>+</operator> <name>e</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></catch></try>
+        </block_content>}</block></function>
+    
+    
+        <comment type="line">// pre: titles != null, elements of titles refer to files in the</comment>
+        <comment type="line">// same path as this program, numExp &gt;= 0</comment>
+        <comment type="line">// read words from files and print average time to cound words.</comment>
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name>void</name></type> <name>timingExpWithArrayList</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>titles</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>numExp</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <try>try <block>{<block_content>
+                <decl_stmt><decl><type><name><name>double</name><index>[]</index></name></type> <name>times</name> <init>= <expr><operator>new</operator> <name><name>double</name><index>[<expr><name><name>titles</name><operator>.</operator><name>length</name></name></expr>]</index></name></expr></init></decl>;</decl_stmt>
+                <for>for<control>(<init><decl><type><name>int</name></type> <name>i</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>i</name> <operator>&lt;</operator> <name>numExp</name></expr>;</condition> <incr><expr><name>i</name><operator>++</operator></expr></incr>)</control> <block>{<block_content>
+                    <for>for<control>(<init><decl><type><name>int</name></type> <name>j</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>j</name> <operator>&lt;</operator> <name><name>titles</name><operator>.</operator><name>length</name></name></expr>;</condition> <incr><expr><name>j</name><operator>++</operator></expr></incr>)</control> <block>{<block_content>
+                        <decl_stmt><decl><type><name>Scanner</name></type> <name>fileScanner</name> <init>= <expr><operator>new</operator> <call><name>Scanner</name><argument_list>(<argument><expr><operator>new</operator> <call><name>File</name><argument_list>(<argument><expr><name><name>titles</name><index>[<expr><name>j</name></expr>]</index></name></expr></argument>)</argument_list></call></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                        <decl_stmt><decl><type><name>Stopwatch</name></type> <name>st</name> <init>= <expr><operator>new</operator> <call><name>Stopwatch</name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+                        <expr_stmt><expr><call><name><name>st</name><operator>.</operator><name>start</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                        <decl_stmt><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>String</name></argument>&gt;</argument_list></name></type> <name>words</name> <init>= <expr><call><name>countWordsWithArrayList</name><argument_list>(<argument><expr><name>fileScanner</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+                        <expr_stmt><expr><call><name><name>st</name><operator>.</operator><name>stop</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                        <expr_stmt><expr><name><name>times</name><index>[<expr><name>j</name></expr>]</index></name> <operator>+=</operator> <call><name><name>st</name><operator>.</operator><name>time</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                        <expr_stmt><expr><call><name><name>fileScanner</name><operator>.</operator><name>close</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                    </block_content>}</block></for>
+                </block_content>}</block></for>
+                <for>for<control>(<init><decl><type><name>int</name></type> <name>i</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>i</name> <operator>&lt;</operator> <name><name>titles</name><operator>.</operator><name>length</name></name></expr>;</condition> <incr><expr><name>i</name><operator>++</operator></expr></incr>)</control><block type="pseudo"><block_content>
+                    <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Average time for "</literal> <operator>+</operator> <name><name>titles</name><index>[<expr><name>i</name></expr>]</index></name> <operator>+</operator> <literal type="string">": "</literal> <operator>+</operator> <operator>(</operator><name><name>times</name><index>[<expr><name>i</name></expr>]</index></name> <operator>/</operator> <name>numExp</name><operator>)</operator></expr></argument>)</argument_list></call></expr>;</expr_stmt></block_content></block></for>
+            </block_content>}</block>
+            <catch>catch<parameter_list>(<parameter><decl><type><name>FileNotFoundException</name></type> <name>e</name></decl></parameter>)</parameter_list> <block>{<block_content>
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Problem reading the data file. Exiting the program."</literal> <operator>+</operator> <name>e</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></catch></try>
+        </block_content>}</block></function>
+    
+    
+        <comment type="line">// try to set look and feel to same as system</comment>
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name>void</name></type> <name>setLookAndFeel</name><parameter_list>()</parameter_list> <block>{<block_content>
+            <try>try <block>{<block_content>
+                <expr_stmt><expr><call><name><name>UIManager</name><operator>.</operator><name>setLookAndFeel</name></name><argument_list>(<argument><expr><call><name><name>UIManager</name><operator>.</operator><name>getSystemLookAndFeelClassName</name></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block>
+            <catch>catch<parameter_list>(<parameter><decl><type><name>Exception</name></type> <name>e</name></decl></parameter>)</parameter_list> <block>{<block_content>
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Unable to set look at feel to local settings. "</literal> <operator>+</operator>
+                <literal type="string">"Continuing with default Java look and feel."</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></catch></try>
+        </block_content>}</block></function>
+    
+    
+        <comment type="block" format="javadoc">/** Method to choose a file using a window.
+         * @return the file chosen by the user. Returns null if no file picked.
+         */</comment>
+        <function><type><specifier>private</specifier> <specifier>static</specifier> <name>File</name></type> <name>getFile</name><parameter_list>()</parameter_list> <block>{<block_content>
+            <comment type="line">// create a GUI window to pick the text to evaluate</comment>
+            <decl_stmt><decl><type><name>JFileChooser</name></type> <name>chooser</name> <init>= <expr><operator>new</operator> <call><name>JFileChooser</name><argument_list>(<argument><expr><literal type="string">"."</literal></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><call><name><name>chooser</name><operator>.</operator><name>setDialogTitle</name></name><argument_list>(<argument><expr><literal type="string">"Select File To Count Words:"</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <decl_stmt><decl><type><name>int</name></type> <name>retval</name> <init>= <expr><call><name><name>chooser</name><operator>.</operator><name>showOpenDialog</name></name><argument_list>(<argument><expr><literal type="null">null</literal></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <decl_stmt><decl><type><name>File</name></type> <name>f</name> <init>=<expr><literal type="null">null</literal></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><call><name><name>chooser</name><operator>.</operator><name>grabFocus</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+            <if_stmt><if>if <condition>(<expr><name>retval</name> <operator>==</operator> <name><name>JFileChooser</name><operator>.</operator><name>APPROVE_OPTION</name></name></expr>)</condition><block type="pseudo"><block_content>
+                <expr_stmt><expr><name>f</name> <operator>=</operator> <call><name><name>chooser</name><operator>.</operator><name>getSelectedFile</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt></block_content></block></if></if_stmt>
+            <return>return <expr><name>f</name></expr>;</return>
+        </block_content>}</block></function>
+    }</block></class></unit>
