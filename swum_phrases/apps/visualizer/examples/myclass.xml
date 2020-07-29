@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+<swum_identifiers>
+<swum_identifier>
+  <id>0</id>
+  <name>MyClass</name>
+  <location>class</location>
+  <swum_phrase>
+    <prepositional_phrase>
+      <preposition>My</preposition>
+      <noun_phrase>
+        <noun swum_attr="head_noun">Class</noun>
+      </noun_phrase>
+    </prepositional_phrase>
+  </swum_phrase>
+</swum_identifier>
+<swum_identifier>
+  <id>1</id>
+  <name>MyClass</name>
+  <location>constructor</location>
+  <class>MyClass</class>
+  <swum_phrase>
+    <verb_group swum_attr="action">
+      <verb>create</verb>
+    </verb_group>
+    <verb_group swum_attr="action">
+      <verb>construct</verb>
+    </verb_group>
+    <prepositional_phrase swum_attr="theme">
+      <preposition>My</preposition>
+      <noun_phrase>
+        <noun swum_attr="head_noun">Class</noun>
+      </noun_phrase>
+    </prepositional_phrase>
+  </swum_phrase>
+</swum_identifier>
+<swum_identifier>
+  <id>2</id>
+  <name>getArea</name>
+  <location>function</location>
+  <class>MyClass</class>
+  <type>int</type>
+  <formal_parameters>
+    <formal_parameter>x</formal_parameter>
+  </formal_parameters>
+  <swum_phrase>
+    <verb_group swum_attr="action">
+      <verb>get</verb>
+    </verb_group>
+    <noun_phrase swum_attr="theme">
+      <noun swum_attr="head_noun">Area</noun>
+    </noun_phrase>
+    <swum_identifier swum_attr="aux_arg">
+      <name>x</name>
+      <location>formal_parameter</location>
+      <type>int</type>
+      <swum_phrase>
+        <noun_phrase>
+          <noun swum_attr="head_noun">x</noun>
+        </noun_phrase>
+      </swum_phrase>
+    </swum_identifier>
+    <swum_identifier swum_attr="aux_arg">
+      <name>int</name>
+      <location>type</location>
+      <swum_phrase>
+        <noun_phrase>
+          <noun swum_attr="head_noun">int</noun>
+        </noun_phrase>
+      </swum_phrase>
+    </swum_identifier>
+    <swum_identifier swum_attr="aux_arg">
+      <name>MyClass</name>
+      <location>class</location>
+      <swum_phrase>
+        <prepositional_phrase>
+          <preposition>My</preposition>
+          <noun_phrase>
+            <noun swum_attr="head_noun">Class</noun>
+          </noun_phrase>
+        </prepositional_phrase>
+      </swum_phrase>
+    </swum_identifier>
+  </swum_phrase>
+</swum_identifier>
+<swum_identifier>
+  <id>3</id>
+  <name>z</name>
+  <location>variable</location>
+  <type>int</type>
+  <swum_phrase>
+    <unknown_phrase>
+      <conjunction>z</conjunction>
+    </unknown_phrase>
+  </swum_phrase>
+</swum_identifier>
+</swum_identifiers>
