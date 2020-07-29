@@ -52,8 +52,9 @@ class JavaHandler(XMLFilterBase):
         self.idCount = 0
 
     def checksInputAndOutput(self, inputFile, outputFile):
-        if ".xml" not in inputFile or "xml" not in outputFile:
-            raise NameError("Input/Output file is invalid")
+        if ".xml" not in inputFile or ".xml" not in outputFile:
+            print("Input/Output file is invalid. Make sure input file is in the certain directory and .xml is included")
+            sys.exit(1)
 
     # Call when an element starts
     def startElement(self, tag, attributes):
@@ -64,17 +65,8 @@ class JavaHandler(XMLFilterBase):
         if not tag == "interface" and not tag == "constructor" and not tag == "function" and not tag == "class":
             super().startElement(tag, attributes)
         else:
-            if tag == "interface":
-                attr = {"swum_id": str(self.idCount)}
-                super().startElement(tag, attr)
-            if tag == "constructor":
-                attr = {"swum_id": str(self.idCount)}
-                super().startElement(tag, attr)
-            if tag == "function":
-                attr = {"swum_id": str(self.idCount)}
-                super().startElement(tag, attr)
-            if tag == "class":
-                attr = {"swum_id": str(self.idCount)}
+            if tag == "interface" or tag=="constructor" or tag == "function" or tag == "class":
+                attr = {"swum_ID": str(self.idCount)}
                 super().startElement(tag, attr)
         if tag == "parameter_list":
             self.genericParameterAttribute = attributes.get("type")
@@ -141,12 +133,13 @@ class JavaHandler(XMLFilterBase):
     # XML writer for functions, constructor, class, variable declaration names
     def functionConstructorDeclXMLWriter(self, definedName, role, definedType, genericStatus):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
-        #Updates self.idCounnt if tag is class, constructor, interface, function, or variable
+        #Updates self.idCount if tag is class, constructor, interface, function, or variable
         if role == "class" or role == "constructor" or role == "interface" or role == "function" or role == "variable":
             idTag = etree.SubElement(swumIdentifierTag, 'swum_ID')
             idTag.text = str(self.idCount)
             self.idCount = self.idCount+1
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
+        #Adds interface or class tags to constructor and function elements
         if role == "constructor" or role == "function":
             if self.interfaceName:
                 interfaceTag = etree.SubElement(swumIdentifierTag, 'interface')
@@ -158,9 +151,11 @@ class JavaHandler(XMLFilterBase):
         locationTag.text = role
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
         nameTag.text = name
+        # Writes type elements if it is not a generic
         if definedType and not genericStatus:
             typeTag = etree.SubElement(swumIdentifierTag, 'type')
             self.XMLWriter(definedType, "type", '', typeTag, False)
+        # Writes type elements if it is a generic
         elif definedType and genericStatus:
             typeTagArgument = etree.SubElement(swumIdentifierTag, 'type')
             swumIdentifierTagArgument = etree.SubElement(
@@ -182,11 +177,13 @@ class JavaHandler(XMLFilterBase):
             identifierTag = etree.SubElement(
                 swumIdentifierTagArgument, 'identifier')
             self.PartOfSpeechTag(definedType, identifierTag)
+        # Assigns parameters to generics
         if self.parameterGenericList:
             parametersTag = etree.SubElement(swumIdentifierTag, 'parameters')
             parameterTag = etree.SubElement(parametersTag, 'parameter')
             for temp in self.parameterGenericList:
                 self.XMLWriter(temp, "parameter", '', parameterTag, False)
+        # Writes formal parameters to methods and constructors
         if self.parameterList:
             formalParametersTag = etree.SubElement(
                 swumIdentifierTag, 'formal_parameters')
@@ -223,13 +220,17 @@ class JavaHandler(XMLFilterBase):
             self.className = ""
         # The function,class,interface, and constructor information is complete and therefore sent to their XML writer
         if tag == "parameter_list":
-            for tempNum in range(0, len(self.parameterList)):
-                self.parameterDict[self.parameterList[tempNum]
-                                   ] = self.parameterType[tempNum]
+            if len(self.parameterList) != len(self.parameterType):
+                print("Parameters need a type")
+                sys.exit(1)
+            else:
+                for tempNum in range(0, len(self.parameterList)):
+                    self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
             if self.functionName:
                 if not self.functionType:
                     # Makes sure functions have return types
-                    raise AttributeError("Functions must have a return type")
+                    print("Functions must have a return type")
+                    sys.exit(1)
                 if "<" in self.functionType:
                     self.functionConstructorDeclXMLWriter(
                         self.functionName, "function", self.functionType, True)
@@ -326,8 +327,9 @@ class JavaHandler(XMLFilterBase):
                         elif (self.dictTag["decl_stmt"] or self.dictTag["decl"]) and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
                             if not self.variableType:
                                 # Makes sure variables have a type
-                                raise AttributeError(
+                                print(
                                     "Variables must have a type ")
+                                sys.exit(1)
                             self.variableName = self.currentContent
                             if "<" in self.variableType:
                                 self.functionConstructorDeclXMLWriter(
@@ -369,9 +371,9 @@ class JavaHandler(XMLFilterBase):
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.variableType = self.currentContent
                 else:
-                    # Raises an NameError if self.currentContent is not a valid identifier (only includes alphanumeric characters, underscores, and "$")
-                    raise NameError(self.currentContent +
-                                    " is not a valid identifier")
+                    # Raises an error if self.currentContent is not a valid identifier (only includes alphanumeric characters, underscores, and "$")
+                    print(self.currentContent +" is not a valid identifier")
+                    sys.exit(1)
             self.dictTag[tag] -= 1
             self.previousTag = tag
         else:
