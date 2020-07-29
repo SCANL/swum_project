@@ -8,49 +8,26 @@ digraph G {
 	swum_phrase -> noun_phrase2 [label=theme]
 	noun3 [label=area xlabel=noun]
 	noun_phrase2 -> noun3 [label=head_noun]
-	swum_identifier4 [label="
-      " xlabel=swum_identifier]
-	swum_phrase -> swum_identifier4 [label=aux_arg]
-	name5 [label=x xlabel=name]
-	swum_identifier4 -> name5
-	location6 [label=formal_parameter xlabel=location]
-	swum_identifier4 -> location6
-	type7 [label=int xlabel=type]
-	swum_identifier4 -> type7
-	swum_phrase8 [label=SP]
-	swum_identifier4 -> swum_phrase8
-	noun_phrase9 [label=NP]
-	swum_phrase8 -> noun_phrase9
-	noun10 [label=x xlabel=noun]
-	noun_phrase9 -> noun10 [label=head_noun]
-	swum_identifier11 [label="
-      " xlabel=swum_identifier]
-	swum_phrase -> swum_identifier11 [label=aux_arg]
-	name12 [label=int xlabel=name]
-	swum_identifier11 -> name12
-	location13 [label=type xlabel=location]
-	swum_identifier11 -> location13
-	swum_phrase14 [label=SP]
-	swum_identifier11 -> swum_phrase14
-	noun_phrase15 [label=NP]
-	swum_phrase14 -> noun_phrase15
-	noun16 [label=int xlabel=noun]
-	noun_phrase15 -> noun16 [label=head_noun]
-	swum_identifier17 [label="
-      " xlabel=swum_identifier]
-	swum_phrase -> swum_identifier17 [label=aux_arg]
-	name18 [label=myclass xlabel=name]
-	swum_identifier17 -> name18
-	location19 [label=class xlabel=location]
-	swum_identifier17 -> location19
-	swum_phrase20 [label=SP]
-	swum_identifier17 -> swum_phrase20
-	prepositional_phrase21 [label=PP]
-	swum_phrase20 -> prepositional_phrase21
-	preposition22 [label=my xlabel=preposition]
-	prepositional_phrase21 -> preposition22
-	noun_phrase23 [label=NP]
-	prepositional_phrase21 -> noun_phrase23
-	noun24 [label=class xlabel=noun]
-	noun_phrase23 -> noun24 [label=head_noun]
+	swum_phrase4 [label=SP]
+	swum_phrase -> swum_phrase4 [label=aux_arg]
+	noun_phrase5 [label=NP]
+	swum_phrase4 -> noun_phrase5
+	noun6 [label=x xlabel=noun]
+	noun_phrase5 -> noun6 [label=head_noun]
+	swum_phrase7 [label=SP]
+	swum_phrase -> swum_phrase7 [label=aux_arg]
+	noun_phrase8 [label=NP]
+	swum_phrase7 -> noun_phrase8
+	noun9 [label=int xlabel=noun]
+	noun_phrase8 -> noun9 [label=head_noun]
+	swum_phrase10 [label=SP]
+	swum_phrase -> swum_phrase10 [label=aux_arg]
+	prepositional_phrase11 [label=PP]
+	swum_phrase10 -> prepositional_phrase11
+	preposition12 [label=my xlabel=preposition]
+	prepositional_phrase11 -> preposition12
+	noun_phrase13 [label=NP]
+	prepositional_phrase11 -> noun_phrase13
+	noun14 [label=class xlabel=noun]
+	noun_phrase13 -> noun14 [label=head_noun]
 }
