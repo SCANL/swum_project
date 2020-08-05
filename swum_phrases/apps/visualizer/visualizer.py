@@ -4,7 +4,7 @@ import sys
 from lxml import etree
 from graphviz import Digraph
 
-tag_to_label = {'swum_phrase': 'SP', 'verb_phrase': 'VP', 'noun_phrase': 'NP', 'prepositional_phrase': 'PP', 'verb_group': 'VG', 'unknown_phrase': 'UP'}
+tag_to_label = {'swum_phrase': 'SP', 'verb_phrase': 'VP', 'noun_phrase': 'NP', 'prepositional_phrase': 'PP', 'verb_group': 'VG', 'noun_phrase_equivalence': 'EQ_NP', 'verb_phrase_equivalence': 'EQ_VP', 'unknown_phrase': 'UP'}
 
 def visualize_swum_phrase(swum_phrase: etree._Element):
     def _visualize_rec(element: etree._Element, node_label: str):
@@ -74,6 +74,9 @@ def main(argv):
 
             if swum_phrase is not None and cur_id is not None and cur_id == swum_id:
                 visualize_swum_phrase(swum_phrase)
+                sys.exit(0)
+        
+        print('Could not find swum identifier with id {} in {}'.format(swum_id, filename))
 
 if __name__ == '__main__':
     main(sys.argv)

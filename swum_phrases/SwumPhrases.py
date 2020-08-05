@@ -235,6 +235,7 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                         node.edges[index-1].label = 'ignorable_verb'                
         
         attr_rule = self.get_attr_rule()
+        print('attr rule: {}'.format(attr_rule))
 
         if attr_rule is None:
             return
@@ -417,33 +418,73 @@ class SwumPhrasesRoot(SwumPhrasesNode):
         else:
             fail('Error: did not recognize annotation rule {}'.format(str(attr_rule)))
 
-        # # TODO: implement equivalences (link together NPs and VPs that share same head noun/non-ignorable verb)
-        # np_map = {} # head noun to (semantic attribute, parent node)
-        # vp_map = {} # verb to (semantic attribute, parent node)
-        # majors = ['action', 'theme']
-        # minors = ['aux_arg', 'secondary_arg']
-        # for edge in self.edges:
-        #     if edge.child.node_type == 'noun_phrase':
-        #         for child_edge in edge.child.edges:
-        #             if child_edge.label == 'head_noun':
-        #                 if child_edge.child.token.literal in np_map:
-        #                     # TODO: make the equivalence if between action/theme and aux/secondary arg
-        #                     prev_semantic, prev_parent = np_map[child_edge.child.token.literal]
-        #                     cur_semantic = edge.label
-        #                     cur_parent = edge.child
-        #                     if prev_semantic in majors and cur_semantic in minors:
-        #                         parent = prev_parent
-        #                         np_equiv = SwumPhrasesNode()
-        #                 else:
-        #                     np_map[child_edge.child.token.literal] = (edge.label, edge.child)
-        #     elif edge.child.node_type == 'verb_phrase':
-        #         # TODO: similar to noun phrase above
-        #         pass
-
         # copy newly constructed tree into self (metadata is already shared, token not applicable for root)
         self.node_type = copy.deepcopy(swum_phrase.node_type)
         self.edges = copy.deepcopy(swum_phrase.edges)
 
+        self._make_equivalences()
+
+    def _make_equivalences(self):
+        np_list: List[(str, SwumPhrasesEdge)] = [] # head noun, edge
+        vp_list: List[(str, SwumPhrasesEdge)] = [] # verb, edge
+        major_attrs = ['action', 'theme']
+
+        # gather noun phrases and verb phrases into lists
+        for edge in self.edges:
+            child = edge.child.edges[0].child if isinstance(edge.child, SwumPhrasesRoot) else edge.child
+            if child.node_type == 'noun_phrase':
+                for child_edge in child.edges:
+                    if child_edge.label == 'head_noun':
+                        head_noun = child_edge.child.token.literal.lower()
+                        np_list.append((head_noun, edge))
+                        break
+            elif child.node_type == 'verb_phrase':
+                for child_edge in child.edges:
+                    if child_edge.child.node_type == 'verb' and child_edge.label != 'ignorable_verb':
+                        verb = child_edge.child.token.literal.lower()
+                        vp_list.append((verb, edge))
+                        break
+
+        # separate phrases based on attribute - merge into major attrs from minor attrs
+        np_majors = [pair for pair in np_list if pair[1].label in major_attrs]
+        np_minors = [pair for pair in np_list if pair[1].label not in major_attrs]
+        vp_majors = [pair for pair in vp_list if pair[1].label in major_attrs]
+        vp_minors = [pair for pair in vp_list if pair[1].label not in major_attrs]
+
+        # make noun phrase equivalences
+        for major_pair in np_majors:
+            head_noun = major_pair[0]
+            attr = major_pair[1].label
+            np_equiv = SwumPhrasesNode(antlr_ctx=None)
+            np_equiv.node_type = 'noun_phrase_equivalence'
+            np_equiv.add_edge(major_pair[1].child, label=attr)
+            for minor_pair in np_minors:
+                if minor_pair[0] == head_noun:
+                    np_equiv.add_edge(minor_pair[1].child)
+                    self.edges.remove(minor_pair[1])
+                    np_minors.remove(minor_pair)
+            
+            if len(np_equiv.edges) > 1:
+                self.edges.remove(major_pair[1])
+                self.add_edge(np_equiv, label=attr)
+
+        # make verb phrase equivalences
+        for major_pair in vp_majors:
+            head_noun = major_pair[0]
+            attr = major_pair[1].label
+            vp_equiv = SwumPhrasesNode(antlr_ctx=None)
+            vp_equiv.node_type = 'verb_phrase_equivalence'
+            vp_equiv.add_edge(major_pair[1].child, label=attr)
+            for minor_pair in vp_minors:
+                if minor_pair[0] == head_noun:
+                    vp_equiv.add_edge(minor_pair[1].child)
+                    self.edges.remove(minor_pair[1])
+                    vp_minors.remove(minor_pair)
+            
+            if len(vp_equiv.edges) > 1:
+                self.edges.remove(major_pair[1])
+                self.add_edge(vp_equiv, label=attr)
+    
     def get_attr_rule(self):
         """Returns the appropriate rule for annotating this phrasal node based on its metadata"""
         if self.metadata.location == 'constructor':
@@ -621,7 +662,7 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
     """Returns the extracted metadata object from a <swum_identifier> XML node in input"""
     metadata: SwumMetadata = SwumMetadata()
     for child in element:
-        if child.tag == 'id':
+        if child.tag == 'swum_ID':
             metadata.id_num = child.text.strip()
         elif child.tag == 'location':
             metadata.location = child.text.strip()
@@ -647,8 +688,6 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
         print(etree.tostring(element))
         print(metadata)
         fail('a swum identifier is missing name')
-    # elif metadata.id_num is None:
-    #     fail('{} is missing a unique ID'.format(metadata.name))
     elif len(metadata.tokens) == 0:
         print(etree.tostring(element))
         fail('{} is missing tokens'.format(metadata.name))
