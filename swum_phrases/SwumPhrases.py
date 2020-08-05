@@ -195,16 +195,17 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                 for param_metadata in node.metadata.parameter_m:
                     param_tokens += param_metadata.tokens
                 tokens = param_tokens + node.metadata.tokens
-                print(tokens)
+                # print(tokens)
                 combined_swum_phrase = get_swum_phrase_from_tokens(tokens)
+                # TODO: fix bug here - need to detect whether unknown phrase was returned in some way
                 if combined_swum_phrase is None:
-                    print('could not combine parameters and identifier')
+                    # print('could not combine parameters and identifier')
                     # add params as attributes
                     for param_metadata in node.metadata.parameter_m:
                         node.add_edge(get_swum_phrase_from_metadata(param_metadata), 'param')
                 else:
                     # label param edges within the single phrase
-                    print('combining parameters and identifier')
+                    # print('combining parameters and identifier')
                     param_token_literals = [token.literal for token in param_tokens] 
                     for parent_node in combined_swum_phrase.subtree_nodes():
                         for edge in parent_node.edges:
@@ -231,10 +232,7 @@ class SwumPhrasesRoot(SwumPhrasesNode):
             if node.node_type == 'verb_phrase':
                 for index, edge in enumerate(node.edges):
                     if edge.child.node_type == 'verb' and index > 0 and node.edges[index-1].child.node_type == 'verb':
-                        node.edges[index-1].label = 'ignorable_verb'
-
-        # TODO: implement equivalences (link together NPs and VPs that share same head noun/non-ignorable verb)
-                
+                        node.edges[index-1].label = 'ignorable_verb'                
         
         attr_rule = self.get_attr_rule()
 
@@ -419,6 +417,29 @@ class SwumPhrasesRoot(SwumPhrasesNode):
         else:
             fail('Error: did not recognize annotation rule {}'.format(str(attr_rule)))
 
+        # # TODO: implement equivalences (link together NPs and VPs that share same head noun/non-ignorable verb)
+        # np_map = {} # head noun to (semantic attribute, parent node)
+        # vp_map = {} # verb to (semantic attribute, parent node)
+        # majors = ['action', 'theme']
+        # minors = ['aux_arg', 'secondary_arg']
+        # for edge in self.edges:
+        #     if edge.child.node_type == 'noun_phrase':
+        #         for child_edge in edge.child.edges:
+        #             if child_edge.label == 'head_noun':
+        #                 if child_edge.child.token.literal in np_map:
+        #                     # TODO: make the equivalence if between action/theme and aux/secondary arg
+        #                     prev_semantic, prev_parent = np_map[child_edge.child.token.literal]
+        #                     cur_semantic = edge.label
+        #                     cur_parent = edge.child
+        #                     if prev_semantic in majors and cur_semantic in minors:
+        #                         parent = prev_parent
+        #                         np_equiv = SwumPhrasesNode()
+        #                 else:
+        #                     np_map[child_edge.child.token.literal] = (edge.label, edge.child)
+        #     elif edge.child.node_type == 'verb_phrase':
+        #         # TODO: similar to noun phrase above
+        #         pass
+
         # copy newly constructed tree into self (metadata is already shared, token not applicable for root)
         self.node_type = copy.deepcopy(swum_phrase.node_type)
         self.edges = copy.deepcopy(swum_phrase.edges)
@@ -536,13 +557,10 @@ def get_swum_phrase_from_tokens(tokens: List[SwumToken] = None):
         print('could not parse {}, {}'.format([swum_token.literal for swum_token in tokens], [swum_token.pos_tag for swum_token in tokens]))
         return None
     else:
-        print('getting from tokens: {}'.format(tokens))
+        # print('getting from tokens: {}'.format(tokens))
         ctx = visitor.visit(tree)
-        print(type(ctx))
         if isinstance(ctx, SwumParser.Start_ruleContext):
-            print('yes, isinstance')
             ctx = ctx.getChild(0)
-        print(type(ctx))
         # node = SwumPhrasesNode(visitor.visit(tree))
         node = SwumPhrasesNode(ctx)
         node.associate_words(tokens)

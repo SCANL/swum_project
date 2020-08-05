@@ -4,7 +4,7 @@ import sys
 from lxml import etree
 from graphviz import Digraph
 
-tag_to_label = {'swum_phrase': 'SP', 'verb_phrase': 'VP', 'noun_phrase': 'NP', 'prepositional_phrase': 'PP', 'verb_group': 'VG'}
+tag_to_label = {'swum_phrase': 'SP', 'verb_phrase': 'VP', 'noun_phrase': 'NP', 'prepositional_phrase': 'PP', 'verb_group': 'VG', 'unknown_phrase': 'UP'}
 
 def visualize_swum_phrase(swum_phrase: etree._Element):
     def _visualize_rec(element: etree._Element, node_label: str):
