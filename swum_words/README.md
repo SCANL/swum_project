@@ -9,7 +9,7 @@ In SWUM <sub>words</sub>, there exists a word node for every word ocurrence in a
 ## Usage
 Write this command in the terminal window or IDE 
 ```python
-run swum_words.py InputFileName.xml OutputFileName.xml
+run swum_words.py [InputFileName].xml [OutputFileName].xml
 ```
 ## Input
 The program takes a XML file that has been converted from Java/C++ using SRCML with tags representing the role, name, and specifier of identifiers. See the ```examples``` directory for a sample input.
