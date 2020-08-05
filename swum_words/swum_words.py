@@ -15,13 +15,13 @@ from xml.dom import minidom
 from lxml import etree
 
 class JavaHandler(XMLFilterBase):
-    def __init__(self, parent=None, inputStatus=True):
+    def __init__(self, parent=None):
         #Checks to see it we need to ask the user for an input file
-        if inputStatus:
-            self.input = input("XML Input File: ")
-            self.output = input("XML Output File: ")
-            self.checksInputAndOutput(self.input, self.output)
         super().__init__(parent)
+        if len(sys.argv) == 3:
+            self.checksInputAndOutput(sys.argv[1], sys.argv[2])
+        else:
+            sys.exit("Two arguments must be passed. The first must be a valid srcml input file and the other must be the output file")
         self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index": 0, "extends": 0, "implements": 0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument": 0, "argument_list": 0}
         self.previousTag = ""
@@ -53,8 +53,7 @@ class JavaHandler(XMLFilterBase):
 
     def checksInputAndOutput(self, inputFile, outputFile):
         if ".xml" not in inputFile or ".xml" not in outputFile:
-            print("Input/Output file is invalid. Make sure input file is in the certain directory and .xml is included")
-            sys.exit(1)
+            sys.exit("Input/Output file is invalid. Make sure input file is in the certain directory and .xml is included")
 
     # Call when an element starts
     def startElement(self, tag, attributes):
@@ -229,8 +228,7 @@ class JavaHandler(XMLFilterBase):
             if self.functionName:
                 if not self.functionType:
                     # Makes sure functions have return types
-                    print("Functions must have a return type")
-                    sys.exit(1)
+                    print(self.functionName + "must have a return type")
                 if "<" in self.functionType:
                     self.functionConstructorDeclXMLWriter(
                         self.functionName, "function", self.functionType, True)
@@ -325,12 +323,11 @@ class JavaHandler(XMLFilterBase):
                             else:
                                 self.parameterList.append(self.currentContent)
                         elif (self.dictTag["decl_stmt"] or self.dictTag["decl"]) and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+                            self.variableName = self.currentContent
                             if not self.variableType:
                                 # Makes sure variables have a type
                                 print(
-                                    "Variables must have a type ")
-                                sys.exit(1)
-                            self.variableName = self.currentContent
+                                    self.variableName + "must have a type ")
                             if "<" in self.variableType:
                                 self.functionConstructorDeclXMLWriter(
                                     self.variableName, "variable", self.variableType, True)
@@ -373,7 +370,6 @@ class JavaHandler(XMLFilterBase):
                 else:
                     # Raises an error if self.currentContent is not a valid identifier (only includes alphanumeric characters, underscores, and "$")
                     print(self.currentContent +" is not a valid identifier")
-                    sys.exit(1)
             self.dictTag[tag] -= 1
             self.previousTag = tag
         else:
@@ -397,21 +393,18 @@ def prettify(elem):
 if (__name__ == "__main__"):
     # Used to parse an XML File and return an XML output file with the results
     parser = make_parser()
-    inputStatus = True
-    Handler = JavaHandler((), inputStatus)
+    Handler = JavaHandler(())
     parser.setContentHandler(Handler)
-    parser.parse(Handler.input)
+    parser.parse(str(sys.argv[1]))
     print(prettify(Handler.xmlResult))
     Handler.xmlResult = (Handler.xmlResult).getroottree()
-    Handler.xmlResult.write(str(Handler.output))
+    Handler.xmlResult.write(str(sys.argv[2]))
     # Used to write a changed XML input file labeled with ID numbers
-    inputStatus = False
-    reader = JavaHandler(make_parser(), inputStatus)
-    index = Handler.input.index(".xml")
-    root = Handler.input[0:index]
+    reader = JavaHandler(make_parser())
+    index = sys.argv[1].index(".xml")
+    root = sys.argv[1][0:index]
     ChangedInput = root+"ChangedInput.xml"
     with open(ChangedInput, 'w') as f:
         handler = XMLGenerator(f)
         reader.setContentHandler(handler)
-        handler.input = Handler.input
-        reader.parse(handler.input)
+        reader.parse(sys.argv[1])
