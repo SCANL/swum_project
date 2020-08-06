@@ -451,40 +451,25 @@ class SwumPhrasesRoot(SwumPhrasesNode):
         vp_majors = [pair for pair in vp_list if pair[1].label in major_attrs]
         vp_minors = [pair for pair in vp_list if pair[1].label not in major_attrs]
 
-        # make noun phrase equivalences
-        for major_pair in np_majors:
-            head_noun = major_pair[0]
-            attr = major_pair[1].label
-            np_equiv = SwumPhrasesNode(antlr_ctx=None)
-            np_equiv.node_type = 'noun_phrase_equivalence'
-            np_equiv.add_edge(major_pair[1].child, label=attr)
-            for minor_pair in np_minors:
-                if minor_pair[0] == head_noun:
-                    np_equiv.add_edge(minor_pair[1].child)
-                    self.edges.remove(minor_pair[1])
-                    np_minors.remove(minor_pair)
-            
-            if len(np_equiv.edges) > 1:
-                self.edges.remove(major_pair[1])
-                self.add_edge(np_equiv, label=attr)
+        def construct_equivalences(majors, minors, node_type: str):
+            for major_pair in majors:
+                attr = major_pair[1].label
+                equiv = SwumPhrasesNode(antlr_ctx=None)
+                equiv.node_type = node_type
+                equiv.add_edge(major_pair[1].child)
+                for minor_pair in minors:
+                    if minor_pair[0] == major_pair[0]:
+                        equiv.add_edge(minor_pair[1].child)
+                        self.edges.remove(minor_pair[1])
+                        minors.remove(minor_pair)
+                
+                if len(equiv.edges) > 1:
+                    self.edges.remove(major_pair[1])
+                    self.add_edge(equiv, label=attr)
 
-        # make verb phrase equivalences
-        for major_pair in vp_majors:
-            head_noun = major_pair[0]
-            attr = major_pair[1].label
-            vp_equiv = SwumPhrasesNode(antlr_ctx=None)
-            vp_equiv.node_type = 'verb_phrase_equivalence'
-            vp_equiv.add_edge(major_pair[1].child, label=attr)
-            for minor_pair in vp_minors:
-                if minor_pair[0] == head_noun:
-                    vp_equiv.add_edge(minor_pair[1].child)
-                    self.edges.remove(minor_pair[1])
-                    vp_minors.remove(minor_pair)
+        construct_equivalences(np_majors, np_minors, 'noun_phrase_equivalence')
+        construct_equivalences(vp_majors, vp_minors, 'verb_phrase_equivalence')
             
-            if len(vp_equiv.edges) > 1:
-                self.edges.remove(major_pair[1])
-                self.add_edge(vp_equiv, label=attr)
-    
     def get_attr_rule(self):
         """Returns the appropriate rule for annotating this phrasal node based on its metadata"""
         if self.metadata.location == 'constructor':
