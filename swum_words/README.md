@@ -1,13 +1,12 @@
 # SWUM Words
-Analysis of word nodes within SWUM <sub>words</sub>.
-In SWUM <sub>words</sub>, there exists a word node for every word ocurrence in a specific code sample. We analyze each word node by splitting each word using the NLTK python library and identifier splitting techniques. Then we annotate each word node with parts of speech tagging and its role in the code (function, class, variable name, etc.). The analysis of the word nodes are then sent to the SWUM <sub>phrases</sub> stage where word relationships are used to develop edges between word nodes.
+Analysis of word nodes within SWUM <sub>words</sub>. In SWUM <sub>words</sub>, there exists a word node for every word ocurrence in a specific code sample. We analyze each word node by splitting each word using identifier splitting techniques. Then we annotate each word node with part of speech tagging and its role in the code (function, class, variable name, etc.). The analysis of the word nodes are then sent to the SWUM <sub>phrases</sub> stage where word relationships are used to develop edges between word nodes.
 ## Installation
 1. SWUM <sub>words</sub> requires [Python 3.7+](https://www.python.org) and has been tested on Python 3.8.
 2. To convert your Java and C++ file to a XML file, download [SRCML](https://www.srcml.org) with directions downloading SRCML [here](https://www.srcml.org/#download) 
 3. To use SWUM <sub>words</sub>, you have to downdload the [Spiral](https://github.com/casics/spiral) module which includes Ronin (the most advanced identifier splitter in the module). 
 4. Install [lxml](https://pypi.org/project/lxml/) which helps write the XML file
 ## Usage
-Write this command in the terminal window or IDE 
+Run this command in the terminal window or IDE 
 ```python
 run swum_words.py [InputFileName].xml [OutputFileName].xml
 ```
