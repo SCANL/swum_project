@@ -1,7 +1,8 @@
 # Author: Aditya Bhargava (abhargava@g.hmc.edu)
 # Date: Summer 2020
-# Organization: RIT REU Cultivating New Generation Software
+# Organization: RIT Cultivating New Generation Software REU
 # Function: Takes an XML file and analyzes it based on identifier names and roles using a SAX parser. Saves the results as an XML file and outputs the respective input file with corresponding ID numbers.
+
 import sys
 # Part of Speech tagging tools
 import nltk
@@ -15,14 +16,15 @@ from xml.dom import minidom
 from lxml import etree
 
 class JavaHandler(XMLFilterBase):
-    def __init__(self, parent=None):
-        #Checks to see it we need to ask the user for an input file
+    def __init__(self, parent=None,errorMessage=False):
+        #Used for writing the changed input with ID numbers 
         super().__init__(parent)
         if len(sys.argv) == 3:
             self.checksInputAndOutput(sys.argv[1], sys.argv[2])
         else:
             sys.exit("Two arguments must be passed. The first must be a valid srcml input file and the other must be the output file")
-        self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index": 0, "extends": 0, "implements": 0,
+        self.errorMessage = errorMessage
+        self.dictTag = {"decl": 0, "decl_stmt": 0, "type": 0, "name": 0, "class": 0, "function": 0, "function_decl": 0, "index": 0, "extends": 0, "implements": 0, "throws": 0, "catch":0,
                         "expr": 0, "expr_stmt": 0, "parameter": 0, "parameter_list": 0, "operator": 0, "specifier": 0, "constructor": 0, "interface": 0, "interface_decl": 0, "argument": 0, "argument_list": 0}
         self.previousTag = ""
         self.xmlResult = etree.Element('swum_identifiers')
@@ -51,10 +53,14 @@ class JavaHandler(XMLFilterBase):
         # Used for tracing SRCML and SWUM ID numbers
         self.idCount = 0
 
+    # Checks to see if the input and output are valid
     def checksInputAndOutput(self, inputFile, outputFile):
         if ".xml" not in inputFile or ".xml" not in outputFile:
             sys.exit("Input/Output file is invalid. Make sure input file is in the certain directory and .xml is included")
-
+    # Checks to see if identifier is valid
+    def isValidIdentifier(self,identifier):
+        if not identifier.isidentifier() and identifier != ">" and identifier != "[]" and self.errorMessage:
+            print(identifier + " is not a valid identifier")
     # Call when an element starts
     def startElement(self, tag, attributes):
         for x in self.dictTag:
@@ -69,7 +75,6 @@ class JavaHandler(XMLFilterBase):
                 super().startElement(tag, attr)
         if tag == "parameter_list":
             self.genericParameterAttribute = attributes.get("type")
-
     # Part Of Speech (POS) Tagging
     def PartOfSpeechTag(self, currentContent, tree):
         self.sentence = ""
@@ -84,7 +89,6 @@ class JavaHandler(XMLFilterBase):
             wordTag.text = splitWord[0]
             partOfSpeechTag = etree.SubElement(wordTag, 'pos')
             partOfSpeechTag.text = splitWord[1]
-
     # XML writer for temporary class/interface names, parameters, types, formal parameters
     def XMLWriter(self,definedName,role,parameterType,tree,genericStatus):
         swumIdentifierTag = etree.SubElement(tree, 'swum_identifier')
@@ -96,7 +100,7 @@ class JavaHandler(XMLFilterBase):
         locationTag.text = role
         nameTag = etree.SubElement(swumIdentifierTag, 'name')
         nameTag.text = definedName
-        # Recursive call to write parameter types
+        # Recursive call to write non-Generic parameter types
         if parameterType and self.parameterList and not genericStatus:
             typeTag = etree.SubElement(swumIdentifierTag, 'type')
             if "<" not in parameterType:
@@ -127,18 +131,20 @@ class JavaHandler(XMLFilterBase):
             definedName = definedName.replace("[", '')
             definedName= definedName.replace("]", '')
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
-        self.PartOfSpeechTag(definedName, identifierTag)
-
+        if definedName:
+            self.PartOfSpeechTag(definedName, identifierTag) 
+        else:
+            sys.exit("An empty string was given to the PartOfSpeechTagger")   
     # XML writer for functions, constructor, class, variable declaration names
     def functionConstructorDeclXMLWriter(self, definedName, role, definedType, genericStatus):
         swumIdentifierTag = etree.SubElement(self.xmlResult, 'swum_identifier')
-        #Updates self.idCount if tag is class, constructor, interface, function, or variable
+        # Updates self.idCount if tag is class, constructor, interface, function, or variable
         if role == "class" or role == "constructor" or role == "interface" or role == "function" or role == "variable":
             idTag = etree.SubElement(swumIdentifierTag, 'swum_ID')
             idTag.text = str(self.idCount)
             self.idCount = self.idCount+1
         locationTag = etree.SubElement(swumIdentifierTag, 'location')
-        #Adds interface or class tags to constructor and function elements
+        # Adds interface or class tags to constructor and function elements
         if role == "constructor" or role == "function":
             if self.interfaceName:
                 interfaceTag = etree.SubElement(swumIdentifierTag, 'interface')
@@ -175,7 +181,10 @@ class JavaHandler(XMLFilterBase):
             definedType = definedType[0:locationOfBeginningTag]
             identifierTag = etree.SubElement(
                 swumIdentifierTagArgument, 'identifier')
-            self.PartOfSpeechTag(definedType, identifierTag)
+            if definedType:
+                self.PartOfSpeechTag(definedType, identifierTag)
+            else:
+                sys.exit("An empty string was given to the PartOfSpeechTagger")     
         # Assigns parameters to generics
         if self.parameterGenericList:
             parametersTag = etree.SubElement(swumIdentifierTag, 'parameters')
@@ -196,7 +205,10 @@ class JavaHandler(XMLFilterBase):
                     self.XMLWriter(
                         key, "formal_parameter",self.parameterDict[key], formalParameterTag, False)
         identifierTag = etree.SubElement(swumIdentifierTag, 'identifier')
-        self.PartOfSpeechTag(name, identifierTag)
+        if name:
+            self.PartOfSpeechTag(name, identifierTag)
+        else:
+            sys.exit("An empty string was given to the PartOfSpeechTagger")  
         # Resetting the function, constructor, and parameter attributes
         self.functionName = ""
         self.constructorName = ""
@@ -209,7 +221,6 @@ class JavaHandler(XMLFilterBase):
         self.argument = []
         self.parameterGenericList = []
         self.genericParameterAttribute = ""
-
     # Call when an elements ends
     def endElement(self, tag):
         super().endElement(tag)
@@ -217,18 +228,20 @@ class JavaHandler(XMLFilterBase):
             self.interfaceName = ""
         if tag == "class":
             self.className = ""
-        # The function,class,interface, and constructor information is complete and therefore sent to their XML writer
+        # The function,class,interface, and constructor information is complete since the "parameter_list" tag is invoked
         if tag == "parameter_list":
             if len(self.parameterList) != len(self.parameterType):
-                print("Parameters need a type")
-                sys.exit(1)
+                sys.exit("Every parameter needs a type for the " + self.functionName + " function. There is/are currently "+ str(len(self.parameterList)) + " parameter(s) and "+ str(len(self.parameterType))+ " parameter type(s)")
             else:
                 for tempNum in range(0, len(self.parameterList)):
                     self.parameterDict[self.parameterList[tempNum]] = self.parameterType[tempNum]
-            if self.functionName:
-                if not self.functionType:
+            if self.dictTag["catch"]:
+                self.functionConstructorDeclXMLWriter("Catch", "Catch", '', False)
+            elif self.functionName:
+                if not self.functionType and self.errorMessage:
                     # Makes sure functions have return types
-                    print(self.functionName + "must have a return type")
+                    print(self.functionName + " must have a return type")
+                # Checks to see if self.functionType is a generic
                 if "<" in self.functionType:
                     self.functionConstructorDeclXMLWriter(
                         self.functionName, "function", self.functionType, True)
@@ -238,11 +251,12 @@ class JavaHandler(XMLFilterBase):
             elif self.constructorName:
                 self.functionConstructorDeclXMLWriter(
                     self.constructorName, "constructor", '', False)
-            # Checks if the class or interface has generic parameters
+            # Checks if the class or interface has generic parameters and writes the XML file accordingly
             elif (self.className or self.interfaceName) and self.genericParameterAttribute:
                 for swumIdentifierTag in self.xmlResult.findall('swum_identifier'):
                     nameTagText = swumIdentifierTag.find('name').text
                     if nameTagText == self.interfaceName:
+                        # Since we write a class XML section when we hit the class tag we have to remove it if there are parameters
                         self.xmlResult.remove(swumIdentifierTag)
                         self.idCount = self.idCount-1
                         self.XMLWriter(
@@ -267,17 +281,21 @@ class JavaHandler(XMLFilterBase):
                             self.className, "class", '', False)
         # Determining self.currentContent's location and attribute
         if tag == "name" or tag == "index":
-            if not (self.dictTag["expr"] or self.dictTag["expr_stmt"] or self.dictTag["extends"] or self.dictTag["implements"] or (self.previousTag == "index" and tag == "name")):
+            if not (self.dictTag["expr"] or self.dictTag["expr_stmt"] or self.dictTag["extends"] or self.dictTag["implements"] or self.dictTag["throws"] or (self.previousTag == "index" and tag == "name")):
                 if not (self.dictTag["type"]) or self.dictTag["parameter_list"]:
-                    if self.currentContent.isidentifier() or "$" in self.currentContent or "[]" in self.currentContent or ">" in self.currentContent:
                         if self.dictTag["class"] and not (self.dictTag["interface"] or self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"] or self.dictTag["constructor"]):
+                            self.isValidIdentifier(self.currentContent)
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.className = self.currentContent
                                 self.XMLWriter(
                                     self.className, "class", '', self.xmlResult, False)
                         elif self.dictTag["constructor"] and not (self.dictTag["decl"] or self.dictTag["decl_stmt"] or self.dictTag["parameter"]):
+                            self.isValidIdentifier(self.currentContent)
+                            if self.className != self.currentContent and self.errorMessage:
+                                print(self.currentContent + " must have the same name as its parent class")
                             self.constructorName = self.currentContent
                         elif (self.dictTag["interface"] or self.dictTag["interface_decl"]) and not(self.dictTag["function_decl"] or self.dictTag["function"] or self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+                            self.isValidIdentifier(self.currentContent)
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.interfaceName = self.currentContent
                                 self.XMLWriter(
@@ -291,11 +309,13 @@ class JavaHandler(XMLFilterBase):
                                     self.currentContent)
                             elif self.dictTag["parameter"]and self.dictTag["type"]:
                                 if(tag == "index"):
+                                    #Used when 1D or 2D Array needs to be analyzed
                                     self.parameterTypeString = self.parameterTypeString+"[]"
                                     self.parameterType.remove(
                                         self.parameterType[-1])
                                     self.parameterType.append(
                                         self.parameterTypeString)
+                                    # Used when parameterhas "<" or ">"
                                 elif (self.dictTag["argument_list"]):
                                     if(self.dictTag["argument"]):
                                         if self.parameterTypeString[-1] == '>':
@@ -323,11 +343,12 @@ class JavaHandler(XMLFilterBase):
                             else:
                                 self.parameterList.append(self.currentContent)
                         elif (self.dictTag["decl_stmt"] or self.dictTag["decl"]) and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+                            self.isValidIdentifier(self.currentContent)
                             self.variableName = self.currentContent
-                            if not self.variableType:
+                            if not self.variableType and self.errorMessage:
                                 # Makes sure variables have a type
                                 print(
-                                    self.variableName + "must have a type ")
+                                    self.variableName + " must have a variable type ")
                             if "<" in self.variableType:
                                 self.functionConstructorDeclXMLWriter(
                                     self.variableName, "variable", self.variableType, True)
@@ -335,11 +356,14 @@ class JavaHandler(XMLFilterBase):
                                 self.functionConstructorDeclXMLWriter(
                                     self.variableName, "variable", self.variableType, False)
                         elif (self.dictTag["function"] or self.dictTag["function_decl"]) and not (self.dictTag["parameter"] or self.dictTag["parameter_list"]):
+                            self.isValidIdentifier(self.currentContent)
                             self.functionName = self.currentContent
                 elif(self.dictTag["type"]):
                     if (self.dictTag["function"] or self.dictTag["function_decl"]) and not(self.dictTag["decl_stmt"] or self.dictTag["decl"]):
+                        # Used when the type is an array
                         if(self.dictTag["index"]):
                             self.functionType = self.functionType+"[]"
+                        # Used when the type includes < or >
                         elif (self.dictTag["argument_list"]):
                             if(self.dictTag["argument"]):
                                 if self.functionType[-1] == '>':
@@ -367,9 +391,6 @@ class JavaHandler(XMLFilterBase):
                         else:
                             if self.currentContent != ">" and self.currentContent != "[]":
                                 self.variableType = self.currentContent
-                else:
-                    # Raises an error if self.currentContent is not a valid identifier (only includes alphanumeric characters, underscores, and "$")
-                    print(self.currentContent +" is not a valid identifier")
             self.dictTag[tag] -= 1
             self.previousTag = tag
         else:
@@ -382,7 +403,6 @@ class JavaHandler(XMLFilterBase):
         self.currentContent += content
         super().characters(content)
 
-
 # Source: PyMOTW-3 "Building Documents with Element Nodes"
 # Prints the XML file into an understandable and comprehensible format
 def prettify(elem):
@@ -393,14 +413,15 @@ def prettify(elem):
 if (__name__ == "__main__"):
     # Used to parse an XML File and return an XML output file with the results
     parser = make_parser()
-    Handler = JavaHandler(())
+    Handler = JavaHandler('',False)
     parser.setContentHandler(Handler)
     parser.parse(str(sys.argv[1]))
+    xmlstr = minidom.parseString(ElementTree.tostring(Handler.xmlResult)).toprettyxml(indent="   ")
+    with open(str(sys.argv[2]), "w") as f:
+        f.write(xmlstr)
     print(prettify(Handler.xmlResult))
-    Handler.xmlResult = (Handler.xmlResult).getroottree()
-    Handler.xmlResult.write(str(sys.argv[2]))
     # Used to write a changed XML input file labeled with ID numbers
-    reader = JavaHandler(make_parser())
+    reader = JavaHandler(make_parser(),True)
     index = sys.argv[1].index(".xml")
     root = sys.argv[1][0:index]
     ChangedInput = root+"ChangedInput.xml"
