@@ -1,0 +1,14 @@
+#!/bin/bash
+
+srcml $1 -o $1.xml
+python3 swum_words/swum_words.py $1.xml $1Words.xml
+
+# swum_phrases script assumes it is run from within its own directory
+new_prefix=../$1
+cd swum_phrases
+. ./swum_phrases ${new_prefix}Words.xml ${new_prefix}Phrases.xml
+cd ..
+
+# delete temporary files
+rm $1Words.xml
+rm $1.xml # original srcML archive is deleted, the modified srcML archive with SWUM IDs is preserved
