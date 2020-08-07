@@ -1,22 +1,23 @@
-<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="GenericsDemo.java"><class>class <name><name>Container</name><parameter_list>&lt;<parameter><name>T</name> <extends>extends <name>Number</name></extends></parameter>&gt;</parameter_list></name>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="GenericsDemo.java"><class swum_ID="0">class <name><name>Container</name><parameter_list>&lt;<parameter><name>T</name> <extends>extends <name>Number</name></extends></parameter>&gt;</parameter_list></name>
     <block>{
         <decl_stmt><decl><type><name>T</name></type> <name>value</name></decl>;</decl_stmt>
-        <function><type><specifier>public</specifier> <name>T</name></type> <name>getValue</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <function swum_ID="2"><type><specifier>public</specifier> <name>T</name></type> <name>getValue</name><parameter_list>()</parameter_list> <block>{<block_content>
             <return>return <expr><name>value</name></expr>;</return>
         </block_content>}</block></function>
-        <function><type><specifier>public</specifier> <name>void</name></type> <name>setValue</name><parameter_list>(<parameter><decl><type><name>T</name></type> <name>value</name></decl></parameter>)</parameter_list><block>{<block_content>
+        <function swum_ID="3"><type><specifier>public</specifier> <name>void</name></type> <name>setValue</name><parameter_list>(<parameter><decl><type><name>T</name></type> <name>value</name></decl></parameter>)</parameter_list><block>{<block_content>
             <expr_stmt><expr><name><name>this</name><operator>.</operator><name>value</name></name> <operator>=</operator> <name>value</name></expr>;</expr_stmt>
         </block_content>}</block></function>
-        <function><type><specifier>public</specifier> <name>void</name></type> <name>show</name><parameter_list>()</parameter_list><block>{<block_content>
+        <function swum_ID="4"><type><specifier>public</specifier> <name>void</name></type> <name>show</name><parameter_list>()</parameter_list><block>{<block_content>
             <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><call><name><name>value</name><operator>.</operator><name>getClass</name></name><argument_list>()</argument_list></call><operator>.</operator><call><name>getName</name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
         </block_content>}</block></function>
-        <function><type><specifier>public</specifier> <name>void</name></type> <name>demo</name><parameter_list>(<parameter><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>?</name> <extends>extends <name>T</name></extends></argument>&gt;</argument_list></name></type> <name>obj</name></decl></parameter>)</parameter_list>
+        <function swum_ID="5"><type><specifier>public</specifier> <name>void</name></type> <name>demo</name><parameter_list>(<parameter><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>?</name> <extends>extends <name>T</name></extends></argument>&gt;</argument_list></name></type> <name>obj</name></decl></parameter>)</parameter_list>
         <block>{<block_content>
     
         </block_content>}</block></function>
     }</block></class>
-    <class><specifier>public</specifier> class <name>GenericsDemo</name> <block>{
-        <function><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list><block>{<block_content>
+    <class swum_ID="6"><specifier>public</specifier> class <name>GenericsDemo</name> <block>{
+        <function swum_ID="7"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list><block>{<block_content>
             <decl_stmt><decl><type><name><name>Container</name><argument_list type="generic">&lt;<argument><name>Integer</name></argument>&gt;</argument_list></name></type> <name>obj</name> <init>= <expr><operator>new</operator> <call><name><name>Container</name><argument_list type="generic">&lt;<argument><name>Integer</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
             <expr_stmt><expr><call><name><name>obj</name><operator>.</operator><name>show</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
             <expr_stmt><expr><call><name><name>obj</name><operator>.</operator><name>demo</name></name><argument_list>(<argument><expr><call><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>Number</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>

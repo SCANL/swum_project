@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="InterfaceStandardExample.java"><comment type="line">// Interface</comment>
+<interface swum_ID="0">interface <name>Animal</name> <block>{
+    <function_decl><type><specifier>public</specifier> <name>void</name></type> <name>animalSound</name><parameter_list>()</parameter_list>;</function_decl> <comment type="line">// interface method (does not have a body)</comment>
+    <function_decl><type><specifier>public</specifier> <name>void</name></type> <name>sleep</name><parameter_list>()</parameter_list>;</function_decl> <comment type="line">// interface method (does not have a body)</comment>
+  }</block></interface>
+  
+  <comment type="line">// Pig "implements" the Animal interface</comment>
+  <class swum_ID="3">class <name>Pig</name> <super_list><implements>implements <super><name>Animal</name></super></implements></super_list> <block>{
+    <function swum_ID="4"><type><specifier>public</specifier> <name>void</name></type> <name>animalSound2</name><parameter_list>()</parameter_list> <block>{<block_content>
+      <comment type="line">// The body of animalSound() is provided here</comment>
+      <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"The pig says: wee wee"</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+    </block_content>}</block></function>
+    <function swum_ID="5"><type><specifier>public</specifier> <name>void</name></type> <name>sleep2</name><parameter_list>()</parameter_list> <block>{<block_content>
+      <comment type="line">// The body of sleep() is provided here</comment>
+      <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Zzz"</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+    </block_content>}</block></function>
+  }</block></class>
+  
+  <class swum_ID="6">class <name>MyMainClass</name> <block>{
+    <function swum_ID="7"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list> <block>{<block_content>
+      <decl_stmt><decl><type><name>Pig</name></type> <name>myPig</name> <init>= <expr><operator>new</operator> <call><name>Pig</name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>  <comment type="line">// Create a Pig object</comment>
+      <expr_stmt><expr><call><name><name>myPig</name><operator>.</operator><name>animalSound</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+      <expr_stmt><expr><call><name><name>myPig</name><operator>.</operator><name>sleep</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+    </block_content>}</block></function>
+  }</block></class></unit>

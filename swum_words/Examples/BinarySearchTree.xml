@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="BinarySearchTree.java"><package>package <name><name>com</name><operator>.</operator><name>gradescope</name><operator>.</operator><name>hw09</name></name>;</package>
+
+<import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>ArrayList</name></name>;</import>
+<import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Collection</name></name>;</import>
+<import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Map</name></name>;</import>
+<import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Set</name></name>;</import>
+
+<comment type="block" format="javadoc">/**
+ * BinarySearchTree
+ *
+ * An Unbalanced Binary Search Tree, which implements the Map interface (i.e.
+ * maps between keys and values). The user specifies the type of the keys and
+ * the type of the values. The type of the keys must be a type that implements
+ * the interface Comparable.
+ */</comment>
+<class><specifier>public</specifier> class <name><name>BinarySearchTree</name><parameter_list>&lt;<parameter><name>KeyType</name> <extends>extends <name><name>Comparable</name><parameter_list>&lt;<parameter><name>KeyType</name></parameter>&gt;</parameter_list></name></extends></parameter>, <parameter><name>ValueType</name></parameter>&gt;</parameter_list></name>
+        <super_list><implements>implements <super><name><name>Map</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>, <argument><name>ValueType</name></argument>&gt;</argument_list></name></super></implements></super_list> <block>{
+
+    <comment type="block" format="javadoc">/** a reference to the root of the tree (null if the tree is empty) **/</comment>
+    <decl_stmt><decl><type><name>BSTNode</name></type> <name>rootNode</name></decl>;</decl_stmt>
+	<decl_stmt><decl><type><specifier>private</specifier> <name>int</name></type> <name>treeSize</name></decl>;</decl_stmt>
+
+    <constructor><specifier>public</specifier> <name>BinarySearchTree</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <expr_stmt><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name> <operator>=</operator> <literal type="null">null</literal></expr>;</expr_stmt>
+    </block_content>}</block></constructor>
+
+    <comment type="block" format="javadoc">/**
+     * BSTNode
+     *
+     * Private inner class BSTNode represents the nodes of the BST, with each
+     * BSTNode storing a key, a value, and references to the left and right
+     * subtrees.
+     */</comment>
+    <class><specifier>private</specifier> class <name>BSTNode</name> <block>{
+        <comment type="line">// NOTE: BSTNode has only fields and constructors</comment>
+        <decl_stmt><decl><type><specifier>private</specifier> <name>KeyType</name></type> <name>key</name></decl>;</decl_stmt>
+        <decl_stmt><decl><type><specifier>private</specifier> <name>ValueType</name></type> <name>value</name></decl>;</decl_stmt>
+        <decl_stmt><decl><type><specifier>private</specifier> <name>BSTNode</name></type> <name>leftTree</name></decl>;</decl_stmt>
+        <decl_stmt><decl><type><specifier>private</specifier> <name>BSTNode</name></type> <name>rightTree</name></decl>;</decl_stmt>
+
+        <constructor><specifier>private</specifier> <name>BSTNode</name><parameter_list>(<parameter><decl><type><name>KeyType</name></type> <name>inputKey</name></decl></parameter>, <parameter><decl><type><name>ValueType</name></type> <name>inputValue</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <if_stmt><if>if <condition>(<expr><name>inputKey</name> <operator>==</operator> <literal type="null">null</literal> <operator>||</operator> <name>inputValue</name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+                <throw>throw <expr><operator>new</operator> <call><name>IllegalArgumentException</name><argument_list>(
+                        <argument><expr><literal type="string">"Inserted keys and values must be non-null"</literal></expr></argument>)</argument_list></call></expr>;</throw>
+            </block_content>}</block></if></if_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>key</name></name> <operator>=</operator> <name>inputKey</name></expr>;</expr_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>value</name></name> <operator>=</operator> <name>inputValue</name></expr>;</expr_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>leftTree</name></name> <operator>=</operator> <literal type="null">null</literal></expr>;</expr_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>rightTree</name></name> <operator>=</operator> <literal type="null">null</literal></expr>;</expr_stmt>
+        </block_content>}</block></constructor>
+
+        <constructor><specifier>private</specifier> <name>BSTNode</name><parameter_list>(<parameter><decl><type><name>KeyType</name></type> <name>inputKey</name></decl></parameter>, <parameter><decl><type><name>ValueType</name></type> <name>inputValue</name></decl></parameter>,
+                <parameter><decl><type><name>BSTNode</name></type> <name>inputLeftT</name></decl></parameter>, <parameter><decl><type><name>BSTNode</name></type> <name>inputRightT</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <expr_stmt><expr><call><name>this</name><argument_list>(<argument><expr><name>inputKey</name></expr></argument>,<argument><expr><name>inputValue</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>leftTree</name></name> <operator>=</operator> <name>inputLeftT</name></expr>;</expr_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>rightTree</name></name> <operator>=</operator> <name>inputRightT</name></expr>;</expr_stmt>
+        </block_content>}</block></constructor>
+    }</block></class>
+
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="line">// *** Queries about the tree ***</comment>
+    <comment type="line">// Methods: isEmpty, size, containsKey, containsValue,</comment>
+    <comment type="line">//          get, getMinKey, height</comment>
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+
+    <function><type><specifier>public</specifier> <name>boolean</name></type> <name>isEmpty</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <return>return <expr><name><name>this</name><operator>.</operator><name>rootNode</name></name> <operator>==</operator> <literal type="null">null</literal></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block">/*
+     * @see java.util.Map#size()
+     */</comment>
+    <function><type><specifier>public</specifier> <name>int</name></type> <name>size</name><parameter_list>()</parameter_list> <block>{<block_content>
+    	<if_stmt><if>if <condition>(<expr><name><name>this</name><operator>.</operator><name>rootNode</name></name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+            <return>return <expr><literal type="number">0</literal></expr>;</return>
+        </block_content>}</block></if></if_stmt>
+        <return>return <expr><name><name>this</name><operator>.</operator><name>treeSize</name></name></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block">/*
+     * @see java.util.Map#containsKey(java.lang.Object)
+     */</comment>
+    <function><type><specifier>public</specifier> <name>boolean</name></type> <name>containsKey</name><parameter_list>(<parameter><decl><type><name>Object</name></type> <name>keyToFind</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <return>return <expr><call><name><name>this</name><operator>.</operator><name>get</name></name><argument_list>(<argument><expr><name>keyToFind</name></expr></argument>)</argument_list></call> <operator>!=</operator> <literal type="null">null</literal></expr>;</return>
+    </block_content>}</block></function>
+    <comment type="block">/*
+     * @see java.util.Map#containsValue(java.lang.Object)
+     */</comment>
+    <function><type><specifier>public</specifier> <name>boolean</name></type> <name>containsValue</name><parameter_list>(<parameter><decl><type><name>Object</name></type> <name>value</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <comment type="line">// search through all keys</comment>
+        <for>for <control>(<init><decl><type><name>KeyType</name></type> <name>key</name> <range>: <expr><call><name><name>this</name><operator>.</operator><name>getAllKeysInOrder</name></name><argument_list>()</argument_list></call></expr></range></decl></init>)</control> <block>{<block_content>
+            <decl_stmt><decl><type><name>ValueType</name></type> <name>oneValue</name> <init>= <expr><call><name>get</name><argument_list>(<argument><expr><name>key</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <if_stmt><if>if <condition>(<expr><call><name><name>oneValue</name><operator>.</operator><name>equals</name></name><argument_list>(<argument><expr><name>value</name></expr></argument>)</argument_list></call></expr>)</condition> <block>{<block_content>
+                <return>return <expr><literal type="boolean">true</literal></expr>;</return>
+            </block_content>}</block></if></if_stmt>
+        </block_content>}</block></for>
+
+        <return>return <expr><literal type="boolean">false</literal></expr>;</return> <comment type="line">// key not found</comment>
+    </block_content>}</block></function>
+    <comment type="block">/*
+     * @see java.util.Map#get(java.lang.Object)
+     */</comment>
+    <function><annotation>@<name>SuppressWarnings</name><argument_list>(<argument><expr><literal type="string">"unchecked"</literal></expr></argument>)</argument_list></annotation>
+    <type><specifier>public</specifier> <name>ValueType</name></type> <name>get</name><parameter_list>(<parameter><decl><type><name>Object</name></type> <name>key</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <return>return <expr><call><name>get</name><argument_list>(<argument><expr><operator>(</operator><name>KeyType</name><operator>)</operator> <name>key</name></expr></argument>, <argument><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name></expr></argument>)</argument_list></call></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * private, recursive helper method to perform get
+     *
+     * @param keyToFind
+     *            the key we're searching for
+     * @param tempRoot
+     *            the root of the tree in which we're searching
+     * @return the value associated with the key (or null if key is not in tree)
+     */</comment>
+    <function><type><specifier>private</specifier> <name>ValueType</name></type> <name>get</name><parameter_list>(<parameter><decl><type><name>KeyType</name></type> <name>keyToFind</name></decl></parameter>, <parameter><decl><type><name>BSTNode</name></type> <name>tempRoot</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <comment type="line">// base case: empty tree</comment>
+        <if_stmt><if>if <condition>(<expr><name>tempRoot</name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+            <return>return <expr><literal type="null">null</literal></expr>;</return>
+        </block_content>}</block></if></if_stmt>
+
+        <decl_stmt><decl><type><name>KeyType</name></type> <name>currentKey</name> <init>= <expr><name><name>tempRoot</name><operator>.</operator><name>key</name></name></expr></init></decl>;</decl_stmt>
+
+        <comment type="line">// base case: found the key</comment>
+        <if_stmt><if>if <condition>(<expr><call><name><name>keyToFind</name><operator>.</operator><name>equals</name></name><argument_list>(<argument><expr><name>currentKey</name></expr></argument>)</argument_list></call></expr>)</condition> <block>{<block_content>
+            <return>return <expr><name><name>tempRoot</name><operator>.</operator><name>value</name></name></expr>;</return>
+        </block_content>}</block></if>
+
+        <comment type="line">// if keyToFind &lt; currentKey, then search the left subtree</comment>
+        <if type="elseif">else if <condition>(<expr><call><name>inOrderKeys</name><argument_list>(<argument><expr><name>keyToFind</name></expr></argument>, <argument><expr><name>currentKey</name></expr></argument>)</argument_list></call></expr>)</condition> <block>{<block_content>
+            <return>return <expr><call><name>get</name><argument_list>(<argument><expr><name>keyToFind</name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr>;</return>
+        </block_content>}</block></if>
+
+        <comment type="line">// if currentKey &lt; keyToFind, then search the right subtree</comment>
+        <else>else <block>{<block_content>
+            <return>return <expr><call><name>get</name><argument_list>(<argument><expr><name>keyToFind</name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name></expr></argument>)</argument_list></call></expr>;</return>
+        </block_content>}</block></else></if_stmt>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * Finds the minimum key in the tree. If the tree is empty, throws an
+     * IllegalArgumentException.
+     *
+     * @return the value of the smallest key in the tree
+     */</comment>
+    <function><type><specifier>public</specifier> <name>KeyType</name></type> <name>getMinKey</name><parameter_list>()</parameter_list> <throws>throws <argument><expr><name>IllegalArgumentException</name></expr></argument></throws> <block>{<block_content>
+       <if_stmt><if>if<condition>(<expr><call><name>isEmpty</name><argument_list>()</argument_list></call></expr>)</condition> <block>{<block_content>
+    	   <throw>throw <expr><operator>new</operator> <call><name>IllegalArgumentException</name><argument_list>()</argument_list></call></expr>;</throw>
+       </block_content>}</block></if></if_stmt>
+        <return>return <expr><call><name>getMinKey</name><argument_list>(<argument><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name></expr></argument>)</argument_list></call></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * Private helper method that recursively finds the minimum key in a
+     * non-empty tree.
+     *
+     * @param tempRoot the root of the non-empty tree
+     * @return the value of the smallest key in the tree
+     */</comment>
+    <function><type><specifier>private</specifier> <name>KeyType</name></type> <name>getMinKey</name><parameter_list>(<parameter><decl><type><name>BSTNode</name></type> <name>tempRoot</name></decl></parameter>)</parameter_list> <block>{<block_content>
+		<if_stmt><if>if<condition>(<expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name><operator>==</operator><literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+			<return>return <expr><name><name>tempRoot</name><operator>.</operator><name>key</name></name></expr>;</return>
+		</block_content>}</block></if>
+		<else>else <block>{<block_content>
+			<return>return <expr><call><name>getMinKey</name><argument_list>(<argument><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr>;</return>
+		</block_content>}</block></else></if_stmt>
+	</block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * Returns the height of the tree, where height is the maximum number of
+     * edges between the root and a leaf.
+     *
+     * The height of an empty tree is -1.
+     *
+     * @return the tree's height
+     */</comment>
+    <function><type><specifier>public</specifier> <name>int</name></type> <name>getHeight</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <return>return <expr><call><name>getHeight</name><argument_list>(<argument><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name></expr></argument>)</argument_list></call></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * Private helper method that recursively finds the height of a tree
+     *
+     * @param tempRoot
+     *            the root of the tree
+     * @return the height of the tree rooted at the given node
+     */</comment>
+    <function><type><specifier>private</specifier> <name>int</name></type> <name>getHeight</name><parameter_list>(<parameter><decl><type><name>BSTNode</name></type> <name>tempRoot</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <if_stmt><if>if <condition>(<expr><name>tempRoot</name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+            <return>return <expr><operator>-</operator><literal type="number">1</literal></expr>;</return>
+        </block_content>}</block></if> <else>else <block>{<block_content>
+            <decl_stmt><decl><type><name>int</name></type> <name>leftHeight</name> <init>= <expr><call><name>getHeight</name><argument_list>(<argument><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <decl_stmt><decl><type><name>int</name></type> <name>rightHeight</name> <init>= <expr><call><name>getHeight</name><argument_list>(<argument><expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <return>return <expr><literal type="number">1</literal> <operator>+</operator> <call><name><name>Math</name><operator>.</operator><name>max</name></name><argument_list>(<argument><expr><name>leftHeight</name></expr></argument>, <argument><expr><name>rightHeight</name></expr></argument>)</argument_list></call></expr>;</return>
+        </block_content>}</block></else></if_stmt>
+
+    </block_content>}</block></function>
+
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="line">// *** Modifications to the tree ***</comment>
+    <comment type="line">// Methods: clear, put, putAll, remove</comment>
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="block">/*
+     * @see java.util.Map#clear()
+     */</comment>
+    <function><type><specifier>public</specifier> <name>void</name></type> <name>clear</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <expr_stmt><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name> <operator>=</operator> <literal type="null">null</literal></expr>;</expr_stmt>
+    </block_content>}</block></function>
+    <comment type="block">/*
+     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
+     */</comment>
+    <function><type><specifier>public</specifier> <name>ValueType</name></type> <name>put</name><parameter_list>(<parameter><decl><type><name>KeyType</name></type> <name>key</name></decl></parameter>, <parameter><decl><type><name>ValueType</name></type> <name>value</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <expr_stmt><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name> <operator>=</operator> <call><name>put</name><argument_list>(<argument><expr><name>key</name></expr></argument>, <argument><expr><name>value</name></expr></argument>, <argument><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+        <return>return <expr><name>value</name></expr>;</return> <comment type="line">// Always return the value added to the tree</comment>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * Private helper method to perform put using recursion
+     *
+     * @param inputKey
+     *            the key to insert
+     * @param inputValue
+     *            the value to insert
+     * @param tempRoot
+     *            the root of the tree in which to insert the new key/value
+     * @return the (possibly new) root of the tree
+     */</comment>
+    <function><type><specifier>private</specifier> <name>BSTNode</name></type> <name>put</name><parameter_list>(<parameter><decl><type><name>KeyType</name></type> <name>inputKey</name></decl></parameter>, <parameter><decl><type><name>ValueType</name></type> <name>inputValue</name></decl></parameter>,
+            <parameter><decl><type><name>BSTNode</name></type> <name>tempRoot</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <comment type="line">// base case: tree is empty, so create a new node for the root and</comment>
+        <comment type="line">//            return it</comment>
+        <if_stmt><if>if <condition>(<expr><name>tempRoot</name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+            <decl_stmt><decl><type><name>BSTNode</name></type> <name>newNode</name> <init>= <expr><operator>new</operator> <call><name>BSTNode</name><argument_list>(<argument><expr><name>inputKey</name></expr></argument>, <argument><expr><name>inputValue</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>treeSize</name></name><operator>++</operator></expr>;</expr_stmt>
+            <return>return <expr><name>newNode</name></expr>;</return>
+        </block_content>}</block></if></if_stmt>
+
+        <decl_stmt><decl><type><name>KeyType</name></type> <name>currentKey</name> <init>= <expr><name><name>tempRoot</name><operator>.</operator><name>key</name></name></expr></init></decl>;</decl_stmt>
+
+        <comment type="line">// base case: the key is at the root, update the root with the new value</comment>
+        <if_stmt><if>if <condition>(<expr><call><name><name>inputKey</name><operator>.</operator><name>equals</name></name><argument_list>(<argument><expr><name>currentKey</name></expr></argument>)</argument_list></call></expr>)</condition> <block>{<block_content>
+            <expr_stmt><expr><name><name>tempRoot</name><operator>.</operator><name>value</name></name> <operator>=</operator> <name>inputValue</name></expr>;</expr_stmt>
+        </block_content>}</block></if>
+
+        <comment type="line">// if keyToFind &lt; currentKey, then put in the left subtree</comment>
+        <if type="elseif">else if <condition>(<expr><call><name><name>this</name><operator>.</operator><name>inOrderKeys</name></name><argument_list>(<argument><expr><name>inputKey</name></expr></argument>, <argument><expr><name>currentKey</name></expr></argument>)</argument_list></call></expr>)</condition> <block>{<block_content>
+            <expr_stmt><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name> <operator>=</operator> <call><name>put</name><argument_list>(<argument><expr><name>inputKey</name></expr></argument>, <argument><expr><name>inputValue</name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+        </block_content>}</block></if>
+
+        <comment type="line">// if currentKey &lt; keyToFind, then put in the right subtree</comment>
+        <else>else <block>{<block_content>
+            <expr_stmt><expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name> <operator>=</operator> <call><name>put</name><argument_list>(<argument><expr><name>inputKey</name></expr></argument>, <argument><expr><name>inputValue</name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+        </block_content>}</block></else></if_stmt>
+
+        <return>return <expr><name>tempRoot</name></expr>;</return>
+    </block_content>}</block></function>
+    <comment type="block">/*
+     * @see java.util.Map#putAll(java.util.Map)
+     */</comment>
+    <function><type><specifier>public</specifier> <name>void</name></type> <name>putAll</name><parameter_list>(
+            <parameter><decl><type><name><name>Map</name><argument_list type="generic">&lt;<argument><name>?</name> <extends>extends <name>KeyType</name></extends></argument>, <argument><name>?</name> <extends>extends <name>ValueType</name></extends></argument>&gt;</argument_list></name></type> <name>mapOfNewEntries</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <for>for <control>(<init><decl><type><name>KeyType</name></type> <name>key</name> <range>: <expr><call><name><name>mapOfNewEntries</name><operator>.</operator><name>keySet</name></name><argument_list>()</argument_list></call></expr></range></decl></init>)</control> <block>{<block_content>
+            <decl_stmt><decl><type><name>ValueType</name></type> <name>value</name> <init>= <expr><call><name><name>mapOfNewEntries</name><operator>.</operator><name>get</name></name><argument_list>(<argument><expr><name>key</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><call><name><name>this</name><operator>.</operator><name>put</name></name><argument_list>(<argument><expr><name>key</name></expr></argument>, <argument><expr><name>value</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>treeSize</name></name><operator>++</operator></expr>;</expr_stmt>
+        </block_content>}</block></for>
+    </block_content>}</block></function>
+
+    <comment type="block">/*
+     * @see java.util.Map#remove(java.lang.Object)
+     */</comment>
+    <function><annotation>@<name>SuppressWarnings</name><argument_list>(<argument><expr><literal type="string">"unchecked"</literal></expr></argument>)</argument_list></annotation>
+    <type><specifier>public</specifier> <name>ValueType</name></type> <name>remove</name><parameter_list>(<parameter><decl><type><name>Object</name></type> <name>key</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <decl_stmt><decl><type><name>ValueType</name></type> <name>value</name> <init>= <expr><call><name>get</name><argument_list>(<argument><expr><name>key</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+        <if_stmt><if>if <condition>(<expr><name>value</name> <operator>!=</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content> <comment type="line">// Only try to remove keys that are in the tree</comment>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name> <operator>=</operator> <call><name>remove</name><argument_list>(<argument><expr><operator>(</operator><name>KeyType</name><operator>)</operator><name>key</name></expr></argument>, <argument><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><name><name>this</name><operator>.</operator><name>treeSize</name></name> <operator>--</operator></expr>;</expr_stmt>
+            </block_content>}</block></if></if_stmt>
+        <return>return <expr><name>value</name></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * Private helper method to perform remove using recursion
+     *
+     * @param inputKey the key to remove
+     * @param tempRoot the root of tree from which we should remove the key
+     * @return a reference to the root of the (possibly) modified tree
+     */</comment>
+
+    <function><type><specifier>private</specifier> <name>BSTNode</name></type> <name>remove</name><parameter_list>(<parameter><decl><type><name>KeyType</name></type> <name>inputKey</name></decl></parameter>, <parameter><decl><type><name>BSTNode</name></type> <name>tempRoot</name></decl></parameter>)</parameter_list> <block>{<block_content>
+	    	<if_stmt><if>if<condition>(<expr><name>tempRoot</name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+	    		<return>return <expr><name>tempRoot</name></expr>;</return>
+	    	</block_content>}</block></if>
+	    	<if type="elseif">else if<condition>(<expr><call><name><name>inputKey</name><operator>.</operator><name>compareTo</name></name><argument_list>(<argument><expr><name><name>tempRoot</name><operator>.</operator><name>key</name></name></expr></argument>)</argument_list></call> <operator>&lt;</operator> <literal type="number">0</literal></expr>)</condition> <block>{<block_content>
+	    		<expr_stmt><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name> <operator>=</operator> <call><name>remove</name><argument_list>(<argument><expr><name>inputKey</name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+	    	</block_content>}</block></if>
+	    	<if type="elseif">else if<condition>(<expr><call><name><name>inputKey</name><operator>.</operator><name>compareTo</name></name><argument_list>(<argument><expr><name><name>tempRoot</name><operator>.</operator><name>key</name></name></expr></argument>)</argument_list></call> <operator>&gt;</operator> <literal type="number">0</literal></expr>)</condition> <block>{<block_content>
+	    		<expr_stmt><expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name> <operator>=</operator> <call><name>remove</name><argument_list>(<argument><expr><name>inputKey</name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+	    </block_content>}</block></if>
+	    	<else>else <block>{<block_content>
+	    		<if_stmt><if>if<condition>(<expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name> <operator>==</operator> <literal type="null">null</literal> <operator>&amp;&amp;</operator> <name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+	    			<expr_stmt><expr><name>tempRoot</name> <operator>=</operator> <literal type="null">null</literal></expr>;</expr_stmt>
+	    		</block_content>}</block></if>
+	    		<if type="elseif">else if<condition>(<expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+	    			<expr_stmt><expr><name>tempRoot</name> <operator>=</operator> <name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr>;</expr_stmt>
+	    		</block_content>}</block></if>
+	    		<if type="elseif">else if<condition>(<expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+	    			<expr_stmt><expr><name>tempRoot</name> <operator>=</operator> <name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name></expr>;</expr_stmt>
+	    		</block_content>}</block></if>
+	    		<else>else <block>{<block_content>
+	    			<decl_stmt><decl><type><name>BSTNode</name></type> <name>min</name> <init>= <expr><call><name>getMinNode</name><argument_list>(<argument><expr><name>tempRoot</name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+	    			<return>return <expr><operator>new</operator> <call><name>BSTNode</name><argument_list>(<argument><expr><name><name>min</name><operator>.</operator><name>key</name></name></expr></argument>, <argument><expr><name><name>min</name><operator>.</operator><name>value</name></name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr></argument>, <argument><expr><call><name>remove</name><argument_list>(<argument><expr><name><name>min</name><operator>.</operator><name>key</name></name></expr></argument>, <argument><expr><name><name>tempRoot</name><operator>.</operator><name>rightTree</name></name></expr></argument>)</argument_list></call></expr></argument>)</argument_list></call></expr>;</return>
+	    			</block_content>}</block></else></if_stmt>
+	    		</block_content>}</block></else></if_stmt>
+	    	<return>return <expr><name>tempRoot</name></expr>;</return>
+    	</block_content>}</block></function>
+
+
+    <function><type><specifier>private</specifier> <name>BSTNode</name></type> <name>getMinNode</name><parameter_list>(<parameter><decl><type><name>BSTNode</name></type> <name>tempRoot</name></decl></parameter>)</parameter_list> <block>{<block_content>
+		<if_stmt><if>if<condition>(<expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name><operator>==</operator><literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+			<return>return <expr><name>tempRoot</name></expr>;</return>
+		</block_content>}</block></if>
+		<else>else <block>{<block_content>
+			<return>return <expr><call><name>getMinNode</name><argument_list>(<argument><expr><name><name>tempRoot</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr>;</return>
+		</block_content>}</block></else></if_stmt>
+	</block_content>}</block></function>
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="line">// *** Debugging Methods ***</comment>
+    <comment type="line">// Methods: printTreeStructure, toString</comment>
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+
+    <comment type="block" format="javadoc">/**
+     * prints an indented tree structure of the BinarySearchTree
+     */</comment>
+    <function><type><specifier>public</specifier> <name>void</name></type> <name>printTreeStructure</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <expr_stmt><expr><call><name>printTreeStructure</name><argument_list>(<argument><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name></expr></argument>, <argument><expr><literal type="number">0</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * private helper method to recursively print the tree structure
+     *
+     * @param currentNode the root of the tree we're printing
+     * @param currentDepth the indentation level
+     */</comment>
+    <function><type><specifier>private</specifier> <name>void</name></type> <name>printTreeStructure</name><parameter_list>(<parameter><decl><type><name>BSTNode</name></type> <name>currentNode</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>currentDepth</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <if_stmt><if>if <condition>(<expr><name>currentNode</name> <operator>!=</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+            <decl_stmt><decl><type><name>String</name></type> <name>currentNodeStr</name> <init>= <expr><literal type="string">"["</literal> <operator>+</operator> <call><name><name>currentNode</name><operator>.</operator><name>key</name><operator>.</operator><name>toString</name></name><argument_list>()</argument_list></call> <operator>+</operator> <literal type="string">" , "</literal>
+                    <operator>+</operator> <call><name><name>currentNode</name><operator>.</operator><name>value</name><operator>.</operator><name>toString</name></name><argument_list>()</argument_list></call> <operator>+</operator> <literal type="string">"]"</literal></expr></init></decl>;</decl_stmt>
+            <for>for <control>(<init><decl><type><name>int</name></type> <name>count</name> <init>= <expr><literal type="number">1</literal></expr></init></decl>;</init> <condition><expr><name>count</name> <operator>&lt;=</operator> <name>currentDepth</name></expr>;</condition> <incr><expr><name>count</name><operator>++</operator></expr></incr>)</control> <block>{<block_content>
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>print</name></name><argument_list>(<argument><expr><literal type="string">"\t"</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></for>
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><name>currentNodeStr</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name>printTreeStructure</name><argument_list>(<argument><expr><name><name>currentNode</name><operator>.</operator><name>leftTree</name></name></expr></argument>, <argument><expr><name>currentDepth</name> <operator>+</operator> <literal type="number">1</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name>printTreeStructure</name><argument_list>(<argument><expr><name><name>currentNode</name><operator>.</operator><name>rightTree</name></name></expr></argument>, <argument><expr><name>currentDepth</name> <operator>+</operator> <literal type="number">1</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+        </block_content>}</block></if></if_stmt>
+    </block_content>}</block></function>
+
+    <comment type="block">/*
+     * @see java.lang.Object#toString()
+     */</comment>
+    <function><type><specifier>public</specifier> <name>String</name></type> <name>toString</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <decl_stmt><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>&gt;</argument_list></name></type> <name>allKeys</name> <init>= <expr><call><name><name>this</name><operator>.</operator><name>getAllKeysInOrder</name></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+        <return>return <expr><call><name><name>allKeys</name><operator>.</operator><name>toString</name></name><argument_list>()</argument_list></call></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="line">// *** Helper Methods ***</comment>
+    <comment type="line">// Methods: inOrderKeys, getAllKeysInOrder</comment>
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="block" format="javadoc">/**
+     * returns true if key1 is less than key2
+     *
+     * @param key1
+     * @param key2
+     * @return
+     */</comment>
+    <function><type><specifier>private</specifier> <name>boolean</name></type> <name>inOrderKeys</name><parameter_list>(<parameter><decl><type><name>KeyType</name></type> <name>key1</name></decl></parameter>, <parameter><decl><type><name>KeyType</name></type> <name>key2</name></decl></parameter>)</parameter_list> <block>{<block_content>
+        <return>return <expr><call><name><name>key1</name><operator>.</operator><name>compareTo</name></name><argument_list>(<argument><expr><name>key2</name></expr></argument>)</argument_list></call> <operator>&lt;</operator> <literal type="number">0</literal></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * A private helper method that returns an ArrayList of all of the keys in
+     * order
+     *
+     * @return the keys in sorted order
+     */</comment>
+    <function><type><specifier>private</specifier> <name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>&gt;</argument_list></name></type> <name>getAllKeysInOrder</name><parameter_list>()</parameter_list> <block>{<block_content>
+    		<decl_stmt><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>&gt;</argument_list></name></type> <name>keyList</name> <init>= <expr><operator>new</operator> <call><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+        <expr_stmt><expr><call><name>addKeysToArrayList</name><argument_list>(<argument><expr><name>keyList</name></expr></argument>,<argument><expr><name><name>this</name><operator>.</operator><name>rootNode</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+        <return>return <expr><name>keyList</name></expr>;</return>
+    </block_content>}</block></function>
+
+    <comment type="block" format="javadoc">/**
+     * A private, recursive helper method to create an ArrayList of keys in
+     * order
+     *
+     * @param keyList an ArrayList that contains keys in order
+     * @param currentNode the root of a tree to add keys from
+     */</comment>
+    <function><type><specifier>private</specifier> <name>void</name></type> <name>addKeysToArrayList</name><parameter_list>(<parameter><decl><type><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>&gt;</argument_list></name></type> <name>keyList</name></decl></parameter>, <parameter><decl><type><name>BSTNode</name></type> <name>currentNode</name></decl></parameter>)</parameter_list> <block>{<block_content>
+    		<if_stmt><if>if<condition>(<expr><name><name>currentNode</name><operator>.</operator><name>key</name></name><operator>==</operator><literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+    			<return>return;</return>
+    		</block_content>}</block></if></if_stmt>
+    		<if_stmt><if>if <condition>(<expr><name><name>currentNode</name><operator>.</operator><name>leftTree</name></name> <operator>==</operator> <literal type="null">null</literal> <operator>&amp;&amp;</operator> <name><name>currentNode</name><operator>.</operator><name>rightTree</name></name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+                <expr_stmt><expr><call><name><name>keyList</name><operator>.</operator><name>add</name></name><argument_list>(<argument><expr><name><name>currentNode</name><operator>.</operator><name>key</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></if>
+    		<if type="elseif">else if <condition>(<expr><name><name>currentNode</name><operator>.</operator><name>rightTree</name></name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+                <expr_stmt><expr><call><name>addKeysToArrayList</name><argument_list>(<argument><expr><name>keyList</name></expr></argument>, <argument><expr><name><name>currentNode</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                <expr_stmt><expr><call><name><name>keyList</name><operator>.</operator><name>add</name></name><argument_list>(<argument><expr><name><name>currentNode</name><operator>.</operator><name>key</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></if>
+    		<if type="elseif">else if <condition>(<expr><name><name>currentNode</name><operator>.</operator><name>leftTree</name></name> <operator>==</operator> <literal type="null">null</literal></expr>)</condition> <block>{<block_content>
+                <expr_stmt><expr><call><name><name>keyList</name><operator>.</operator><name>add</name></name><argument_list>(<argument><expr><name><name>currentNode</name><operator>.</operator><name>key</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                <expr_stmt><expr><call><name>addKeysToArrayList</name><argument_list>(<argument><expr><name>keyList</name></expr></argument>, <argument><expr><name><name>currentNode</name><operator>.</operator><name>rightTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></if>
+    		<else>else <block>{<block_content>
+                <expr_stmt><expr><call><name>addKeysToArrayList</name><argument_list>(<argument><expr><name>keyList</name></expr></argument>, <argument><expr><name><name>currentNode</name><operator>.</operator><name>leftTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                <expr_stmt><expr><call><name><name>keyList</name><operator>.</operator><name>add</name></name><argument_list>(<argument><expr><name><name>currentNode</name><operator>.</operator><name>key</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                <expr_stmt><expr><call><name>addKeysToArrayList</name><argument_list>(<argument><expr><name>keyList</name></expr></argument>, <argument><expr><name><name>currentNode</name><operator>.</operator><name>rightTree</name></name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            </block_content>}</block></else></if_stmt>
+        </block_content>}</block></function>
+
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="line">// Unimplemented Methods: entrySet, keySet, values</comment>
+    <comment type="line">// //////////////////////////////////////////////////////////////////</comment>
+    <comment type="block">/*
+     * @see java.util.Map#entrySet()
+     */</comment>
+    <function><type><specifier>public</specifier> <name><name>Set</name><argument_list type="generic">&lt;<argument><name><name>Entry</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>, <argument><name>ValueType</name></argument>&gt;</argument_list></name></argument>&gt;</argument_list></name></type> <name>entrySet</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <throw>throw <expr><operator>new</operator> <call><name>UnsupportedOperationException</name><argument_list>()</argument_list></call></expr>;</throw>
+    </block_content>}</block></function>
+    <comment type="block">/*
+     * @see java.util.Map#keySet()
+     */</comment>
+    <function><type><specifier>public</specifier> <name><name>Set</name><argument_list type="generic">&lt;<argument><name>KeyType</name></argument>&gt;</argument_list></name></type> <name>keySet</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <throw>throw <expr><operator>new</operator> <call><name>UnsupportedOperationException</name><argument_list>()</argument_list></call></expr>;</throw>
+    </block_content>}</block></function>
+    <comment type="block">/*
+     * @see java.util.Map#values()
+     */</comment>
+    <function><type><specifier>public</specifier> <name><name>Collection</name><argument_list type="generic">&lt;<argument><name>ValueType</name></argument>&gt;</argument_list></name></type> <name>values</name><parameter_list>()</parameter_list> <block>{<block_content>
+        <throw>throw <expr><operator>new</operator> <call><name>UnsupportedOperationException</name><argument_list>()</argument_list></call></expr>;</throw>
+    </block_content>}</block></function>
+}</block></class></unit>

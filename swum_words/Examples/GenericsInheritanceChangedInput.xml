@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="GenericsInheritance.java"><package>package <name><name>com</name><operator>.</operator><name>journaldev</name><operator>.</operator><name>generics</name></name>;</package>
+
+    <class swum_ID="0"><specifier>public</specifier> class <name>GenericsInheritance</name> <block>{
+    
+        <function swum_ID="1"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <decl_stmt><decl><type><name>String</name></type> <name>str</name> <init>= <expr><literal type="string">"abc"</literal></expr></init></decl>;</decl_stmt>
+            <decl_stmt><decl><type><name>Object</name></type> <name>obj</name> <init>= <expr><operator>new</operator> <call><name>Object</name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><name>obj</name><operator>=</operator><name>str</name></expr>;</expr_stmt> <comment type="line">// works because String is-a Object, inheritance in java</comment>
+            
+            <decl_stmt><decl><type><name><name>MyClass</name><argument_list type="generic">&lt;<argument><name>String</name></argument>&gt;</argument_list></name></type> <name>myClass1</name> <init>= <expr><operator>new</operator> <call><name><name>MyClass</name><argument_list type="generic">&lt;<argument><name>String</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+            <decl_stmt><decl><type><name><name>MyClass</name><argument_list type="generic">&lt;<argument><name>Object</name></argument>&gt;</argument_list></name></type> <name>myClass2</name> <init>= <expr><operator>new</operator> <call><name><name>MyClass</name><argument_list type="generic">&lt;<argument><name>Object</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+            <comment type="line">//myClass2=myClass1; // compilation error since MyClass&lt;String&gt; is not a MyClass&lt;Object&gt;</comment>
+            <expr_stmt><expr><name>obj</name> <operator>=</operator> <name>myClass1</name></expr>;</expr_stmt> <comment type="line">// MyClass&lt;T&gt; parent is Object</comment>
+        </block_content>}</block></function>
+        
+        <class swum_ID="6"><specifier>public</specifier> <specifier>static</specifier> class <name><name>MyClass</name><parameter_list>&lt;<parameter><name>T</name></parameter>&gt;</parameter_list></name><block>{}</block></class>
+    
+    }</block></class></unit>

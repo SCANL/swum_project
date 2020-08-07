@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="GenericClass.java"><package>package <name><name>com</name><operator>.</operator><name>tutorialspoint</name></name>;</package>
+
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>ArrayList</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>HashMap</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>List</name></name>;</import>
+    <import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Map</name></name>;</import>
+    
+    <class swum_ID="0"><specifier>public</specifier> class <name>GenericsTester</name> <block>{
+       <function swum_ID="1"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list> <block>{<block_content>
+          <decl_stmt><decl><type><name><name>Box</name><argument_list type="generic">&lt;<argument><name>Integer</name></argument>, <argument><name>String</name></argument>&gt;</argument_list></name></type> <name>box</name> <init>= <expr><operator>new</operator> <call><name><name>Box</name><argument_list type="generic">&lt;<argument><name>Integer</name></argument>, <argument><name>String</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+          <expr_stmt><expr><call><name><name>box</name><operator>.</operator><name>add</name></name><argument_list>(<argument><expr><call><name><name>Integer</name><operator>.</operator><name>valueOf</name></name><argument_list>(<argument><expr><literal type="number">10</literal></expr></argument>)</argument_list></call></expr></argument>,<argument><expr><literal type="string">"Hello World"</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+          <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>printf</name></name><argument_list>(<argument><expr><literal type="string">"Integer Value :%d\n"</literal></expr></argument>, <argument><expr><call><name><name>box</name><operator>.</operator><name>getFirst</name></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+          <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>printf</name></name><argument_list>(<argument><expr><literal type="string">"String Value :%s\n"</literal></expr></argument>, <argument><expr><call><name><name>box</name><operator>.</operator><name>getSecond</name></name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+    
+          <decl_stmt><decl><type><name><name>Pair</name><argument_list type="generic">&lt;<argument><name>String</name></argument>, <argument><name>Integer</name></argument>&gt;</argument_list></name></type> <name>pair</name> <init>= <expr><operator>new</operator> <call><name><name>Pair</name><argument_list type="generic">&lt;<argument><name>String</name></argument>, <argument><name>Integer</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt> 
+          <expr_stmt><expr><call><name><name>pair</name><operator>.</operator><name>addKeyValue</name></name><argument_list>(<argument><expr><literal type="string">"1"</literal></expr></argument>, <argument><expr><call><name><name>Integer</name><operator>.</operator><name>valueOf</name></name><argument_list>(<argument><expr><literal type="number">10</literal></expr></argument>)</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+          <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>printf</name></name><argument_list>(<argument><expr><literal type="string">"(Pair)Integer Value :%d\n"</literal></expr></argument>, <argument><expr><call><name><name>pair</name><operator>.</operator><name>getValue</name></name><argument_list>(<argument><expr><literal type="string">"1"</literal></expr></argument>)</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+    
+          <decl_stmt><decl><type><name><name>CustomList</name><argument_list type="generic">&lt;<argument><name>Box</name></argument>&gt;</argument_list></name></type> <name>list</name> <init>= <expr><operator>new</operator> <call><name><name>CustomList</name><argument_list type="generic">&lt;<argument><name>Box</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+          <expr_stmt><expr><call><name><name>list</name><operator>.</operator><name>addItem</name></name><argument_list>(<argument><expr><name>box</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+          <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>printf</name></name><argument_list>(<argument><expr><literal type="string">"(CustomList)Integer Value :%d\n"</literal></expr></argument>, <argument><expr><call><name><name>list</name><operator>.</operator><name>getItem</name></name><argument_list>(<argument><expr><literal type="number">0</literal></expr></argument>)</argument_list></call><operator>.</operator><call><name>getFirst</name><argument_list>()</argument_list></call></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+       </block_content>}</block></function>
+    }</block></class>
+    
+    <class swum_ID="5">class <name><name>Box</name><parameter_list>&lt;<parameter><name>T</name></parameter>, <parameter><name>S</name></parameter>&gt;</parameter_list></name> <block>{
+       <decl_stmt><decl><type><specifier>private</specifier> <name>T</name></type> <name>t</name></decl>;</decl_stmt>
+       <decl_stmt><decl><type><specifier>private</specifier> <name>S</name></type> <name>s</name></decl>;</decl_stmt>
+    
+       <function swum_ID="8"><type><specifier>public</specifier> <name>void</name></type> <name>add</name><parameter_list>(<parameter><decl><type><name>T</name></type> <name>t</name></decl></parameter>, <parameter><decl><type><name>S</name></type> <name>s</name></decl></parameter>)</parameter_list> <block>{<block_content>
+          <expr_stmt><expr><name><name>this</name><operator>.</operator><name>t</name></name> <operator>=</operator> <name>t</name></expr>;</expr_stmt>
+          <expr_stmt><expr><name><name>this</name><operator>.</operator><name>s</name></name> <operator>=</operator> <name>s</name></expr>;</expr_stmt>
+       </block_content>}</block></function>
+    
+       <function swum_ID="9"><type><specifier>public</specifier> <name>T</name></type> <name>getFirst</name><parameter_list>()</parameter_list> <block>{<block_content>
+          <return>return <expr><name>t</name></expr>;</return>
+       </block_content>}</block></function> 
+    
+       <function swum_ID="10"><type><specifier>public</specifier> <name>S</name></type> <name>getSecond</name><parameter_list>()</parameter_list> <block>{<block_content>
+          <return>return <expr><name>s</name></expr>;</return>
+       </block_content>}</block></function> 
+    }</block></class>
+    
+    <class swum_ID="11">class <name><name>Pair</name><parameter_list>&lt;<parameter><name>K</name></parameter>,<parameter><name>V</name></parameter>&gt;</parameter_list></name><block>{
+       <decl_stmt><decl><type><specifier>private</specifier> <name><name>Map</name><argument_list type="generic">&lt;<argument><name>K</name></argument>,<argument><name>V</name></argument>&gt;</argument_list></name></type> <name>map</name> <init>= <expr><operator>new</operator> <call><name><name>HashMap</name><argument_list type="generic">&lt;<argument><name>K</name></argument>,<argument><name>V</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+    
+       <function swum_ID="13"><type><specifier>public</specifier> <name>void</name></type> <name>addKeyValue</name><parameter_list>(<parameter><decl><type><name>K</name></type> <name>key</name></decl></parameter>, <parameter><decl><type><name>V</name></type> <name>value</name></decl></parameter>)</parameter_list> <block>{<block_content>
+          <expr_stmt><expr><call><name><name>map</name><operator>.</operator><name>put</name></name><argument_list>(<argument><expr><name>key</name></expr></argument>, <argument><expr><name>value</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+       </block_content>}</block></function>
+    
+       <function swum_ID="14"><type><specifier>public</specifier> <name>V</name></type> <name>getValue</name><parameter_list>(<parameter><decl><type><name>K</name></type> <name>key</name></decl></parameter>)</parameter_list> <block>{<block_content>
+          <return>return <expr><call><name><name>map</name><operator>.</operator><name>get</name></name><argument_list>(<argument><expr><name>key</name></expr></argument>)</argument_list></call></expr>;</return>
+       </block_content>}</block></function>
+    }</block></class>
+    
+    <class swum_ID="15">class <name><name>CustomList</name><parameter_list>&lt;<parameter><name>E</name></parameter>&gt;</parameter_list></name><block>{
+       <decl_stmt><decl><type><specifier>private</specifier> <name><name>List</name><argument_list type="generic">&lt;<argument><name>E</name></argument>&gt;</argument_list></name></type> <name>list</name> <init>= <expr><operator>new</operator> <call><name><name>ArrayList</name><argument_list type="generic">&lt;<argument><name>E</name></argument>&gt;</argument_list></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+    
+       <function swum_ID="17"><type><specifier>public</specifier> <name>void</name></type> <name>addItem</name><parameter_list>(<parameter><decl><type><name>E</name></type> <name>value</name></decl></parameter>)</parameter_list> <block>{<block_content>
+          <expr_stmt><expr><call><name><name>list</name><operator>.</operator><name>add</name></name><argument_list>(<argument><expr><name>value</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+       </block_content>}</block></function>
+    
+       <function swum_ID="18"><type><specifier>public</specifier> <name>E</name></type> <name>getItem</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>index</name></decl></parameter>)</parameter_list> <block>{<block_content>
+          <return>return <expr><call><name><name>list</name><operator>.</operator><name>get</name></name><argument_list>(<argument><expr><name>index</name></expr></argument>)</argument_list></call></expr>;</return>
+       </block_content>}</block></function>
+    }</block></class></unit>

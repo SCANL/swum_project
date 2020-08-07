@@ -3,34 +3,22 @@
    <swum_identifier>
       <swum_ID>0</swum_ID>
       <location>class</location>
-      <name>CallingMethodsInSameClass</name>
+      <name>MyClass</name>
       <identifier>
          <word>
-            Calling
-            <pos>VBG</pos>
-         </word>
-         <word>
-            Methods
-            <pos>NNS</pos>
-         </word>
-         <word>
-            In
-            <pos>IN</pos>
-         </word>
-         <word>
-            Same
-            <pos>NNP</pos>
+            My
+            <pos>PRP$</pos>
          </word>
          <word>
             Class
-            <pos>NNP</pos>
+            <pos>NN</pos>
          </word>
       </identifier>
    </swum_identifier>
    <swum_identifier>
       <swum_ID>1</swum_ID>
       <location>function</location>
-      <class>CallingMethodsInSameClass</class>
+      <class>MyClass</class>
       <name>main</name>
       <type>
          <swum_identifier>
@@ -79,16 +67,15 @@
    </swum_identifier>
    <swum_identifier>
       <swum_ID>2</swum_ID>
-      <location>function</location>
-      <class>CallingMethodsInSameClass</class>
-      <name>printOne</name>
+      <location>variable</location>
+      <name>myNumbers</name>
       <type>
          <swum_identifier>
             <location>type</location>
-            <name>void</name>
+            <name>int[]</name>
             <identifier>
                <word>
-                  void
+                  int
                   <pos>NN</pos>
                </word>
             </identifier>
@@ -96,40 +83,48 @@
       </type>
       <identifier>
          <word>
-            print
-            <pos>NN</pos>
+            my
+            <pos>PRP$</pos>
          </word>
          <word>
-            One
-            <pos>CD</pos>
+            Numbers
+            <pos>NNS</pos>
          </word>
       </identifier>
    </swum_identifier>
    <swum_identifier>
-      <swum_ID>3</swum_ID>
-      <location>function</location>
-      <class>CallingMethodsInSameClass</class>
-      <name>printTwo</name>
-      <type>
-         <swum_identifier>
-            <location>type</location>
-            <name>void</name>
-            <identifier>
-               <word>
-                  void
-                  <pos>NN</pos>
-               </word>
-            </identifier>
-         </swum_identifier>
-      </type>
+      <location>Catch</location>
+      <name>Catch</name>
+      <formal_parameters>
+         <formal_parameter>
+            <swum_identifier>
+               <location>formal_parameter</location>
+               <name>e</name>
+               <type>
+                  <swum_identifier>
+                     <location>type</location>
+                     <name>Exception</name>
+                     <identifier>
+                        <word>
+                           Exception
+                           <pos>NN</pos>
+                        </word>
+                     </identifier>
+                  </swum_identifier>
+               </type>
+               <identifier>
+                  <word>
+                     e
+                     <pos>NN</pos>
+                  </word>
+               </identifier>
+            </swum_identifier>
+         </formal_parameter>
+      </formal_parameters>
       <identifier>
          <word>
-            print
+            Catch
             <pos>NN</pos>
-         </word>
-         <word>
-            Two
-            <pos>CD</pos>
          </word>
       </identifier>
    </swum_identifier>

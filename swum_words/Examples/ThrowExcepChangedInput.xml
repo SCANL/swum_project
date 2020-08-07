@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="ThrowExcep.java"><class swum_ID="0">class <name>ThrowExcep</name> 
+    <block>{ 
+        <function swum_ID="1"><type><specifier>static</specifier> <name>void</name></type> <name>fun</name><parameter_list>()</parameter_list> 
+        <block>{<block_content> 
+            <try>try
+            <block>{<block_content> 
+                <throw>throw <expr><operator>new</operator> <call><name>NullPointerException</name><argument_list>(<argument><expr><literal type="string">"demo"</literal></expr></argument>)</argument_list></call></expr>;</throw> 
+            </block_content>}</block> 
+            <catch>catch<parameter_list>(<parameter><decl><type><name>NullPointerException</name></type> <name>e</name></decl></parameter>)</parameter_list> 
+            <block>{<block_content> 
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Caught inside fun()."</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt> 
+                <throw>throw <expr><name>e</name></expr>;</throw> <comment type="line">// rethrowing the exception </comment>
+            </block_content>}</block></catch></try> 
+        </block_content>}</block></function> 
+      
+        <function swum_ID="2"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list> 
+        <block>{<block_content> 
+            <try>try
+            <block>{<block_content> 
+                <expr_stmt><expr><call><name>fun</name><argument_list>()</argument_list></call></expr>;</expr_stmt> 
+            </block_content>}</block> 
+            <catch>catch<parameter_list>(<parameter><decl><type><name>NullPointerException</name></type> <name>e</name></decl></parameter>)</parameter_list> 
+            <block>{<block_content> 
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><literal type="string">"Caught in main."</literal></expr></argument>)</argument_list></call></expr>;</expr_stmt> 
+            </block_content>}</block></catch></try> 
+        </block_content>}</block></function> 
+    }</block></class> </unit>

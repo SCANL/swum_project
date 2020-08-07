@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="Array2DExample.java"><import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Scanner</name></name>;</import>
+
+    <class swum_ID="0"><specifier>public</specifier> class <name>Array2DExample</name><block>{
+        <function swum_ID="1"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>show</name><parameter_list>(<parameter><decl><type><name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>grid</name></decl></parameter>)</parameter_list><block>{<block_content>
+            <decl_stmt><decl><type><name>String</name></type> <name>s</name> <init>= <expr><literal type="string">""</literal></expr></init></decl>;</decl_stmt>
+            <for>for<control>(<init><decl><type><name><name>boolean</name><index>[]</index></name></type> <name>row</name> <range>: <expr><name>grid</name></expr></range></decl></init>)</control><block>{<block_content>
+                <for>for<control>(<init><decl><type><name>boolean</name></type> <name>val</name> <range>: <expr><name>row</name></expr></range></decl></init>)</control><block type="pseudo"><block_content>
+                    <if_stmt><if>if<condition>(<expr><name>val</name></expr>)</condition><block type="pseudo"><block_content>
+                        <expr_stmt><expr><name>s</name> <operator>+=</operator> <literal type="string">"*"</literal></expr>;</expr_stmt></block_content></block></if>
+                    <else>else<block type="pseudo"><block_content>
+                        <expr_stmt><expr><name>s</name> <operator>+=</operator> <literal type="string">"."</literal></expr>;</expr_stmt></block_content></block></else></if_stmt></block_content></block></for>
+                <expr_stmt><expr><name>s</name> <operator>+=</operator> <literal type="string">"\n"</literal></expr>;</expr_stmt>
+            </block_content>}</block></for>
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>(<argument><expr><name>s</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+        </block_content>}</block></function>
+        
+        <function swum_ID="5"><type><specifier>public</specifier> <specifier>static</specifier> <name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>gen</name><parameter_list>()</parameter_list><block>{<block_content>
+            <decl_stmt><decl><type><name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>grid</name> <init>= <expr><operator>new</operator> <name><name>boolean</name><index>[<expr><literal type="number">10</literal></expr>]</index><index>[<expr><literal type="number">10</literal></expr>]</index></name></expr></init></decl>;</decl_stmt>
+            <for>for<control>(<init><decl><type><name>int</name></type> <name>r</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>r</name> <operator>&lt;</operator> <literal type="number">10</literal></expr>;</condition> <incr><expr><name>r</name><operator>++</operator></expr></incr>)</control><block type="pseudo"><block_content>
+                <for>for<control>(<init><decl><type><name>int</name></type> <name>c</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>c</name> <operator>&lt;</operator> <literal type="number">10</literal></expr>;</condition> <incr><expr><name>c</name><operator>++</operator></expr></incr>)</control><block type="pseudo"><block_content>
+                    <if_stmt><if>if<condition>( <expr><call><name><name>Math</name><operator>.</operator><name>random</name></name><argument_list>()</argument_list></call> <operator>&gt;</operator> <literal type="number">0.7</literal></expr> )</condition><block type="pseudo"><block_content>
+                        <expr_stmt><expr><name><name>grid</name><index>[<expr><name>r</name></expr>]</index><index>[<expr><name>c</name></expr>]</index></name> <operator>=</operator> <literal type="boolean">true</literal></expr>;</expr_stmt></block_content></block></if></if_stmt></block_content></block></for></block_content></block></for>
+            <return>return <expr><name>grid</name></expr>;</return>
+        </block_content>}</block></function>
+        
+        <function swum_ID="9"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list><block>{<block_content>
+            <decl_stmt><decl><type><name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>world</name> <init>= <expr><call><name>gen</name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><call><name>show</name><argument_list>(<argument><expr><name>world</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><name>world</name> <operator>=</operator> <call><name>nextGen</name><argument_list>(<argument><expr><name>world</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <expr_stmt><expr><call><name>show</name><argument_list>(<argument><expr><name>world</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+            <decl_stmt><decl><type><name>Scanner</name></type> <name>s</name> <init>= <expr><operator>new</operator> <call><name>Scanner</name><argument_list>(<argument><expr><name><name>System</name><operator>.</operator><name>in</name></name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <while>while<condition>(<expr><call><name><name>s</name><operator>.</operator><name>nextLine</name></name><argument_list>()</argument_list></call><operator>.</operator><call><name>length</name><argument_list>()</argument_list></call> <operator>==</operator> <literal type="number">0</literal></expr>)</condition><block>{<block_content>
+                <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+                <expr_stmt><expr><name>world</name> <operator>=</operator> <call><name>nextGen</name><argument_list>(<argument><expr><name>world</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                <expr_stmt><expr><call><name>show</name><argument_list>(<argument><expr><name>world</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                
+            </block_content>}</block></while>
+        </block_content>}</block></function>
+        
+        <function swum_ID="12"><type><specifier>public</specifier> <specifier>static</specifier> <name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>nextGen</name><parameter_list>(<parameter><decl><type><name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>world</name></decl></parameter>)</parameter_list><block>{<block_content>
+            <decl_stmt><decl><type><name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>newWorld</name> 
+                <init>= <expr><operator>new</operator> <name><name>boolean</name><index>[<expr><name><name>world</name><operator>.</operator><name>length</name></name></expr>]</index><index>[<expr><name><name>world</name><index>[<expr><literal type="number">0</literal></expr>]</index></name><operator>.</operator><name>length</name></expr>]</index></name></expr></init></decl>;</decl_stmt>
+            <decl_stmt><decl><type><name>int</name></type> <name>num</name></decl>;</decl_stmt>
+            <for>for<control>(<init><decl><type><name>int</name></type> <name>r</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>r</name> <operator>&lt;</operator> <name><name>world</name><operator>.</operator><name>length</name></name></expr>;</condition> <incr><expr><name>r</name><operator>++</operator></expr></incr>)</control><block>{<block_content>
+                <for>for<control>(<init><decl><type><name>int</name></type> <name>c</name> <init>= <expr><literal type="number">0</literal></expr></init></decl>;</init> <condition><expr><name>c</name> <operator>&lt;</operator> <name><name>world</name><index>[<expr><literal type="number">0</literal></expr>]</index></name><operator>.</operator><name>length</name></expr>;</condition> <incr><expr><name>c</name><operator>++</operator></expr></incr>)</control><block>{<block_content>
+                    <expr_stmt><expr><name>num</name> <operator>=</operator> <call><name>numNeighbors</name><argument_list>(<argument><expr><name>world</name></expr></argument>, <argument><expr><name>r</name></expr></argument>, <argument><expr><name>c</name></expr></argument>)</argument_list></call></expr>;</expr_stmt>
+                    <if_stmt><if>if<condition>( <expr><call><name>occupiedNext</name><argument_list>(<argument><expr><name>num</name></expr></argument>, <argument><expr><name><name>world</name><index>[<expr><name>r</name></expr>]</index><index>[<expr><name>c</name></expr>]</index></name></expr></argument>)</argument_list></call></expr> )</condition><block type="pseudo"><block_content>
+                        <expr_stmt><expr><name><name>newWorld</name><index>[<expr><name>r</name></expr>]</index><index>[<expr><name>c</name></expr>]</index></name> <operator>=</operator> <literal type="boolean">true</literal></expr>;</expr_stmt></block_content></block></if></if_stmt>
+                </block_content>}</block></for>
+            </block_content>}</block></for>
+            <return>return <expr><name>newWorld</name></expr>;</return>
+        </block_content>}</block></function>
+        
+        <function swum_ID="17"><type><specifier>public</specifier> <specifier>static</specifier> <name>boolean</name></type> <name>occupiedNext</name><parameter_list>(<parameter><decl><type><name>int</name></type> <name>numNeighbors</name></decl></parameter>, <parameter><decl><type><name>boolean</name></type> <name>occupied</name></decl></parameter>)</parameter_list><block>{<block_content>
+            <if_stmt><if>if<condition>( <expr><name>occupied</name> <operator>&amp;&amp;</operator> <operator>(</operator><name>numNeighbors</name> <operator>==</operator> <literal type="number">2</literal> <operator>||</operator> <name>numNeighbors</name> <operator>==</operator> <literal type="number">3</literal><operator>)</operator></expr>)</condition><block type="pseudo"><block_content>
+                <return>return <expr><literal type="boolean">true</literal></expr>;</return></block_content></block></if>
+            <if type="elseif">else if <condition>(<expr><operator>!</operator><name>occupied</name> <operator>&amp;&amp;</operator> <name>numNeighbors</name> <operator>==</operator> <literal type="number">3</literal></expr>)</condition><block type="pseudo"><block_content>
+                <return>return <expr><literal type="boolean">true</literal></expr>;</return></block_content></block></if>
+            <else>else<block type="pseudo"><block_content>
+                <return>return <expr><literal type="boolean">false</literal></expr>;</return></block_content></block></else></if_stmt>
+        </block_content>}</block></function>
+    
+        <function swum_ID="18"><type><specifier>private</specifier> <specifier>static</specifier> <name>int</name></type> <name>numNeighbors</name><parameter_list>(<parameter><decl><type><name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>world</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>row</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>col</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <decl_stmt><decl><type><name>int</name></type> <name>num</name> <init>= <expr><ternary><condition><expr><name><name>world</name><index>[<expr><name>row</name></expr>]</index><index>[<expr><name>col</name></expr>]</index></name></expr> ?</condition><then> <expr><operator>-</operator><literal type="number">1</literal></expr> </then><else>: <expr><literal type="number">0</literal></expr></else></ternary></expr></init></decl>;</decl_stmt>
+            <for>for<control>(<init><decl><type><name>int</name></type> <name>r</name> <init>= <expr><name>row</name> <operator>-</operator> <literal type="number">1</literal></expr></init></decl>;</init> <condition><expr><name>r</name> <operator>&lt;=</operator> <name>row</name> <operator>+</operator> <literal type="number">1</literal></expr>;</condition> <incr><expr><name>r</name><operator>++</operator></expr></incr>)</control><block type="pseudo"><block_content>
+                <for>for<control>(<init><decl><type><name>int</name></type> <name>c</name> <init>= <expr><name>col</name> <operator>-</operator> <literal type="number">1</literal></expr></init></decl>;</init> <condition><expr><name>c</name> <operator>&lt;=</operator> <name>col</name> <operator>+</operator> <literal type="number">1</literal></expr>;</condition> <incr><expr><name>c</name><operator>++</operator></expr></incr>)</control><block type="pseudo"><block_content>
+                    <if_stmt><if>if<condition>( <expr><call><name>inbounds</name><argument_list>(<argument><expr><name>world</name></expr></argument>, <argument><expr><name>r</name></expr></argument>, <argument><expr><name>c</name></expr></argument>)</argument_list></call> <operator>&amp;&amp;</operator> <name><name>world</name><index>[<expr><name>r</name></expr>]</index><index>[<expr><name>c</name></expr>]</index></name></expr> )</condition><block type="pseudo"><block_content>
+                        <expr_stmt><expr><name>num</name><operator>++</operator></expr>;</expr_stmt></block_content></block></if></if_stmt></block_content></block></for></block_content></block></for>
+    
+            <return>return <expr><name>num</name></expr>;</return>
+        </block_content>}</block></function>
+    
+        <function swum_ID="22"><type><specifier>private</specifier> <specifier>static</specifier> <name>boolean</name></type> <name>inbounds</name><parameter_list>(<parameter><decl><type><name><name>boolean</name><index>[]</index><index>[]</index></name></type> <name>world</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>r</name></decl></parameter>, <parameter><decl><type><name>int</name></type> <name>c</name></decl></parameter>)</parameter_list> <block>{<block_content>
+            <return>return <expr><name>r</name> <operator>&gt;=</operator> <literal type="number">0</literal> <operator>&amp;&amp;</operator> <name>r</name> <operator>&lt;</operator> <name><name>world</name><operator>.</operator><name>length</name></name> <operator>&amp;&amp;</operator> <name>c</name> <operator>&gt;=</operator> <literal type="number">0</literal> <operator>&amp;&amp;</operator>
+            <name>c</name> <operator>&lt;</operator> <name><name>world</name><index>[<expr><literal type="number">0</literal></expr>]</index></name><operator>.</operator><name>length</name></expr>;</return>
+        </block_content>}</block></function>
+        
+        
+        
+    }</block></class></unit>

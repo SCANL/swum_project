@@ -3,14 +3,14 @@
    <swum_identifier>
       <swum_ID>0</swum_ID>
       <location>class</location>
-      <name>MaximumTest</name>
+      <name>ThrowExcep</name>
       <identifier>
          <word>
-            Maximum
-            <pos>JJ</pos>
+            Throw
+            <pos>VB</pos>
          </word>
          <word>
-            Test
+            Excep
             <pos>NN</pos>
          </word>
       </identifier>
@@ -18,98 +18,58 @@
    <swum_identifier>
       <swum_ID>1</swum_ID>
       <location>function</location>
-      <class>MaximumTest</class>
-      <name>maximum</name>
+      <class>ThrowExcep</class>
+      <name>fun</name>
       <type>
          <swum_identifier>
             <location>type</location>
-            <name>T</name>
+            <name>void</name>
             <identifier>
                <word>
-                  T
+                  void
                   <pos>NN</pos>
                </word>
             </identifier>
          </swum_identifier>
       </type>
-      <parameters>
-         <parameter>
-            <swum_identifier>
-               <location>parameter</location>
-               <name>T</name>
-               <identifier>
-                  <word>
-                     T
-                     <pos>NN</pos>
-                  </word>
-               </identifier>
-            </swum_identifier>
-         </parameter>
-      </parameters>
+      <identifier>
+         <word>
+            fun
+            <pos>NN</pos>
+         </word>
+      </identifier>
+   </swum_identifier>
+   <swum_identifier>
+      <location>Catch</location>
+      <name>Catch</name>
       <formal_parameters>
          <formal_parameter>
             <swum_identifier>
                <location>formal_parameter</location>
-               <name>x</name>
+               <name>e</name>
                <type>
                   <swum_identifier>
                      <location>type</location>
-                     <name>T</name>
+                     <name>NullPointerException</name>
                      <identifier>
                         <word>
-                           T
-                           <pos>NN</pos>
+                           Null
+                           <pos>NNP</pos>
+                        </word>
+                        <word>
+                           Pointer
+                           <pos>NNP</pos>
+                        </word>
+                        <word>
+                           Exception
+                           <pos>NNP</pos>
                         </word>
                      </identifier>
                   </swum_identifier>
                </type>
                <identifier>
                   <word>
-                     x
-                     <pos>NN</pos>
-                  </word>
-               </identifier>
-            </swum_identifier>
-            <swum_identifier>
-               <location>formal_parameter</location>
-               <name>y</name>
-               <type>
-                  <swum_identifier>
-                     <location>type</location>
-                     <name>T</name>
-                     <identifier>
-                        <word>
-                           T
-                           <pos>NN</pos>
-                        </word>
-                     </identifier>
-                  </swum_identifier>
-               </type>
-               <identifier>
-                  <word>
-                     y
-                     <pos>NN</pos>
-                  </word>
-               </identifier>
-            </swum_identifier>
-            <swum_identifier>
-               <location>formal_parameter</location>
-               <name>z</name>
-               <type>
-                  <swum_identifier>
-                     <location>type</location>
-                     <name>T</name>
-                     <identifier>
-                        <word>
-                           T
-                           <pos>NN</pos>
-                        </word>
-                     </identifier>
-                  </swum_identifier>
-               </type>
-               <identifier>
-                  <word>
-                     z
+                     e
                      <pos>NN</pos>
                   </word>
                </identifier>
@@ -118,38 +78,15 @@
       </formal_parameters>
       <identifier>
          <word>
-            maximum
+            Catch
             <pos>NN</pos>
          </word>
       </identifier>
    </swum_identifier>
    <swum_identifier>
       <swum_ID>2</swum_ID>
-      <location>variable</location>
-      <name>max</name>
-      <type>
-         <swum_identifier>
-            <location>type</location>
-            <name>T</name>
-            <identifier>
-               <word>
-                  T
-                  <pos>NN</pos>
-               </word>
-            </identifier>
-         </swum_identifier>
-      </type>
-      <identifier>
-         <word>
-            max
-            <pos>NN</pos>
-         </word>
-      </identifier>
-   </swum_identifier>
-   <swum_identifier>
-      <swum_ID>3</swum_ID>
       <location>function</location>
-      <class>MaximumTest</class>
+      <class>ThrowExcep</class>
       <name>main</name>
       <type>
          <swum_identifier>
@@ -193,6 +130,50 @@
          <word>
             main
             <pos>JJ</pos>
+         </word>
+      </identifier>
+   </swum_identifier>
+   <swum_identifier>
+      <location>Catch</location>
+      <name>Catch</name>
+      <formal_parameters>
+         <formal_parameter>
+            <swum_identifier>
+               <location>formal_parameter</location>
+               <name>e</name>
+               <type>
+                  <swum_identifier>
+                     <location>type</location>
+                     <name>NullPointerException</name>
+                     <identifier>
+                        <word>
+                           Null
+                           <pos>NNP</pos>
+                        </word>
+                        <word>
+                           Pointer
+                           <pos>NNP</pos>
+                        </word>
+                        <word>
+                           Exception
+                           <pos>NNP</pos>
+                        </word>
+                     </identifier>
+                  </swum_identifier>
+               </type>
+               <identifier>
+                  <word>
+                     e
+                     <pos>NN</pos>
+                  </word>
+               </identifier>
+            </swum_identifier>
+         </formal_parameter>
+      </formal_parameters>
+      <identifier>
+         <word>
+            Catch
+            <pos>NN</pos>
          </word>
       </identifier>
    </swum_identifier>

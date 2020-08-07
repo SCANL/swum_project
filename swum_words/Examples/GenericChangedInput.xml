@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="Generic.java"><class swum_ID="0"><specifier>public</specifier> class <name>MyGeneric</name>
+    <block>{
+        <function swum_ID="1"><type><specifier>public</specifier> <specifier>static</specifier> <name><name>Map</name><argument_list type="generic">&lt;<argument><name>String</name></argument>&gt;</argument_list></name></type> <name>getMap</name><parameter_list>()</parameter_list> <block>{<block_content> 
+            <return>return <expr><literal type="null">null</literal></expr>;</return>
+        </block_content>}</block></function>
+    }</block></class></unit>

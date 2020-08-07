@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="Stopwatch.java"><comment type="block" format="javadoc">/**
+    A class to measure time elapsed.
+   */</comment>
+   
+   <class swum_ID="0"><specifier>public</specifier> class <name>Stopwatch</name>
+   <block>{
+       <decl_stmt><decl><type><specifier>private</specifier> <name>long</name></type> <name>startTime</name></decl>;</decl_stmt>
+       <decl_stmt><decl><type><specifier>private</specifier> <name>long</name></type> <name>stopTime</name></decl>;</decl_stmt>
+   
+       <decl_stmt><decl><type><specifier>public</specifier> <specifier>static</specifier> <specifier>final</specifier> <name>double</name></type> <name>NANOS_PER_SEC</name> <init>= <expr><literal type="number">1000000000.0</literal></expr></init></decl>;</decl_stmt>
+   
+       <comment type="block" format="javadoc">/**
+        start the stop watch.
+       */</comment>
+       <function swum_ID="4"><type><specifier>public</specifier> <name>void</name></type> <name>start</name><parameter_list>()</parameter_list><block>{<block_content>
+           <expr_stmt><expr><name>startTime</name> <operator>=</operator> <call><name><name>System</name><operator>.</operator><name>nanoTime</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>
+       </block_content>}</block></function>
+   
+       <comment type="block" format="javadoc">/**
+        stop the stop watch.
+       */</comment>
+       <function swum_ID="5"><type><specifier>public</specifier> <name>void</name></type> <name>stop</name><parameter_list>()</parameter_list>
+       <block>{<block_content>	<expr_stmt><expr><name>stopTime</name> <operator>=</operator> <call><name><name>System</name><operator>.</operator><name>nanoTime</name></name><argument_list>()</argument_list></call></expr>;</expr_stmt>	</block_content>}</block></function>
+   
+       <comment type="block" format="javadoc">/**
+       elapsed time in seconds.
+       @return the time recorded on the stopwatch in seconds
+       */</comment>
+       <function swum_ID="6"><type><specifier>public</specifier> <name>double</name></type> <name>time</name><parameter_list>()</parameter_list>
+       <block>{<block_content>	<return>return <expr><operator>(</operator><name>stopTime</name> <operator>-</operator> <name>startTime</name><operator>)</operator> <operator>/</operator> <name>NANOS_PER_SEC</name></expr>;</return>	</block_content>}</block></function>
+   
+       <function swum_ID="7"><type><specifier>public</specifier> <name>String</name></type> <name>toString</name><parameter_list>()</parameter_list><block>{<block_content>
+           <return>return <expr><literal type="string">"elapsed time: "</literal> <operator>+</operator> <call><name>time</name><argument_list>()</argument_list></call> <operator>+</operator> <literal type="string">" seconds."</literal></expr>;</return>
+       </block_content>}</block></function>
+   
+       <comment type="block" format="javadoc">/**
+       elapsed time in nanoseconds.
+       @return the time recorded on the stopwatch in nanoseconds
+       */</comment>
+       <function swum_ID="8"><type><specifier>public</specifier> <name>long</name></type> <name>timeInNanoseconds</name><parameter_list>()</parameter_list>
+       <block>{<block_content>	<return>return <expr><operator>(</operator><name>stopTime</name> <operator>-</operator> <name>startTime</name><operator>)</operator></expr>;</return>	</block_content>}</block></function>
+   }</block></class></unit>

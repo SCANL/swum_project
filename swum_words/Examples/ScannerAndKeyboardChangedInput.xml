@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<unit xmlns="http://www.srcML.org/srcML/src" revision="1.0.0" language="Java" filename="ScannerAndKeyboard.java"><import>import <name><name>java</name><operator>.</operator><name>util</name><operator>.</operator><name>Scanner</name></name>;</import>
+
+    <class swum_ID="0"><specifier>public</specifier> class <name>ScannerAndKeyboard</name>
+    <block>{
+    
+        <function swum_ID="1"><type><specifier>public</specifier> <specifier>static</specifier> <name>void</name></type> <name>main</name><parameter_list>(<parameter><decl><type><name><name>String</name><index>[]</index></name></type> <name>args</name></decl></parameter>)</parameter_list>
+        <block>{<block_content>	<decl_stmt><decl><type><name>Scanner</name></type> <name>s</name> <init>= <expr><operator>new</operator> <call><name>Scanner</name><argument_list>(<argument><expr><name><name>System</name><operator>.</operator><name>in</name></name></expr></argument>)</argument_list></call></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>print</name></name><argument_list>( <argument><expr><literal type="string">"Enter your name: "</literal></expr></argument>  )</argument_list></call></expr>;</expr_stmt>
+            <decl_stmt><decl><type><name>String</name></type> <name>name</name> <init>= <expr><call><name><name>s</name><operator>.</operator><name>nextLine</name></name><argument_list>()</argument_list></call></expr></init></decl>;</decl_stmt>
+            <expr_stmt><expr><call><name><name>System</name><operator>.</operator><name>out</name><operator>.</operator><name>println</name></name><argument_list>( <argument><expr><literal type="string">"Hello "</literal> <operator>+</operator> <name>name</name> <operator>+</operator> <literal type="string">"!"</literal></expr></argument> )</argument_list></call></expr>;</expr_stmt>
+        </block_content>}</block></function>
+    }</block></class></unit>
