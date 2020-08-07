@@ -1,3 +1,5 @@
+"""Implementation of SWUM bridges layer"""
+
 import sys
 from lxml import etree
 
