@@ -2,6 +2,15 @@
 
 srcml $1 -o $1.xml
 python3 swum_words/swum_words.py $1.xml $1Words.xml
+if [ $? -eq 0 ]
+then
+    echo 'Words layer ran successfully'
+else
+    retval=$?
+    echo "Words layer failed with exit code ${retval}"
+    rm $1.xml
+    return 1
+fi
 
 # swum_phrases script assumes it is run from within its own directory
 new_prefix=../$1
