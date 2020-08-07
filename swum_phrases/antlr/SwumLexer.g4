@@ -1,18 +1,5 @@
 lexer grammar SwumLexer;
 
-// channels {
-//     METADATA
-// }
-
-// POS_Tag: '<POS>' ->skip, mode(POS);
-// End_Tag: '</' .+? '>' -> skip;
-// Bracket: ('<' | '>') -> skip;
-// Metadata: ~[<>]+ -> channel(METADATA);
-
-Whitespace: ('\t' | ' ' | '\r' | '\n')+   -> skip;
-Stop_Code: 'STOP';
-
-// mode POS;
 Noun_Modifier: 'NM';
 Noun: 'N';
 Verb_Modifier: 'VM';
@@ -24,5 +11,5 @@ Digit: 'D';
 Pronoun: 'PR';
 Preposition: 'P';
 
-// End_POS_Tag: '</POS>' ->skip, mode(DEFAULT_MODE);
-
+Whitespace: ('\t' | ' ' | '\r' | '\n')+   -> skip;
+Stop_Code: 'STOP';
