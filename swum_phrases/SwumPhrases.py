@@ -116,6 +116,7 @@ class SwumPhrasesNode():
                 # ignore the stop code which is an artifact of parsing
                 if child_node.node_type != 'stop_rule':
                     self.add_edge(child_node)
+                # self.add_edge(child_node)
     
     def add_edge(self, node, label: str = None):
         """Adds node as a child to self and labels the added edge as label"""
@@ -247,7 +248,9 @@ class SwumPhrasesRoot(SwumPhrasesNode):
                 for param_metadata in node.metadata.parameter_m:
                     param_tokens += param_metadata.tokens
                 tokens = param_tokens + node.metadata.tokens
-                combined_swum_phrase = get_swum_phrase_from_tokens(tokens, collapse_root=True)
+                
+                # will copy into SwumPhrasesRoot, so don't collapse root
+                combined_swum_phrase = get_swum_phrase_from_tokens(tokens, collapse_root=False)
                 
                 if combined_swum_phrase.node_type == 'unknown_phrase':
                     # add params as attributes
@@ -592,7 +595,7 @@ def main(argv):
                     
                     element.clear(keep_tail=True) 
             except Exception as e:
-                fail('Error: Either {} is not a valid input file, or an internal error occurred.'.format(input_filename))
+                print('Error: Either {} is not a valid input file, or an internal error occurred.'.format(input_filename))
                 raise e
 
         output_f.write('</swum_identifiers>'.encode('utf-8'))     
@@ -612,8 +615,10 @@ def get_swum_phrase_from_tokens(tokens: List[SwumToken] = None, collapse_root: b
     tree = get_parse_tree(swum_pos_tokens + ['STOP'])
 
     if tree is not None:
-        if collapse_root and tree.getChildCount() == 1:
-            tree = tree.getChild(0)
+        if collapse_root:
+            is_collapsable: bool = tree.getChildCount() == 1 or (tree.getChildCount() > 1 and isinstance(list(tree.getChildren())[1], SwumParser.Stop_ruleContext))
+            if is_collapsable:
+                tree = tree.getChild(0)
         node = SwumPhrasesNode(tree)
         node.associate_words(tokens)
         return node
@@ -640,7 +645,7 @@ def get_swum_phrase_from_metadata(metadata: SwumMetadata = None):
 def get_parse_tree(swum_pos_tokens : List[str]):
     """Returns the raw ANTLR parse tree for swum_pos_tokens based on SWUM grammar.
     
-    If the POS tokens do not parse into valid phrase, greedily parses non-terminals then terminals from front of token list until stop code is reached"""
+    If the POS tokens do not parse into valid phrase, greedily parses non-terminals then terminals from front of token list until stop code is reached"""    
     lexer = SwumLexer(InputStream(' '.join(swum_pos_tokens)))
     stream = CommonTokenStream(lexer)
     parser = SwumParser(stream)
@@ -669,12 +674,14 @@ def get_parse_tree(swum_pos_tokens : List[str]):
                 first_child.addChild(partial_tree)
                 swum_tokens_copy = swum_tokens_copy[num_leaves(partial_tree):]
             except error.Errors.ParseCancellationException as e:
+                parser.reset()
                 try:
                     # parse terminal from head of input
                     partial_tree = parser.fail_rule2().getChild(0)
                     first_child.addChild(partial_tree)
                     swum_tokens_copy = swum_tokens_copy[num_leaves(partial_tree):]
                 except error.Errors.ParseCancellationException as e:
+                    parser.reset()
                     try:
                         # find stop code
                         parser.stop_rule()
