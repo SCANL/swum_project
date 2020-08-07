@@ -4,7 +4,7 @@ The phrases layer of SWUM infers semantic relationships among code identifiers u
 # Installation
 
 1. Make sure a recent version of [Python 3](https://www.python.org/) is installed. SWUM phrases requires Python 3.7+ and is tested on 3.8.x.
-2. The phrases layer uses the parser generator [ANTLR](https://www.antlr.org/) in order to parse the constituent words of a code identifier into a phrasal structure. Download version 4 of the base ANTLR tool [here](https://www.antlr.org/download.html) and follow the installation instructions. After installation, make sure the tool can be launched using the `antlr4` alias.
+2. The phrases layer uses the parser generator [ANTLR](https://www.antlr.org/) in order to parse the constituent words of a code identifier into a phrase structure. Download version 4 of the base ANTLR tool [here](https://www.antlr.org/download.html) and follow the installation instructions. After installation, make sure the tool can be launched using the `antlr4` alias.
 ```
 > antlr4
 ANTLR Parser Generator  Version 4.8
@@ -29,5 +29,15 @@ The program accepts a single XML input file containing program (type, location, 
 ## Output
 An XML file containing phrasal structure and annotation information per code identifier in the input file. Program information per identifier is also preserved.
 ```
-<verb_phrase><action><verb_group><verb>get</verb></verb_group></action><theme><noun_phrase><noun>Area</noun></noun_phrase></theme><aux_arg><noun_phrase><noun>x</noun></noun_phrase></aux_arg><aux_arg><noun_phrase><noun>y</noun></noun_phrase></aux_arg><aux_arg><noun_phrase><noun>int</noun></noun_phrase></aux_arg><aux_arg><prepositional_phrase><preposition>My</preposition><noun_phrase><noun>Class</noun></noun_phrase></prepositional_phrase></aux_arg></verb_phrase>
+<swum_identifier>
+  <id>0</id>
+  <name>MainObject</name>
+  <location>class</location>
+  <swum_phrase>
+    <noun_phrase>
+      <noun_modifier>Main</noun_modifier>
+      <noun swum_attr="head_noun">Object</noun>
+    </noun_phrase>
+  </swum_phrase>
+</swum_identifier>
 ```
