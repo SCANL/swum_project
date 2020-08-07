@@ -7,23 +7,23 @@ def run_layer(input_filename: str) -> (int, str):
     command_str = '. ./swum_phrases {} {}'.format(input_filename, output_filename)
     completed_proc = subprocess.run(['/bin/bash', '-i', '-c', command_str])
 
-    output_f = open(output_filename, 'r')
-    output_text = output_f.read()
-    output_f.close()
+    output_text = None
+    if completed_proc.returncode == 0:
+        with open(output_filename, 'r') as output_f:
+            output_text = output_f.read().replace('\n', '')
 
-    subprocess.run(['rm', output_filename])
+        subprocess.run(['rm', output_filename])
 
-    return completed_proc.returncode, output_text.replace('\n', '')
+    return completed_proc.returncode, output_text
 
 def test_simple_success():
-    ret, text = run_layer('tests/simple_success.xml')
+    ret, text = run_layer('tests/testcases/simple_success.xml')
     assert ret == 0
-    assert text == '<prepositional_phrase><preposition>My</preposition><noun_phrase><noun>Class</noun></noun_phrase></prepositional_phrase><verb_phrase><action><verb_group><verb>get</verb></verb_group></action><theme><noun_phrase><noun>Area</noun></noun_phrase></theme><aux_arg><noun_phrase><noun>x</noun></noun_phrase></aux_arg><aux_arg><noun_phrase><noun>y</noun></noun_phrase></aux_arg><aux_arg><noun_phrase><noun>int</noun></noun_phrase></aux_arg><aux_arg><prepositional_phrase><preposition>My</preposition><noun_phrase><noun>Class</noun></noun_phrase></prepositional_phrase></aux_arg></verb_phrase>'
 
 def test_missing_metadata():
-    ret, text = run_layer('tests/missing_metadata.xml')
+    ret, text = run_layer('tests/testcases/missing_metadata.xml')
     assert ret != 0
 
 def test_invalid_xml():
-    ret, text = run_layer('tests/invalid_xml.xml')
+    ret, text = run_layer('tests/testcases/invalid.xml')
     assert ret != 0

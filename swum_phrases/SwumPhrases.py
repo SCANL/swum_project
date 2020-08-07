@@ -609,7 +609,7 @@ def get_swum_phrase_from_tokens(tokens: List[SwumToken] = None, collapse_root: b
     
     Keyword arguments:
     tokens -- list of consituent tokens for identifier
-    collapse_root -- If true and tokens parse into phrase with single top-level grammar symbol, make this symbol the root. Otherwise, the top-most grammar rule is the root of the phrase tree.
+    collapse_root -- If true and tokens parse into phrase with single top-level grammar symbol, make this symbol the root. Otherwise, the top-most grammar rule is the root of the phrase tree. Meant to help prevent parser artifacts from creeping into SWUM output.
     """
     swum_pos_tokens = penn_tags_to_swum([swum_token.pos_tag for swum_token in tokens])
     tree = get_parse_tree(swum_pos_tokens + ['STOP'])
@@ -752,7 +752,7 @@ def get_metadata(element: etree._Element) -> SwumMetadata:
         fail('{} is missing tokens'.format(metadata.name))
     elif metadata.location is None:
         fail('{} is missing location'.format(metadata.name))
-    elif metadata.location == 'function' and metadata.type_m is None:
+    elif metadata.location in ['function', 'formal_parameter'] and metadata.type_m is None:
         fail('{} is missing type'.format(metadata.name))
     
     return metadata
